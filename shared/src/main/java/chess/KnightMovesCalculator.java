@@ -12,13 +12,16 @@ public class KnightMovesCalculator implements PieceMovesCalculator{
             ChessPosition newPositionA = new ChessPosition(spot[0] + position.getRow(), spot[1] + position.getColumn());
             ChessPosition newPositionB = new ChessPosition(spot[1] + position.getRow(), spot[0] + position.getColumn());
 
-            if ((board.spotEmpty(newPositionA) || board.positionIsNotSameColor(position, newPositionA)) && board.inBounds(newPositionA)) {
+            if (canMove(board, position, newPositionA)) {
                 coll.add(new ChessMove(position, newPositionA, null));
             }
-            if ((board.spotEmpty(newPositionB) || board.positionIsNotSameColor(position, newPositionB)) && board.inBounds(newPositionB)) {
+            if (canMove(board, position, newPositionB)) {
                 coll.add(new ChessMove(position, newPositionB, null));
             }
         }
         return coll;
+    }
+    public boolean canMove(ChessBoard board, ChessPosition position, ChessPosition newPosition) {
+        return ((board.spotEmpty(newPosition) || board.positionIsNotSameColor(position, newPosition)) && board.inBounds(newPosition));
     }
 }

@@ -9,7 +9,8 @@ public class PawnMovesCalculator implements PieceMovesCalculator{
 
         return coll;
     }
-    public boolean inBounds(ChessPosition position) {
-        return (position.getRow() >= 1) & (position.getRow() <= 8) & (position.getColumn() >= 1) & (position.getColumn() <= 8);
+
+    public boolean canMove(ChessBoard board, ChessPosition position, ChessPosition newPosition) {
+        return ((board.spotEmpty(newPosition) || board.positionIsNotSameColor(position, newPosition)) && board.inBounds(newPosition));
     }
 }
