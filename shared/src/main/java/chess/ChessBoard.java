@@ -69,8 +69,8 @@ public class ChessBoard {
         return this.getPiece(position) == null;
     }
 
-    public boolean positionIsSameColor(ChessPosition pos1, ChessPosition pos2) {
-        return this.getPiece(pos1).getTeamColor() == this.getPiece(pos2).getTeamColor();
+    public boolean positionIsNotSameColor(ChessPosition pos1, ChessPosition pos2) {
+        return this.getPiece(pos1).getTeamColor() != this.getPiece(pos2).getTeamColor();
     }
 
 
