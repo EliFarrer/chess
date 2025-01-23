@@ -55,8 +55,20 @@ public class ChessBoard {
      * position
      */
     public ChessPiece getPiece(ChessPosition position) {
+        if (!inBounds(position)) {
+            return null;
+        }
         return board[position.getRow() - 1][position.getColumn() - 1];
     }
+
+    public boolean inBounds(ChessPosition position) {
+        return (((position.getRow() >= 1) && (position.getRow() <= 8)) && ((position.getColumn() >= 1) && (position.getColumn() <= 8)));
+    }
+
+    public boolean spotEmpty(ChessPosition position) {
+        return this.getPiece(position) == null;
+    }
+
 
     /**
      * Sets the board to the default starting board
