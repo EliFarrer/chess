@@ -74,7 +74,37 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-//        return ArrayList<>();
-        throw new RuntimeException("Not implemented");
+        Collection<ChessMove> rtrn;
+        PieceMovesCalculator calculator;
+        switch (type) {
+            case PieceType.KNIGHT:
+                calculator = new KnightMovesCalculator();
+                rtrn = calculator.pieceMoves(board, myPosition);
+                break;
+            case PieceType.KING:
+                calculator = new KingMovesCalculator();
+                rtrn = calculator.pieceMoves(board, myPosition);
+                break;
+            case PieceType.QUEEN:
+                calculator = new QueenMovesCalculator();
+                rtrn = calculator.pieceMoves(board, myPosition);
+                break;
+            case PieceType.ROOK:
+                calculator = new RookMovesCalculator();
+                rtrn = calculator.pieceMoves(board, myPosition);
+                break;
+            case PieceType.PAWN:
+                calculator = new PawnMovesCalculator();
+                rtrn = calculator.pieceMoves(board, myPosition);
+                break;
+            case PieceType.BISHOP:
+                calculator = new BishopMovesCalculator();
+                rtrn = calculator.pieceMoves(board, myPosition);
+                break;
+            default:
+                rtrn = null;
+        }
+        return rtrn;
+//        throw new RuntimeException("Not implemented");
     }
 }
