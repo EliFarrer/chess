@@ -6,33 +6,34 @@ import java.util.Collection;
 public class RookMovesCalculator implements PieceMovesCalculator{
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position) {
         var coll = new ArrayList<ChessMove>();
-        for (int i = position.getRow()+1; i < 9; i++) {
-            ChessPosition newPos = new ChessPosition(i, position.getColumn());
-            if (canMove(board, position, newPos)) {
-                coll.add(new ChessMove(position, newPos, null));
-            } else { break; }
-        }
-        for (int i = position.getColumn()+1; i < 9; i++) {
-            ChessPosition newPos = new ChessPosition(position.getRow(), i);
-            if (canMove(board, position, newPos)) {
-                coll.add(new ChessMove(position, newPos, null));
-            } else { break; }
-        }
-        for (int i = position.getRow()-1; i > 0; i--) {
-            ChessPosition newPos = new ChessPosition(i, position.getColumn());
-            if (canMove(board, position, newPos)) {
-                coll.add(new ChessMove(position, newPos, null));
-            } else { break; }
-        }
-        for (int i = position.getColumn()-1; i > 0; i--) {
-            ChessPosition newPos = new ChessPosition(position.getRow(), i);
-            if (canMove(board, position, newPos)) {
-                coll.add(new ChessMove(position, newPos, null));
-            } else { break; }
+        int[][] spots = new int[][] {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
+
+        for (int[] spot : spots) {
+            for (int i = 1; i < 9; i++) {
+                ChessPosition newPosition = new ChessPosition((position.getRow() + spot[0] * i), (position.getColumn()) + spot[1] * i);
+                // if we are out of bounds or the new position is a piece of our same color, break immediately
+                if (!board.inBounds(newPosition)) {
+                    break;
+                }
+                if (!board.spotEmpty(newPosition)) {
+                    if (!board.positionIsNotSameColor(newPosition, position)) {
+                        break;
+                    }
+                    // if we are attacking
+                    if (board.positionIsNotSameColor(newPosition, position)) {
+                        coll.add(new ChessMove(position, newPosition, null));
+                        break;
+                    }
+                }
+                // if no other options, add it
+                else {
+                    coll.add(new ChessMove(position, newPosition, null));
+                }
+            }
+
         }
         return coll;
     }
-
 
     public boolean canMove(ChessBoard board, ChessPosition position, ChessPosition newPosition) {
         return ((board.spotEmpty(newPosition) || board.positionIsNotSameColor(position, newPosition)) && (board.inBounds(newPosition)));
