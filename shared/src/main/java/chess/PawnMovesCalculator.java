@@ -6,18 +6,15 @@ import java.util.Collection;
 public class PawnMovesCalculator implements PieceMovesCalculator{
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position) {
         var coll = new ArrayList<ChessMove>();
-        // white
-        if (board.getPiece(position).getTeamColor() == ChessGame.TeamColor.WHITE) {
-            if (position.getRow() == 2) {
-                // first time, two options to move
-            }
-        }
-        // black
-        if (board.getPiece(position).getTeamColor() == ChessGame.TeamColor.BLACK) {
-            if (position.getRow() == 7) {
-                // first time, two options to move
-            }
-        }
+        /* getForwardMove returns an ArrayList of ChessMoves. So do the diagonal moves.
+        Within those, we check in range and validate promotion
+        */
+        coll.addAll(getForwardMoves(board, position));
+        coll.addAll(getDiagonalMoves(board, position, "EAST"));
+        coll.addAll(getDiagonalMoves(board, position, "WEST"));
+//        coll.addAll(westMove);
+//        coll.addAll(doubleMove);
+
 //        addPromotionPieces(coll, new ChessPosition(1,1), new ChessPosition(2,2));
         //first move has two options
         //direction is based off of color
@@ -39,28 +36,62 @@ public class PawnMovesCalculator implements PieceMovesCalculator{
         array.add(new ChessMove(position, newPosition, ChessPiece.PieceType.KNIGHT));
     }
 
-    public boolean canMoveForward(ChessBoard board, ChessPosition position) {
-        // this sees if the pawn can move directly forward without checking promotion. It does check bounds.
+    public ArrayList<ChessMove> getForwardMoves(ChessBoard board, ChessPosition position) {
+        // this sees if the pawn can move directly forward without checking promotion. It does check bounds and promotions
         // pawns can only move forward if the spot ahead of them is empty
         // need to check promotion
+        ArrayList<ChessMove> validMoves = new ArrayList<ChessMove>();
         int newRow;
+        boolean promotion = false;
         if (board.isPositionWhite(position)) {
             newRow = position.getRow() + 1;
+            if (newRow == 8) { promotion = true; }
         } else {
             newRow = position.getRow() - 1;
+            if (newRow == 1) { promotion = true; }
         }
         ChessPosition newPosition = new ChessPosition(newRow, position.getColumn());
-        return board.spotEmpty(newPosition) && board.inBounds(newPosition);
+
+        if (board.spotEmpty(newPosition) && board.inBounds(newPosition)) {
+            if (promotion) {
+                addPromotionPieces(validMoves, position, newPosition);
+            } else {
+             validMoves.add(new ChessMove(position, newPosition, null));
+            }
+        }
+        return validMoves;
     }
-    public boolean canMoveDiagonalEast(ChessBoard board, ChessPosition position) {
+    public ArrayList<ChessMove> getDiagonalMoves(ChessBoard board, ChessPosition position, String direction) {
         // need to check promotion and out of bounds
+        int newCol = position.getColumn();
+
+        if (direction.equals("EAST")) {
+            newCol -= 1;
+        } else {
+            newCol += 1;
+        }
+        ArrayList<ChessMove> validMoves = new ArrayList<ChessMove>();
         int newRow;
-        int newCol = position.getColumn() - 1;
+        boolean promotion = false;
         if (board.isPositionWhite(position)) {
             newRow = position.getRow() + 1;
+            if (newRow == 8) { promotion = true; }
         } else {
             newRow = position.getRow() - 1;
+            if (newRow == 1) { promotion = true; }
         }
-        return board.spotEmpty(new ChessPosition(newRow, newCol));
+        ChessPosition newPosition = new ChessPosition(newRow, newCol);
+
+        if (board.spotEmpty(newPosition)) {
+            return validMoves;
+        }
+        if (board.positionIsNotSameColor(position, newPosition) && board.inBounds(newPosition)) {
+            if (promotion) {
+                addPromotionPieces(validMoves, position, newPosition);
+            } else {
+                validMoves.add(new ChessMove(position, newPosition, null));
+            }
+        }
+        return validMoves;
     }
 }
