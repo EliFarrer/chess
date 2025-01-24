@@ -16,14 +16,12 @@ public class RookMovesCalculator implements PieceMovesCalculator{
                     break;
                 }
                 if (!board.spotEmpty(newPosition)) {
-                    if (!board.positionIsNotSameColor(newPosition, position)) {
-                        break;
-                    }
                     // if we are attacking
                     if (board.positionIsNotSameColor(newPosition, position)) {
                         coll.add(new ChessMove(position, newPosition, null));
-                        break;
                     }
+                    break;
+
                 }
                 // if no other options, add it
                 else {
@@ -36,6 +34,6 @@ public class RookMovesCalculator implements PieceMovesCalculator{
     }
 
     public boolean canMove(ChessBoard board, ChessPosition position, ChessPosition newPosition) {
-        return ((board.spotEmpty(newPosition) || board.positionIsNotSameColor(position, newPosition)) && (board.inBounds(newPosition)));
+        return false;
     }
 }
