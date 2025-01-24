@@ -73,6 +73,9 @@ public class ChessBoard {
         return this.getPiece(pos1).getTeamColor() != this.getPiece(pos2).getTeamColor();
     }
 
+    public boolean isPositionWhite(ChessPosition position) {
+        return this.getPiece(position).getTeamColor() == ChessGame.TeamColor.WHITE;
+    }
 
     /**
      * Sets the board to the default starting board
