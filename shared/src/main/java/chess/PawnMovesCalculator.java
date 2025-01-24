@@ -12,7 +12,7 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
         coll.addAll(getForwardMoves(board, position));
         coll.addAll(getDiagonalMoves(board, position, "EAST"));
         coll.addAll(getDiagonalMoves(board, position, "WEST"));
-//        coll.addAll(getForwardMovesDouble(board, position));
+        coll.addAll(getForwardMoveDouble(board, position));
         return coll;
     }
 
@@ -94,6 +94,36 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
         }
         return validMoves;
     }
+    public ArrayList<ChessMove> getForwardMoveDouble(ChessBoard board, ChessPosition position) {
+        // this sees if the pawn can move directly forward without checking promotion. It does check bounds and promotions
+        // pawns can only move forward if the spot ahead of them is empty
+        ArrayList<ChessMove> validMoves = new ArrayList<ChessMove>();
+        int newRow1;
+        int newRow2;
+        boolean jump = false;
+        if (board.isPositionWhite(position)) {
+            newRow1 = position.getRow() + 1;
+            newRow2 = position.getRow() + 2;
+            if (position.getRow() == 2) {
+                jump = true;
+            }
+        } else {
+            newRow1 = position.getRow() - 1;
+            newRow2 = position.getRow() - 2;
+            if (position.getRow() == 7) {
+                jump = true;
+            }
+        }
 
-//
+        if (jump) {
+            ChessPosition newPosition1 = new ChessPosition(newRow1, position.getColumn());
+            ChessPosition newPosition2 = new ChessPosition(newRow2, position.getColumn());
+
+            if (board.spotEmpty(newPosition1) && board.spotEmpty(newPosition2)) {
+                validMoves.add(new ChessMove(position, newPosition2, null));
+            }
+        }
+
+        return validMoves;
+    }
 }
