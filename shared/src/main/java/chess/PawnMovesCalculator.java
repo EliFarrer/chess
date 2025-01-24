@@ -40,6 +40,7 @@ public class PawnMovesCalculator implements PieceMovesCalculator{
     }
 
     public boolean canMoveForward(ChessBoard board, ChessPosition position) {
+        // this sees if the pawn can move directly forward without checking promotion. It does check bounds.
         // pawns can only move forward if the spot ahead of them is empty
         // need to check promotion
         int newRow;
@@ -48,7 +49,8 @@ public class PawnMovesCalculator implements PieceMovesCalculator{
         } else {
             newRow = position.getRow() - 1;
         }
-        return board.spotEmpty(new ChessPosition(newRow, position.getColumn()));
+        ChessPosition newPosition = new ChessPosition(newRow, position.getColumn());
+        return board.spotEmpty(newPosition) && board.inBounds(newPosition);
     }
     public boolean canMoveDiagonalEast(ChessBoard board, ChessPosition position) {
         // need to check promotion and out of bounds
