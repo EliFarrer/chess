@@ -3,7 +3,7 @@ package chess;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class PawnMovesCalculator implements PieceMovesCalculator{
+public class PawnMovesCalculator implements PieceMovesCalculator {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position) {
         var coll = new ArrayList<ChessMove>();
         /* getForwardMove returns an ArrayList of ChessMoves. So do the diagonal moves.
@@ -12,16 +12,7 @@ public class PawnMovesCalculator implements PieceMovesCalculator{
         coll.addAll(getForwardMoves(board, position));
         coll.addAll(getDiagonalMoves(board, position, "EAST"));
         coll.addAll(getDiagonalMoves(board, position, "WEST"));
-//        coll.addAll(westMove);
-//        coll.addAll(doubleMove);
-
-//        addPromotionPieces(coll, new ChessPosition(1,1), new ChessPosition(2,2));
-        //first move has two options
-        //direction is based off of color
-        //promotions
-        //diagonal capturing
-        //shut out
-        //blocked by another piece
+//        coll.addAll(getForwardMovesDouble(board, position));
         return coll;
     }
 
@@ -45,10 +36,14 @@ public class PawnMovesCalculator implements PieceMovesCalculator{
         boolean promotion = false;
         if (board.isPositionWhite(position)) {
             newRow = position.getRow() + 1;
-            if (newRow == 8) { promotion = true; }
+            if (newRow == 8) {
+                promotion = true;
+            }
         } else {
             newRow = position.getRow() - 1;
-            if (newRow == 1) { promotion = true; }
+            if (newRow == 1) {
+                promotion = true;
+            }
         }
         ChessPosition newPosition = new ChessPosition(newRow, position.getColumn());
 
@@ -56,11 +51,12 @@ public class PawnMovesCalculator implements PieceMovesCalculator{
             if (promotion) {
                 addPromotionPieces(validMoves, position, newPosition);
             } else {
-             validMoves.add(new ChessMove(position, newPosition, null));
+                validMoves.add(new ChessMove(position, newPosition, null));
             }
         }
         return validMoves;
     }
+
     public ArrayList<ChessMove> getDiagonalMoves(ChessBoard board, ChessPosition position, String direction) {
         // need to check promotion and out of bounds
         int newCol = position.getColumn();
@@ -75,10 +71,14 @@ public class PawnMovesCalculator implements PieceMovesCalculator{
         boolean promotion = false;
         if (board.isPositionWhite(position)) {
             newRow = position.getRow() + 1;
-            if (newRow == 8) { promotion = true; }
+            if (newRow == 8) {
+                promotion = true;
+            }
         } else {
             newRow = position.getRow() - 1;
-            if (newRow == 1) { promotion = true; }
+            if (newRow == 1) {
+                promotion = true;
+            }
         }
         ChessPosition newPosition = new ChessPosition(newRow, newCol);
 
@@ -94,4 +94,6 @@ public class PawnMovesCalculator implements PieceMovesCalculator{
         }
         return validMoves;
     }
+
+//
 }
