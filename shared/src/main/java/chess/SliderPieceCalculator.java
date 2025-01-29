@@ -4,9 +4,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public abstract class SliderPieceCalculator implements PieceMovesCalculator {
-    private final int[][] spots;
+    private int[][] spots;
 
-    SliderPieceCalculator(int[][] spots) {
+//    SliderPieceCalculator(int[][] spots) {
+//        this.spots = spots;
+//    }
+
+    public void setSpots(int[][] spots) {
         this.spots = spots;
     }
 
