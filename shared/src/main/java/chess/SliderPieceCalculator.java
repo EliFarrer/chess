@@ -14,8 +14,8 @@ public abstract class SliderPieceCalculator implements PieceMovesCalculator {
         this.spots = spots;
     }
 
-    public Collection<ChessMove> getMoves(ChessBoard board, ChessPosition position) {
-
+    public Collection<ChessMove> getMoves(int[][] spots, ChessBoard board, ChessPosition position) {
+        setSpots(spots);
         var coll = new ArrayList<ChessMove>();
 
         for (int[] spot : spots) {
