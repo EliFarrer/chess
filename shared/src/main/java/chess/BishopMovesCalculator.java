@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class BishopMovesCalculator implements PieceMovesCalculator{
-    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position) {
+    public Collection<ChessMove> getMoves(ChessBoard board, ChessPosition position) {
         var coll = new ArrayList<ChessMove>();
         int[][] spots = new int[][] {{1, 1}, {-1, 1}, {-1, -1}, {1, -1}};
 

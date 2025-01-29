@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class PawnMovesCalculator implements PieceMovesCalculator {
-    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position) {
+    public Collection<ChessMove> getMoves(ChessBoard board, ChessPosition position) {
         var coll = new ArrayList<ChessMove>();
         /* getForwardMove returns an ArrayList of ChessMoves. So do the diagonal moves.
         Within those, we check in range and validate promotion

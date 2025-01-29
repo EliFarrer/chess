@@ -79,27 +79,27 @@ public class ChessPiece {
         switch (type) {
             case PieceType.KNIGHT:
                 calculator = new KnightMovesCalculator();
-                rtrn = calculator.pieceMoves(board, myPosition);
+                rtrn = calculator.getMoves(board, myPosition);
                 break;
             case PieceType.KING:
                 calculator = new KingMovesCalculator();
-                rtrn = calculator.pieceMoves(board, myPosition);
+                rtrn = calculator.getMoves(board, myPosition);
                 break;
             case PieceType.QUEEN:
                 calculator = new QueenMovesCalculator();
-                rtrn = calculator.pieceMoves(board, myPosition);
+                rtrn = calculator.getMoves(board, myPosition);
                 break;
             case PieceType.ROOK:
                 calculator = new RookMovesCalculator();
-                rtrn = calculator.pieceMoves(board, myPosition);
+                rtrn = calculator.getMoves(board, myPosition);
                 break;
             case PieceType.PAWN:
                 calculator = new PawnMovesCalculator();
-                rtrn = calculator.pieceMoves(board, myPosition);
+                rtrn = calculator.getMoves(board, myPosition);
                 break;
             case PieceType.BISHOP:
                 calculator = new BishopMovesCalculator();
-                rtrn = calculator.pieceMoves(board, myPosition);
+                rtrn = calculator.getMoves(board, myPosition);
                 break;
             default:
                 rtrn = null;
