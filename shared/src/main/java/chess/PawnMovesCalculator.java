@@ -16,10 +16,6 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
         return coll;
     }
 
-    public boolean canMove(ChessBoard board, ChessPosition position, ChessPosition newPosition) {
-        return ((board.spotEmpty(newPosition) || board.positionIsNotSameColor(position, newPosition)) && board.inBounds(newPosition));
-    }
-
     public void addPromotionPieces(ArrayList<ChessMove> array, ChessPosition position, ChessPosition newPosition) {
         array.add(new ChessMove(position, newPosition, ChessPiece.PieceType.BISHOP));
         array.add(new ChessMove(position, newPosition, ChessPiece.PieceType.ROOK));
