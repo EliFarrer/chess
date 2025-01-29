@@ -4,18 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public abstract class SliderPieceCalculator implements PieceMovesCalculator {
-    private int[][] spots;
-
-//    SliderPieceCalculator(int[][] spots) {
-//        this.spots = spots;
-//    }
-
-    public void setSpots(int[][] spots) {
-        this.spots = spots;
-    }
-
     public Collection<ChessMove> getMoves(int[][] spots, ChessBoard board, ChessPosition position) {
-        setSpots(spots);
         var coll = new ArrayList<ChessMove>();
 
         for (int[] spot : spots) {
