@@ -3,7 +3,7 @@ package chess;
 import java.util.Collection;
 
 public interface PieceMovesCalculator {
-    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition position);
+    public Collection<ChessMove> getMoves(ChessBoard board, ChessPosition position);
 
 //    public boolean inBounds(ChessPosition position);
 
