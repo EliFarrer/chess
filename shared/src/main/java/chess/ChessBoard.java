@@ -122,16 +122,6 @@ public class ChessBoard {
                 board[row][col] = null;
             }
         }
-//        for (ChessGame.TeamColor color : ChessGame.TeamColor.values()) {
-//            for (ChessPiece.PieceType piece : ChessPiece.PieceType.values()) {
-//
-//            }
-//        }
-
-
-
-//        board[1][1] = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK);
-
     }
 
 
