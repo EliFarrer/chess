@@ -80,8 +80,12 @@ public class ChessGame {
      */
     public boolean isInCheck(TeamColor teamColor) {
         // go over every piece that is of opposite color and see if the kings position is an option for any of the other pieces.
-
-        throw new RuntimeException("Not implemented");
+        ChessPosition kingPosition = findKing(teamColor);
+        if (kingPosition == null) {
+            System.out.println("Your findKing method returned null. You don't have a king.");
+            return false;
+        }
+        return positionIsInCheck(kingPosition, teamColor);
     }
 
     /**
