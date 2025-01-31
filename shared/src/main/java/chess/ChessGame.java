@@ -67,6 +67,8 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        // if it isn't the turn
+        // or if it puts the king in check
         throw new RuntimeException("Not implemented");
     }
 
@@ -77,6 +79,8 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
+        // go over every piece that is of opposite color and see if the kings position is an option for any of the other pieces.
+
         throw new RuntimeException("Not implemented");
     }
 
@@ -117,5 +121,18 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return board;
+    }
+
+    private ChessPosition findKing(TeamColor color) {
+        for (int i = 1; i < 9; i++) {
+            for (int j = 1; j < 9; j++) {
+                ChessPosition position = new ChessPosition(i, j);
+                ChessPiece piece = board.getPiece(position);
+                if (piece.getTeamColor() == color && piece.getPieceType() == ChessPiece.PieceType.KING) {
+                    return position;
+                }
+            }
+        }
+        return null;
     }
 }
