@@ -148,12 +148,12 @@ public class ChessGame {
 
         for (int i = 1; i < 9; i++) {
             for (int j = 1; j < 9; j++) {
-                ChessPosition testPosition = new ChessPosition(i, j);
-                if (board.spotEmpty(testPosition)) { continue; }
-                ChessPiece testPiece = board.getPiece(testPosition);
-                if (testPiece.getTeamColor() != teamColor) {    //verify the opposite color
-                    Collection<ChessMove> possibleMoves = testPiece.pieceMoves(board, position);
-                    if (possibleMoves.contains(position)) { // if our kingPosition is in the moves of the opposite color, we are in check.
+                ChessPosition attackPosition = new ChessPosition(i, j);
+                if (board.spotEmpty(attackPosition)) { continue; }
+                ChessPiece attackPiece = board.getPiece(attackPosition);
+                if (attackPiece.getTeamColor() != teamColor) {    //verify the opposite color
+                    Collection<ChessMove> possibleMoves = attackPiece.pieceMoves(board, attackPosition);
+                    if (extractEndPositionFromChessMoves(possibleMoves).contains(position)) { // extracts a collection of end positions. Is position in that list?
                         return true;
                     }
                 }
