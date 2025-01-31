@@ -135,4 +135,22 @@ public class ChessGame {
         }
         return null;
     }
-}
+
+    public boolean positionIsInCheck(ChessPosition position, TeamColor teamColor) {
+        // go over every piece that is of opposite color and see if the kings position is an option for any of the other pieces.
+
+        for (int i = 1; i < 9; i++) {
+            for (int j = 1; j < 9; j++) {
+                ChessPosition testPosition = new ChessPosition(i, j);
+                if (board.spotEmpty(testPosition)) { continue; }
+                ChessPiece testPiece = board.getPiece(testPosition);
+                if (testPiece.getTeamColor() != teamColor) {    //verify the opposite color
+                    Collection<ChessMove> possibleMoves = testPiece.pieceMoves(board, position);
+                    if (possibleMoves.contains(position)) { // if our kingPosition is in the moves of the opposite color, we are in check.
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }}
