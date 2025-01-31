@@ -1,6 +1,8 @@
 package chess;
 
 import java.util.Collection;
+import java.util.ArrayList;
+
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -158,4 +160,16 @@ public class ChessGame {
             }
         }
         return false;
-    }}
+    }
+
+
+    private Collection<ChessPosition> extractEndPositionFromChessMoves(Collection<ChessMove> moves) {
+        // this method just extracts the end positions from ChessMoves so it is easier to see if a position is in there.
+        ArrayList<ChessPosition> ret = new ArrayList<ChessPosition>();
+        for (ChessMove move:moves) {
+            ret.add(move.getEndPosition());
+        }
+        return ret;
+    }
+
+}
