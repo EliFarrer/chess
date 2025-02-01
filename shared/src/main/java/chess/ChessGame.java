@@ -97,7 +97,23 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        ChessPosition kingPosition = findKing(teamColor);
+        if (kingPosition == null) {
+            System.out.println("Your findKing method returned null. You don't have a king.");
+            return false;
+        }
+
+        ChessPiece kingPiece = board.getPiece(kingPosition);
+
+        Collection<ChessMove> kingMoves = kingPiece.pieceMoves(board, kingPosition);
+        for (ChessMove move : kingMoves) {
+            if (!positionIsInCheck(move.getEndPosition(), teamColor)) {
+                return false;
+            }
+        }
+        // if the position itself is not in check, then we are not in checkmate. If after all this, it is in check, that is checkmate.
+        return isInCheck(teamColor);
+
     }
 
     /**
