@@ -63,15 +63,15 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
             newCol += 1;
         }
         ArrayList<ChessMove> validMoves = new ArrayList<ChessMove>();
-        int newRow;
+        int newRow = position.getRow();
         boolean promotion = false;
         if (board.isPositionWhite(position)) {
-            newRow = position.getRow() + 1;
+            newRow++;
             if (newRow == 8) {
                 promotion = true;
             }
         } else {
-            newRow = position.getRow() - 1;
+            newRow--;
             if (newRow == 1) {
                 promotion = true;
             }
