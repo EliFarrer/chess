@@ -2,6 +2,7 @@ package chess;
 
 import java.util.Collection;
 import java.util.ArrayList;
+import java.util.Objects;
 
 
 /**
@@ -160,13 +161,23 @@ public class ChessGame {
     }
 
     public boolean positionIsInCheck(ChessPosition position, TeamColor teamColor) {
-        // go over every piece that is of opposite color and see if the kings position is an option for any of the other pieces.
-
+        // this takes in a position and the color of the piece.
+        // it searches across the whole board to see what pieces of the other color pose a threat
+        //4,5 is the problem
+        // pawn at 5, 4 should be the problem
         for (int i = 1; i < 9; i++) {
             for (int j = 1; j < 9; j++) {
                 ChessPosition attackPosition = new ChessPosition(i, j);
                 if (board.spotEmpty(attackPosition)) { continue; }
                 ChessPiece attackPiece = board.getPiece(attackPosition);
+
+
+                // things get kind of weird for the pawn. In check, the king can move to a different spot, and if that spot is near an attacking pawn, then the pawn can attack, but it is all hypothetical. The king is not actually there. So we will simulate the king being there by creating a king and putting it in all of these positions.
+                var tstpos = new ChessPosition(4, 5);
+                if ((i == 5 && j == 4) && (Objects.equals(tstpos, position))) {
+                    System.out.println("Breakpoint");
+                }
+
                 if (attackPiece.getTeamColor() != teamColor) {    //verify the opposite color
                     Collection<ChessMove> possibleMoves = attackPiece.pieceMoves(board, attackPosition);
                     if (extractEndPositionFromChessMoves(possibleMoves).contains(position)) { // extracts a collection of end positions. Is position in that list?
