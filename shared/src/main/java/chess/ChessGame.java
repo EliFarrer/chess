@@ -2,7 +2,6 @@ package chess;
 
 import java.util.Collection;
 import java.util.ArrayList;
-import java.util.Objects;
 
 
 /**
@@ -73,6 +72,7 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
+        // this only goes over current scenarios
         // go over every piece that is of opposite color and see if the kings position is an option for any of the other pieces.
         ChessPosition kingPosition = findKing(teamColor);
         if (kingPosition == null) {
@@ -89,6 +89,8 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
+        // this goes over possible future moves
+        // we only need to see if we can take out attacking pieces in checkmate.
         ChessPosition kingPosition = findKing(teamColor);
         if (kingPosition == null) {
             System.out.println("Your findKing method returned null. You don't have a king.");
@@ -105,6 +107,7 @@ public class ChessGame {
             // add a temporary king in the test spot. (we need to do this for the pawn's sake. It won't trigger the diagonal moves unless a king is actually there.
             board.addPiece(move.getEndPosition(), new ChessPiece(teamColor, ChessPiece.PieceType.KING));
 
+            // if the position is not in check, then the king is not in checkmate
             if (!positionIsInCheck(move.getEndPosition(), teamColor)) {
                 return false;
             }
@@ -113,12 +116,18 @@ public class ChessGame {
         }
         // add the original king back
         board.addPiece(kingPosition, kingPiece);
+
+        // if the attacking piece can be taken out, then the king is not in checkmate
+//        attackPieceRemoval()
+
         // if the position itself is not in check, then we are not in checkmate. If after all this, it is in check, that is checkmate.
         return isInCheck(teamColor);
 
     }
 
+    // helper function to determine if a certain position is in check
     public boolean positionIsInCheck(ChessPosition position, TeamColor teamColor) {
+        // this only goes through current scenarios
         // this takes in a position and the color of the piece.
         // it searches across the whole board to see what pieces of the other color pose a threat
         for (int i = 1; i < 9; i++) {
@@ -137,6 +146,37 @@ public class ChessGame {
         }
         return false;
     }
+
+    /** method that takes in an attack piece. Checks if one of our pieces can take it out
+     * **/
+    // iterate over the whole board, if a position is in check, see if one of our pieces can take out that attacking piece. Does not work for double covered positions.
+    public boolean sortofLikeCheck(ChessPosition attackPiecePosition, ChessPiece attackPiece) {
+        for (int i = 1; i < 9; i++) {
+            for (int j = 1; j < 9; j++) {
+                ChessPosition defendPiecePosition = new ChessPosition(i, j);
+                if (board.spotEmpty(defendPiecePosition)) { continue; }
+                ChessPiece defendPiece = board.getPiece(defendPiecePosition);
+
+                if (defendPiece.getTeamColor() != attackPiece.getTeamColor()) {    //verify the opposite color
+                    Collection<ChessMove> possibleMoves = defendPiece.pieceMoves(board, defendPiecePosition);
+                    if (extractEndPositionFromChessMoves(possibleMoves).contains(attackPiecePosition)) { // extracts a collection of end positions. Is position in that list?
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Now we need one that will check the double thing....
+     */
+    public boolean attackPieceRemoval(ChessPosition attackPiecePosition) {
+        return true;
+    }
+
+
+
 
     /**
      * Determines if the given team is in stalemate, which here is defined as having
