@@ -20,25 +20,13 @@ public class ChessGame {
 
     }
 
-    /**
-     * @return Which team's turn it is
-     */
     public TeamColor getTeamTurn() {
         return teamTurn;
     }
 
-    /**
-     * Set's which teams turn it is
-     *
-     * @param team the team whose turn it is
-     */
-    public void setTeamTurn(TeamColor team) {
-        this.teamTurn = team;
-    }
+    public void setTeamTurn(TeamColor team) { this.teamTurn = team; }
 
-    /**
-     * Enum identifying the 2 possible teams in a chess game
-     */
+    // the two teams in a game
     public enum TeamColor {
         WHITE,
         BLACK
@@ -60,6 +48,7 @@ public class ChessGame {
         }
         Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
 
+        // try make Move, then catch the exception.
         return moves;
     }
 
@@ -74,6 +63,8 @@ public class ChessGame {
         // or if it puts the king in check
         throw new RuntimeException("Not implemented");
     }
+
+
 
     /**
      * Determines if the given team is in check
@@ -127,6 +118,26 @@ public class ChessGame {
 
     }
 
+    public boolean positionIsInCheck(ChessPosition position, TeamColor teamColor) {
+        // this takes in a position and the color of the piece.
+        // it searches across the whole board to see what pieces of the other color pose a threat
+        for (int i = 1; i < 9; i++) {
+            for (int j = 1; j < 9; j++) {
+                ChessPosition attackPosition = new ChessPosition(i, j);
+                if (board.spotEmpty(attackPosition)) { continue; }
+                ChessPiece attackPiece = board.getPiece(attackPosition);
+
+                if (attackPiece.getTeamColor() != teamColor) {    //verify the opposite color
+                    Collection<ChessMove> possibleMoves = attackPiece.pieceMoves(board, attackPosition);
+                    if (extractEndPositionFromChessMoves(possibleMoves).contains(position)) { // extracts a collection of end positions. Is position in that list?
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     /**
      * Determines if the given team is in stalemate, which here is defined as having
      * no valid moves
@@ -159,27 +170,6 @@ public class ChessGame {
         }
         return null;
     }
-
-    public boolean positionIsInCheck(ChessPosition position, TeamColor teamColor) {
-        // this takes in a position and the color of the piece.
-        // it searches across the whole board to see what pieces of the other color pose a threat
-        for (int i = 1; i < 9; i++) {
-            for (int j = 1; j < 9; j++) {
-                ChessPosition attackPosition = new ChessPosition(i, j);
-                if (board.spotEmpty(attackPosition)) { continue; }
-                ChessPiece attackPiece = board.getPiece(attackPosition);
-
-                if (attackPiece.getTeamColor() != teamColor) {    //verify the opposite color
-                    Collection<ChessMove> possibleMoves = attackPiece.pieceMoves(board, attackPosition);
-                    if (extractEndPositionFromChessMoves(possibleMoves).contains(position)) { // extracts a collection of end positions. Is position in that list?
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
 
     private Collection<ChessPosition> extractEndPositionFromChessMoves(Collection<ChessMove> moves) {
         // this method just extracts the end positions from ChessMoves so it is easier to see if a position is in there.
