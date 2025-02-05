@@ -103,15 +103,25 @@ public class ChessGame {
             System.out.println("Your findKing method returned null. You don't have a king.");
             return false;
         }
-
         ChessPiece kingPiece = board.getPiece(kingPosition);
 
-        Collection<ChessMove> kingMoves = kingPiece.pieceMoves(board, kingPosition);
+        Collection<ChessMove> kingMoves = kingPiece.pieceMoves(board, kingPosition); // get the king moves
+        board.addPiece(kingPosition, null); // pretend the king isn't there
+
         for (ChessMove move : kingMoves) {
+            // get the old piece because we will replace it with a king.
+            ChessPiece oldPiece = board.getPiece(move.getEndPosition());
+            // add a temporary king in the test spot. (we need to do this for the pawn's sake. It won't trigger the diagonal moves unless a king is actually there.
+            board.addPiece(move.getEndPosition(), new ChessPiece(teamColor, ChessPiece.PieceType.KING));
+
             if (!positionIsInCheck(move.getEndPosition(), teamColor)) {
                 return false;
             }
+            // remove the temporary king
+            board.addPiece(move.getEndPosition(), oldPiece);
         }
+        // add the original king back
+        board.addPiece(kingPosition, kingPiece);
         // if the position itself is not in check, then we are not in checkmate. If after all this, it is in check, that is checkmate.
         return isInCheck(teamColor);
 
@@ -128,20 +138,10 @@ public class ChessGame {
         throw new RuntimeException("Not implemented");
     }
 
-    /**
-     * Sets this game's chessboard with a given board
-     *
-     * @param board the new board to use
-     */
     public void setBoard(ChessBoard board) {
         this.board = board;
     }
 
-    /**
-     * Gets the current chessboard
-     *
-     * @return the chessboard
-     */
     public ChessBoard getBoard() {
         return board;
     }
@@ -163,20 +163,11 @@ public class ChessGame {
     public boolean positionIsInCheck(ChessPosition position, TeamColor teamColor) {
         // this takes in a position and the color of the piece.
         // it searches across the whole board to see what pieces of the other color pose a threat
-        //4,5 is the problem
-        // pawn at 5, 4 should be the problem
         for (int i = 1; i < 9; i++) {
             for (int j = 1; j < 9; j++) {
                 ChessPosition attackPosition = new ChessPosition(i, j);
                 if (board.spotEmpty(attackPosition)) { continue; }
                 ChessPiece attackPiece = board.getPiece(attackPosition);
-
-
-                // things get kind of weird for the pawn. In check, the king can move to a different spot, and if that spot is near an attacking pawn, then the pawn can attack, but it is all hypothetical. The king is not actually there. So we will simulate the king being there by creating a king and putting it in all of these positions.
-                var tstpos = new ChessPosition(4, 5);
-                if ((i == 5 && j == 4) && (Objects.equals(tstpos, position))) {
-                    System.out.println("Breakpoint");
-                }
 
                 if (attackPiece.getTeamColor() != teamColor) {    //verify the opposite color
                     Collection<ChessMove> possibleMoves = attackPiece.pieceMoves(board, attackPosition);
