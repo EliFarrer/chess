@@ -27,6 +27,7 @@ public class ChessGame {
 
     public boolean isMyTurn(TeamColor color) { return teamTurn == color; }
 
+    public void changeTeamTurn() { this.teamTurn = this.teamTurn == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE; }
     // the two teams in a game
     public enum TeamColor {
         WHITE,
