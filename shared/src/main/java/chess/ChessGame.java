@@ -47,6 +47,7 @@ public class ChessGame {
             return null;
         }
         Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
+        Collection<ChessMove> validMoves = piece.pieceMoves(board, startPosition);
 
         // go through all the moves and see if each move would leave the king in check.
         for (ChessMove move : moves) {
@@ -54,16 +55,18 @@ public class ChessGame {
             ChessPiece pieceBeingReplaced = board.getPiece(newPosition);
 
             // add a temporary piece
+            board.addPiece(startPosition, null);
             board.addPiece(newPosition, piece);
             // see if it would leave the king in check
             if (isInCheck(piece.getTeamColor())) {
-                moves.remove(move);
+                validMoves.remove(move);
             }
 
             // replace the old piece
             board.addPiece(newPosition, pieceBeingReplaced);
+            board.addPiece(startPosition, piece);
         }
-        return moves;
+        return validMoves;
     }
 
     public boolean isMoveLegal(ChessMove move) {
