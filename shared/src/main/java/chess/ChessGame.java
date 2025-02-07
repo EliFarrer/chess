@@ -68,6 +68,10 @@ public class ChessGame {
         return moves;
     }
 
+    public boolean isMoveLegal(ChessMove move) {
+        return validMoves(move.getStartPosition()).contains(move);
+    }
+
     /**
      * Makes a move in a chess game
      *
