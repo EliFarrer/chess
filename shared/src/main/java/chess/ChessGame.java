@@ -70,7 +70,7 @@ public class ChessGame {
     }
 
 
-    public boolean hasValidMoves(TeamColor teamColor) {
+    public boolean hasNoValidMoves(TeamColor teamColor) {
         for (int i = 1; i < 9; i++) {
             for (int j = 1; j < 9; j++) {
                 ChessPosition position = new ChessPosition(i, j);
@@ -79,12 +79,12 @@ public class ChessGame {
 
                 if (piece.getTeamColor() == teamColor) {
                     if (!validMoves(position).isEmpty()) {
-                        return true;
+                        return false;
                     }
                 }
             }
         }
-        return false;
+        return true;
     }
 
     public boolean isMoveLegal(ChessMove move) {
@@ -129,7 +129,22 @@ public class ChessGame {
             System.out.println("Your findKing method returned null. You don't have a king.");
             return false;
         }
-        return positionIsInCheck(kingPosition, teamColor);
+
+        for (int i = 1; i < 9; i++) {
+            for (int j = 1; j < 9; j++) {
+                ChessPosition attackPosition = new ChessPosition(i, j);
+                if (board.spotEmpty(attackPosition)) { continue; }
+                ChessPiece attackPiece = board.getPiece(attackPosition);
+
+                if (attackPiece.getTeamColor() != teamColor) {    //verify the opposite color
+                    Collection<ChessMove> possibleMoves = attackPiece.pieceMoves(board, attackPosition);
+                    if (extractEndPositionFromChessMoves(possibleMoves).contains(kingPosition)) { // extracts a collection of end positions. Is position in that list?
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -139,113 +154,8 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        boolean validMoves = false;
-        for (int i = 1; i < 9; i++) {
-            for (int j = 1; j < 9; j++) {
-                ChessPosition position = new ChessPosition(i, j);
-                if (board.spotEmpty(position)) { continue; }
-                ChessPiece piece = board.getPiece(position);
-                if (piece.getTeamColor() == teamColor) {    // verify the pieces we look at are on the same team
-                    if (!validMoves(position).isEmpty()) {  // if there is a valid move, we are no longer in checkmate
-                        validMoves = true;
-                    }
-                }
-            }
-        }
-        return !validMoves && isInCheck(teamColor);  // checkmate only if there are no valid moves and in check
+        return hasNoValidMoves(teamColor) && isInCheck(teamColor);  // checkmate only if there are no valid moves and in check
     }
-//    public boolean isInCheckmate(TeamColor teamColor) {
-//        // this goes over possible future moves
-//        // we only need to see if we can take out attacking pieces in checkmate.
-//        ChessPosition kingPosition = findKing(teamColor);
-//        if (kingPosition == null) {
-//            System.out.println("Your findKing method returned null. You don't have a king.");
-//            return false;
-//        }
-//        ChessPiece kingPiece = board.getPiece(kingPosition);
-//
-//        Collection<ChessMove> kingMoves = kingPiece.pieceMoves(board, kingPosition); // get the king moves
-//        board.addPiece(kingPosition, null); // pretend the king isn't there
-//
-//        for (ChessMove move : kingMoves) {
-//            // get the old piece because we will replace it with a king.
-//            ChessPiece oldPiece = board.getPiece(move.getEndPosition());
-//            // add a temporary king in the test spot. (we need to do this for the pawn's sake. It won't trigger the diagonal moves unless a king is actually there.
-//            ChessPosition tempKingPosition = move.getEndPosition();
-//            board.addPiece(tempKingPosition, new ChessPiece(teamColor, ChessPiece.PieceType.KING));
-//
-//            // if the position is not in check, then the king is not in checkmate
-//            if (!positionIsInCheck(move.getEndPosition(), teamColor)) {
-//                return false;
-//            }
-//
-//            // if the attacking piece can be taken out, then the king is not in checkmate
-//            ArrayList<ChessPosition> attackingPiecePositions = getAttackingPiecePositions(tempKingPosition);
-//            if (attackingPiecePositions.size() == 1) {
-//                ChessPosition attacker = attackingPiecePositions.getFirst();
-//
-//                ArrayList<ChessPosition> defendingPiecePositions = getAttackingPiecePositions(attacker);
-//                defendingPiecePositions.remove(tempKingPosition);
-//                // remove the king position it
-//                if (!getAttackingPiecePositions(attacker).isEmpty()) {
-//                    // problem is here. If we move the king to a different spot on the board, then the king can technically make a move to attack the pawn.
-//                    return false;
-//                }
-//            }
-//
-//            // remove the temporary king
-//            board.addPiece(move.getEndPosition(), oldPiece);
-//        }
-//        // add the original king back
-//        board.addPiece(kingPosition, kingPiece);
-//
-//        // if the position itself is not in check, then we are not in checkmate. If after all this, it is in check, that is checkmate.
-//        return isInCheck(teamColor);
-//
-//    }
-
-    // helper function to determine if a certain position is in check
-    public boolean positionIsInCheck(ChessPosition position, TeamColor teamColor) {
-        // this only goes through current scenarios
-        // this takes in a position and the color of the piece.
-        // it searches across the whole board to see what pieces of the other color pose a threat
-        for (int i = 1; i < 9; i++) {
-            for (int j = 1; j < 9; j++) {
-                ChessPosition attackPosition = new ChessPosition(i, j);
-                if (board.spotEmpty(attackPosition)) { continue; }
-                ChessPiece attackPiece = board.getPiece(attackPosition);
-
-                if (attackPiece.getTeamColor() != teamColor) {    //verify the opposite color
-                    Collection<ChessMove> possibleMoves = attackPiece.pieceMoves(board, attackPosition);
-                    if (extractEndPositionFromChessMoves(possibleMoves).contains(position)) { // extracts a collection of end positions. Is position in that list?
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-
-//    public ArrayList<ChessPosition> getAttackingPiecePositions(ChessPosition defendPiecePosition) {
-//        ArrayList<ChessPosition> attackPositions = new ArrayList<ChessPosition>();
-//        ChessPiece defendPiece = board.getPiece(defendPiecePosition);
-//        for (int i = 1; i < 9; i++) {
-//            for (int j = 1; j < 9; j++) {
-//                ChessPosition attackPiecePosition = new ChessPosition(i, j);
-//                if (board.spotEmpty(attackPiecePosition)) { continue; }
-//                ChessPiece attackPiece = board.getPiece(attackPiecePosition);
-//
-//                if (defendPiece.getTeamColor() != attackPiece.getTeamColor()) {    //verify the opposite color
-//                    Collection<ChessMove> possibleAttackMoves = attackPiece.pieceMoves(board, attackPiecePosition);
-//                    if (extractEndPositionFromChessMoves(possibleAttackMoves).contains(defendPiecePosition)) { // extracts a collection of end positions. Is the defendPosition in that list?
-//                        attackPositions.add(attackPiecePosition);
-//                    }
-//                }
-//            }
-//        }
-//        return attackPositions;
-//    }
 
 
     /**
@@ -257,7 +167,7 @@ public class ChessGame {
      */
     public boolean isInStalemate(TeamColor teamColor) {
 
-        return (!isInCheckmate(teamColor) && !hasValidMoves(teamColor));
+        return (!isInCheckmate(teamColor) && hasNoValidMoves(teamColor));
     }
 
     public void setBoard(ChessBoard board) {
@@ -284,7 +194,7 @@ public class ChessGame {
 
     private Collection<ChessPosition> extractEndPositionFromChessMoves(Collection<ChessMove> moves) {
         // this method just extracts the end positions from ChessMoves so it is easier to see if a position is in there.
-        ArrayList<ChessPosition> ret = new ArrayList<ChessPosition>();
+        ArrayList<ChessPosition> ret = new ArrayList<>();
         for (ChessMove move:moves) {
             ret.add(move.getEndPosition());
         }
