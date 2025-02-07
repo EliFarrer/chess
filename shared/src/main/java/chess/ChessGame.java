@@ -208,7 +208,7 @@ public class ChessGame {
     }
 
 
-    public Collection<ChessPosition> getAttackingPiecePositions(ChessPosition defendPiecePosition) {
+    public ArrayList<ChessPosition> getAttackingPiecePositions(ChessPosition defendPiecePosition) {
         ArrayList<ChessPosition> attackPositions = new ArrayList<ChessPosition>();
         ChessPiece defendPiece = board.getPiece(defendPiecePosition);
         for (int i = 1; i < 9; i++) {
