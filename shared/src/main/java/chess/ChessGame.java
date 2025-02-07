@@ -49,7 +49,21 @@ public class ChessGame {
         }
         Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
 
-        // try make Move, then catch the exception.
+        // go through all the moves and see if each move would leave the king in check.
+        for (ChessMove move : moves) {
+            ChessPosition newPosition = move.getEndPosition();
+            ChessPiece pieceBeingReplaced = board.getPiece(newPosition);
+
+            // add a temporary piece
+            board.addPiece(newPosition, piece);
+            // see if it would leave the king in check
+            if (isInCheck(piece.getTeamColor())) {
+                moves.remove(move);
+            }
+
+            // replace the old piece
+            board.addPiece(newPosition, pieceBeingReplaced);
+        }
         return moves;
     }
 
