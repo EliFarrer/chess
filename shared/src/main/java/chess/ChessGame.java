@@ -69,6 +69,24 @@ public class ChessGame {
         return validMoves;
     }
 
+
+    public boolean hasValidMoves(TeamColor teamColor) {
+        for (int i = 1; i < 9; i++) {
+            for (int j = 1; j < 9; j++) {
+                ChessPosition position = new ChessPosition(i, j);
+                if (board.spotEmpty(position)) { continue; }
+                ChessPiece piece = board.getPiece(position);
+
+                if (piece.getTeamColor() == teamColor) {
+                    if (!validMoves(position).isEmpty()) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     public boolean isMoveLegal(ChessMove move) {
         return validMoves(move.getStartPosition()).contains(move);
     }
