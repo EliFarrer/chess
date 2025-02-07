@@ -118,7 +118,7 @@ public class ChessGame {
         board.addPiece(kingPosition, kingPiece);
 
         // if the attacking piece can be taken out, then the king is not in checkmate
-//        attackPieceRemoval()
+//        attackPieceRemoval(kingPiece);
 
         // if the position itself is not in check, then we are not in checkmate. If after all this, it is in check, that is checkmate.
         return isInCheck(teamColor);
@@ -172,10 +172,30 @@ public class ChessGame {
      * Now we need one that will check the double thing....
      */
     public boolean attackPieceRemoval(ChessPosition attackPiecePosition) {
+
         return true;
     }
 
 
+    public Collection<ChessPosition> getAttackingPiecePositions(ChessPosition defendPiecePosition) {
+        ArrayList<ChessPosition> attackPositions = new ArrayList<ChessPosition>();
+        ChessPiece defendPiece = board.getPiece(defendPiecePosition);
+        for (int i = 1; i < 9; i++) {
+            for (int j = 1; j < 9; j++) {
+                ChessPosition attackPiecePosition = new ChessPosition(i, j);
+                if (board.spotEmpty(attackPiecePosition)) { continue; }
+                ChessPiece attackPiece = board.getPiece(attackPiecePosition);
+
+                if (defendPiece.getTeamColor() != attackPiece.getTeamColor()) {    //verify the opposite color
+                    Collection<ChessMove> possibleAttackMoves = attackPiece.pieceMoves(board, attackPiecePosition);
+                    if (extractEndPositionFromChessMoves(possibleAttackMoves).contains(defendPiecePosition)) { // extracts a collection of end positions. Is the defendPosition in that list?
+                        attackPositions.add(attackPiecePosition);
+                    }
+                }
+            }
+        }
+        return attackPositions;
+    }
 
 
     /**
