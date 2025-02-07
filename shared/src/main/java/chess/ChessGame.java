@@ -139,7 +139,20 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-        return true;
+        boolean validMoves = false;
+        for (int i = 1; i < 9; i++) {
+            for (int j = 1; j < 9; j++) {
+                ChessPosition position = new ChessPosition(i, j);
+                if (board.spotEmpty(position)) { continue; }
+                ChessPiece piece = board.getPiece(position);
+                if (piece.getTeamColor() == teamColor) {    // verify the pieces we look at are on the same team
+                    if (!validMoves(position).isEmpty()) {  // if there is a valid move, we are no longer in checkmate
+                        validMoves = true;
+                    }
+                }
+            }
+        }
+        return !validMoves && isInCheck(teamColor);  // checkmate only if there are no valid moves and in check
     }
 //    public boolean isInCheckmate(TeamColor teamColor) {
 //        // this goes over possible future moves
