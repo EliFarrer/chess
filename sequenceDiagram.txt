@@ -5,6 +5,8 @@ participant Service
 participant DataAccess
 database db
 
+// data access exception, make already taken exception, bad request exception..... this is in service.
+//handler has the try catch blocks
 entryspacing 0.9
 group #navy Registration #white
 Client -> Server: [POST] /user\n{"username":" ", "password":" ", "email":" "}
@@ -12,31 +14,64 @@ Server -> Handler: {"username":" ", "password":" ", "email":" "}
 Handler -> Service: register(RegisterRequest)
 Service -> DataAccess: getUser(username)
 DataAccess -> db:Find UserData by username
-DataAccess --> Service: null
-Service -> DataAccess:createUser(userData)
-DataAccess -> db:Add UserData
-Service -> DataAccess:createAuth(authData)
-DataAccess -> db:Add AuthData
-Service --> Handler: RegisterResult
-Handler --> Server: {"username" : " ", "authToken" : " "}
-Server --> Client: 200\n{"username" : " ", "authToken" : " "}
+alt Success
+  DataAccess --> Service: null
+  Service -> DataAccess:createUser(userData)
+  DataAccess -> db:Add UserData
+  Service -> DataAccess:createAuth(authData)
+  DataAccess -> db:Add AuthData
+  Service --> Handler:RegisterResult
+  Handler --> Server:{"username" : " ", "authToken" : " "}
+  Server --> Client:200\n{"username" : " ", "authToken" : " "}
+else Bad Request
+  Service --> Handler:RegisterResult(badRequesError)
+  Handler --> Server: { "message": "Error: bad request" }
+  Server --> Client:400\n{ "message": "Error: bad request" }
+else Username Taken
+  DataAccess --> Service:userData
+  Service --> Handler:RegisterResult(userData)
+  Handler --> Server: { "message": "Error: already taken" }
+  Server --> Client:403\n{ "message": "Error: already taken" }
+else Failure
+  DataAccess --> Service:raise(databaseError)
+  Service --> Handler: RegisterResult(databaseError)
+  Handler --> Server: { "message": "Error: database error" }
+  Server --> Client:500\n{ "message": "Error: database error" }
+  end
 end
 
+
 group #orange Login #white
-Client -> Server: [POST] /session\n{username, password}
-Server -> Handler: {username, password}
-Handler -> Service: login(LoginRequest)
-Service -> DataAccess:getAuth(authData)
-DataAccess -> db: Add AuthData
-Service --> Handler: LoginResult
-Handler --> Server: {username, authToken}
-Server --> Client: 200\n{username, authToken}
+  Client -> Server: [POST] /session\n{username, password}
+  Server -> Handler: {username, password}
+  Handler -> Service: login(LoginRequest)
+  Service -> DataAccess:getUser(userData)
+  DataAccess -> db: Get user data
+  DataAccess --> Service:dbuserData
+alt Success
+  Service -> DataAccess:addAuth(authData)
+  DataAccess -> db: Add AuthData
+  Service --> Handler: LoginResult
+  Handler --> Server: {username, authToken}
+  Server --> Client: 200\n{username, authToken}
+else Unathorized
+  Handler --> Server:{ "message": "Error: unauthorized" }
+  Server --> Client:500\n{ "message": "Error: unauthorized" }
+else Failure
+  DataAccess --> Service: null
+  Service --> Handler:null
+  Handler --> Server:{ "message": "Error: (description of error)" }
+  Server --> Client:500\n{ "message": "Error: (description of error)" }
+end
 end
 
 group #green Logout #white
 Client -> Server: [DELETE] /session\nauthToken
 Server -> Handler: authToken
 Handler -> Service: logout(LogoutRequest)
+Service -> DataAccess: getAuth(authData)
+DataAccess -> db: Retrieve Auth
+DataAccess --> Service:authData
 Service -> DataAccess: deleteAuth(authData)
 DataAccess -> db: Remove AuthData
 Service --> Handler: void
@@ -48,10 +83,13 @@ group #red List Games #white
 Client -> Server: [GET] /game\nauthToken
 Server -> Handler: authToken
 Handler -> Service: listGames(authToken)
+Service -> DataAccess: getAuth(authData)
+DataAccess -> db: Retrieve Auth
+DataAccess --> Service:authData
 Service -> DataAccess:listGames(authData)
 DataAccess -> db: Read Games
-DataAccess --> Service: {games: [{gameID, whiteUsername, blackUsername}]}
-Service --> Handler: {games: [{gameID, whiteUsername, blackUsername}]}
+DataAccess --> Service: [gameData...]
+Service --> Handler: ListGameResult
 Handler --> Server: {games: [{gameID, whiteUsername, blackUsername}]}
 Server --> Client: 200\n{games: [{gameID, whiteUsername, blackUsername}]}
 end
@@ -59,10 +97,15 @@ end
 group #purple Create Game #white
 Client -> Server: [POST] /game\nauthToken\n{gameName}
 Server -> Handler: authToken\n{gameName}
+
 Handler -> Service: createGame(authToken, {gameName})
+Service -> DataAccess: getAuth(authData)
+DataAccess -> db: Retrieve Auth
+DataAccess --> Service:authData
 Service -> DataAccess: createGame(authData, gameName)
 DataAccess -> db: Add a Game
-Service --> Handler: {gameID}
+DataAccess --> Service: gameID
+Service --> Handler: CreateGameResult
 Handler --> Server: {gameID}
 Server --> Client: 200\n{gameID}
 end
@@ -73,9 +116,14 @@ Server -> Handler: authToken\n{playerColor, gameID}
 Handler -> Service: joinGame(authToken, {playerColor, gameID})
 Service -> DataAccess: getAuth(authToken)
 DataAccess -> db: retrieve authorization
+DataAccess --> Service:authData
+Service -> DataAccess: getGame(playerColor, gameID)
+DataAccess -> db:get game
+DataAccess --> Service:gameData
 Service -> DataAccess: updateGame(playerColor, gameID)
 DataAccess -> db: update the game
-Service --> Handler: {}
+DataAccess --> Service: null
+Service --> Handler: null
 Handler --> Server: {}
 Server --> Client: 200\n{}
 end
@@ -86,8 +134,8 @@ Server -> Handler: {}
 Handler -> Service: clear()
 Service -> DataAccess: clear()
 DataAccess -> db: clear all data
-DataAccess --> Service: {}
-Service --> Handler: {}
+DataAccess --> Service: null
+Service --> Handler: null
 Handler --> Server: {}
 Server --> Client: 200\n{}
 end
