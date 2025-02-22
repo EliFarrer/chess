@@ -1,7 +1,11 @@
 package dataaccess;
 
-public class MemoryDAO implements DataAccess {
-    public void clearAllEntries() {
+import java.util.Map;
 
+public class MemoryDAO implements DataAccess {
+    public Map<String, Object> data;
+
+    public void clearAllEntries() {
+        data.clear();
     }
 }
