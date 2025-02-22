@@ -1,14 +1,16 @@
+import dataaccess.DataAccess;
 import server.Server;
 import service.Service;
-import dataaccess.DAO;
+import dataaccess.MemoryDAO;
+
 
 public class Main {
     public static void main(String[] args) {
         try {
 
-            DataAccess
+            DataAccess dataaccess = new MemoryDAO();
 
-            Service service = new Service();
+            Service service = new Service(dataaccess);
             Server server = new Server(service);
             int port = Integer.parseInt(args[0]);
             server.run(port);

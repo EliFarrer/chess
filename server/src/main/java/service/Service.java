@@ -1,4 +1,5 @@
 package service;
+import dataaccess.DataAccess;
 
 public class Service {
     private final DataAccess dataAccess;
@@ -7,7 +8,7 @@ public class Service {
     }
 
     public void clearGame() {
-        dataAccess.clear();
+        dataAccess.clearAllEntries();
     }
 
 }
