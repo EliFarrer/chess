@@ -3,7 +3,7 @@ import server.Server;
 import service.Service;
 import dataaccess.MemoryDAO;
 
-
+// next time split up the data access, server and service things into multiple classes. Start calling them between different classes.
 public class Main {
     public static void main(String[] args) {
         try {
