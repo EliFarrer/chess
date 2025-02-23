@@ -1,16 +1,16 @@
-import dataaccess.DataAccess;
+import dataaccess.UserDAO;
 import server.Server;
-import service.Service;
-import dataaccess.MemoryDAO;
+import service.ClearService;
+import dataaccess.MemoryUserDAO;
 
 // next time split up the data access, server and service things into multiple classes. Start calling them between different classes.
 public class Main {
     public static void main(String[] args) {
         try {
 
-            DataAccess dataaccess = new MemoryDAO();
+            UserDAO dataaccess = new MemoryUserDAO();
 
-            Service service = new Service(dataaccess);
+            ClearService service = new ClearService(dataaccess);
             Server server = new Server(service);
             int port = Integer.parseInt(args[0]);
             server.run(port);
