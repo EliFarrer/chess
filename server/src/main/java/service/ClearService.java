@@ -1,9 +1,9 @@
 package service;
-import dataaccess.DataAccess;
+import dataaccess.UserDAO;
 
-public class Service {
-    private final DataAccess dataAccess;
-    public Service(DataAccess dataAccess) {
+public class ClearService {
+    private final UserDAO dataAccess;
+    public ClearService(UserDAO dataAccess) {
         this.dataAccess = dataAccess;
     }
 
