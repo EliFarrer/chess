@@ -6,8 +6,8 @@ public class Server {
     // not sure what to do with service here. I wma going to have multiple of them...
     private final ClearService service;
 
-    public Server(ClearService service) {
-        this.service = service;
+    public Server() {
+        this.service = new ClearService();
     }
 
     public int run(int desiredPort) {

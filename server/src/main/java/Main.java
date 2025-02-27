@@ -8,10 +8,7 @@ public class Main {
     public static void main(String[] args) {
         try {
 
-            UserDAO dataaccess = new MemoryUserDAO();
-
-            ClearService service = new ClearService(dataaccess);
-            Server server = new Server(service);
+            Server server = new Server();
             int port = Integer.parseInt(args[0]);
             server.run(port);
 
