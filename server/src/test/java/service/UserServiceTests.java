@@ -1,5 +1,6 @@
 package service;
 import dataaccess.MemoryUserDAO;
+import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
@@ -59,10 +60,26 @@ public class UserServiceTests {
 
     @Test
     public void testLogout_Positive() {
+        HashMap<String, String> map = new HashMap<>();
+        AuthData authData = new AuthData("eli", "32");
+        map.put(authData.authToken(), authData.username());
+        MemoryUserDAO dao = new MemoryUserDAO(null, map);
+        UserService service = new UserService(dao);
 
+        service.logout(authData.authToken());
+        Assertions.assertTrue(dao.isAuthDataMapEmpty());
     }
     @Test
-    public void testLogout_Negative() {
+    public void testLogout_Negative_unauthorized() {
+        String expectedAuthToken = "32";
+        String testAuthToken = "33";
+        HashMap<String, String> map = new HashMap<>();
+        AuthData authData = new AuthData("eli", expectedAuthToken);
+        map.put(expectedAuthToken, authData.username());
+        MemoryUserDAO dao = new MemoryUserDAO(null, map);
+        UserService service = new UserService(dao);
 
+        Exception ex = Assertions.assertThrows(ServiceException.class, () -> service.logout(testAuthToken));
+        Assertions.assertEquals("unauthorized auth data", ex.getMessage());
     }
 }
