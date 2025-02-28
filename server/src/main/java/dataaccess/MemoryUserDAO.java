@@ -2,32 +2,48 @@ package dataaccess;
 
 import model.AuthData;
 import model.UserData;
+import java.util.*;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.UUID;
-
-import javax.xml.crypto.Data;
-import java.util.Map;
 
 public class MemoryUserDAO implements UserDAO {
-    public Map<String, UserData> data = new HashMap<>();
+    public Map<String, UserData> userDataMap;
+    public Map<String, String> authDataMap;
+
+    public MemoryUserDAO(Map<String, UserData> userMap, Map<String, String> authMap) {
+        this.userDataMap = Objects.requireNonNullElseGet(userMap, HashMap::new);
+        this.authDataMap = Objects.requireNonNullElseGet(authMap, HashMap::new);
+    }
 
     public void clearAllEntries() throws DataAccessException {
-        data.clear();
+        userDataMap.clear();
+        authDataMap.clear();
     }
 
     public void createUser(UserData userData) throws DataAccessException {
-        data.put(userData.userName(), userData);
+        userDataMap.put(userData.username(), userData);
     }
 
     public UserData getUser(String username) throws DataAccessException {
-        return data.get(username);
+        return userDataMap.get(username);
     }
 
     public AuthData createAuth(String userName) {
         String id = UUID.randomUUID().toString();
+        authDataMap.put(id, userName);
         return new AuthData(userName, id);
+    }
+
+    public boolean isAuthDataMapEmpty() {
+        return authDataMap.isEmpty();
+    }
+
+    public boolean isAuthorized(String authToken) throws DataAccessException {
+        // if the authToken is in the database, we return true because it is authorized
+        return (authDataMap.get(authToken) != null);
+    }
+
+    public void removeAuth(String authToken) throws DataAccessException {
+        authDataMap.remove(authToken);
     }
 
 }

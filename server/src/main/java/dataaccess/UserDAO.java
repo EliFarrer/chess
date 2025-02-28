@@ -12,4 +12,10 @@ public interface UserDAO {
     UserData getUser(String username) throws DataAccessException;
 
     AuthData createAuth(String userName);
+
+    boolean isAuthDataMapEmpty() throws DataAccessException;
+
+    boolean isAuthorized(String authToken) throws DataAccessException;
+
+    void removeAuth(String authToken) throws DataAccessException;
 }
