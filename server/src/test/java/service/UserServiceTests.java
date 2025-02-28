@@ -4,21 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import request.RegisterRequest;
 import result.RegisterResult;
 
-import java.util.Objects;
-
-public class ServiceTests {
-    @Test
-    public void testClear_Positive() {
-//        MemoryUserDAO dao = new MemoryUserDAO();
-//        UserData data = new UserData("eli", "ile", "eli@ile.com");
-//        dao.createUser(data);
-        ClearService service = new ClearService(null);
-        ClearResult rtrn = service.clearGame();
-        assert(rtrn.message().isEmpty());
-    }
-
-    // don't need a negative testClear test case
-
+public class UserServiceTests {
     @Test
     public void testRegister_Positive() {
         UserService service = new UserService();
@@ -54,29 +40,4 @@ public class ServiceTests {
     public void testLogout_Negative() {
 
     }
-    @Test
-    public void testCreate_Positive() {
-
-    }
-    @Test
-    public void testCreate_Negative() {
-
-    }
-    @Test
-    public void testJoin_Positive() {
-
-    }
-    @Test
-    public void testJoin_Negative() {
-
-    }
-    @Test
-    public void testList_Positive() {
-
-    }
-    @Test
-    public void testList_Negative() {
-
-    }
-
 }
