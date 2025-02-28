@@ -55,9 +55,19 @@ public class UserService {
             // the user is registered, so create auth and return LoginResult
             AuthData authData = dataAccess.createAuth(userData.username());
             return new LoginResult(authData.username(), authData.authToken());
-        } catch (DataAccessException e) {
+        } catch (DataAccessException e) {   // 500 error
             throw new ServiceException("Data access exception: " + e);
         }
     }
-    public void logout() {}
+    public void logout(String authToken) {
+        try {
+            if (!dataAccess.isAuthorized(authToken))  {   // if we don't have access
+                throw new ServiceException("unauthorized auth data");
+            }
+
+            dataAccess.removeAuth(authToken);
+        } catch(DataAccessException e) {    // 500 error
+            throw new ServiceException("Data access exception: " + e);
+        }
+    }
 }
