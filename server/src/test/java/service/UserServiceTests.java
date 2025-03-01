@@ -40,7 +40,7 @@ public class UserServiceTests {
         HashMap<String, UserData> map = new HashMap<>();
         UserData userData = new UserData("eli", "ile", "eli@ile.com");
         map.put(userData.username(), userData);
-        MemoryUserDAO dao = new MemoryUserDAO(map, null);
+        MemoryUserDAO dao = new MemoryUserDAO(map, null, null);
         UserService service = new UserService(dao);
 
         LoginRequest req = new LoginRequest(userData.username(), userData.password());
@@ -63,7 +63,7 @@ public class UserServiceTests {
         HashMap<String, String> map = new HashMap<>();
         AuthData authData = new AuthData("eli", "32");
         map.put(authData.authToken(), authData.username());
-        MemoryUserDAO dao = new MemoryUserDAO(null, map);
+        MemoryUserDAO dao = new MemoryUserDAO(null, map, null);
         UserService service = new UserService(dao);
 
         service.logout(authData.authToken());
@@ -76,7 +76,7 @@ public class UserServiceTests {
         HashMap<String, String> map = new HashMap<>();
         AuthData authData = new AuthData("eli", expectedAuthToken);
         map.put(expectedAuthToken, authData.username());
-        MemoryUserDAO dao = new MemoryUserDAO(null, map);
+        MemoryUserDAO dao = new MemoryUserDAO(null, map, null);
         UserService service = new UserService(dao);
 
         Exception ex = Assertions.assertThrows(ServiceException.class, () -> service.logout(testAuthToken));
