@@ -1,11 +1,12 @@
 package dataaccess;
 
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 
 public interface UserDAO {
     // in here are all the declarations of the methods we need to run eventually like clear and add and stuff like that
-    void clearAllEntries() throws DataAccessException;
+    void clear() throws DataAccessException;
 
     void createUser(UserData userData) throws DataAccessException;
 
@@ -18,4 +19,7 @@ public interface UserDAO {
     boolean isAuthorized(String authToken) throws DataAccessException;
 
     void removeAuth(String authToken) throws DataAccessException;
+
+    void createGame(int gameID, String gameName) throws DataAccessException;
+
 }
