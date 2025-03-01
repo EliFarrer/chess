@@ -6,7 +6,6 @@ import model.GameData;
 import model.UserData;
 import java.util.*;
 
-
 public class MemoryUserDAO implements UserDAO {
     public Map<String, UserData> userDataMap;
     public Map<String, String> authDataMap; // maps from authToken to username
@@ -52,6 +51,10 @@ public class MemoryUserDAO implements UserDAO {
         authDataMap.remove(authToken);
     }
 
+    public String getUsername(String authToken) {
+        return authDataMap.get(authToken);
+    }
+
     public void createGame(int gameID, String gameName) {
         GameData gameData = new GameData(gameID, "", "", gameName, new ChessGame());
         gameDataMap.put(gameID, gameData);
@@ -61,5 +64,22 @@ public class MemoryUserDAO implements UserDAO {
         return gameDataMap.get(gameID);
     }
 
+    public boolean gameNotAuthorized(int gameID) {
+        return (gameDataMap.get(gameID) == null);
+    }
+
+    public boolean colorNotAvailable(int gameID, ChessGame.TeamColor requestedColor) {
+        GameData gameData = gameDataMap.get(gameID);
+        if (requestedColor == ChessGame.TeamColor.WHITE) {
+            return !gameData.whiteUsername().isEmpty();
+        } else {
+            return !gameData.blackUsername().isEmpty();
+        }
+    }
+
+    public void updateGame(int gameID, GameData gameData) {
+        gameDataMap.remove(gameID);
+        gameDataMap.put(gameID, gameData);
+    }
 
 }
