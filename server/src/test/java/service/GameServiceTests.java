@@ -50,6 +50,8 @@ public class GameServiceTests {
 
     @Test
     public void testJoin_Positive() {
+        int gameID = 1234;
+
         // authorization map
         HashMap<String, String> authMap = new HashMap<>();
         AuthData authData = new AuthData("eli", "32");
@@ -63,12 +65,14 @@ public class GameServiceTests {
         MemoryUserDAO dao = new MemoryUserDAO(null, authMap, gameMap);
         GameService service = new GameService(dao);
 
-        JoinGameRequest req = new JoinGameRequest("32", "WHITE", "gameName");
+        JoinGameRequest req = new JoinGameRequest("32", "WHITE", gameID);
         service.joinGame(req);
         // we assume that if it didn't throw an error it worked correctly.
     }
     @Test
     public void testJoin_Negative_badData() {
+        int gameID = 1234;
+
         // authorization map
         HashMap<String, String> authMap = new HashMap<>();
         AuthData authData = new AuthData("eli", "32");
@@ -82,7 +86,7 @@ public class GameServiceTests {
         MemoryUserDAO dao = new MemoryUserDAO(null, authMap, gameMap);
         GameService service = new GameService(dao);
 
-        JoinGameRequest req = new JoinGameRequest("32","", "gameName");
+        JoinGameRequest req = new JoinGameRequest("32","", gameID);
         Exception ex = Assertions.assertThrows(ServiceException.class, () -> service.joinGame(req));
         Assertions.assertEquals("bad data", ex.getMessage());
     }
@@ -90,6 +94,7 @@ public class GameServiceTests {
     public void testJoin_Negative_unauthorizedAuthData() {
         String expectedAuthToken = "32";
         String testAuthToken = "31";
+        int gameID = 1234;
 
         // authorization map
         HashMap<String, String> authMap = new HashMap<>();
@@ -98,17 +103,19 @@ public class GameServiceTests {
 
         // gameMap
         HashMap<Integer, GameData> gameMap = new HashMap<>();
-        GameData gameData = new GameData(1234,"", "johnny","mychessgame", new ChessGame());
-        gameMap.put(9248, gameData);
+        GameData gameData = new GameData(gameID,"", "johnny","mychessgame", new ChessGame());
+        gameMap.put(gameID, gameData);
         MemoryUserDAO dao = new MemoryUserDAO(null, authMap, gameMap);
         GameService service = new GameService(dao);
 
-        JoinGameRequest req = new JoinGameRequest(testAuthToken, "WHITE", "gameName");
+        JoinGameRequest req = new JoinGameRequest(testAuthToken, "WHITE", gameID);
         Exception ex = Assertions.assertThrows(ServiceException.class, () -> service.joinGame(req));
         Assertions.assertEquals("unauthorized auth data", ex.getMessage());
     }
     @Test
     public void testJoin_Negative_unauthorizedGameID() {
+        int gameID = 1234;
+
         // authorization map
         HashMap<String, String> authMap = new HashMap<>();
         AuthData authData = new AuthData("eli", "32");
@@ -116,17 +123,19 @@ public class GameServiceTests {
 
         // gameMap
         HashMap<Integer, GameData> gameMap = new HashMap<>();
-        GameData gameData = new GameData(1234,"", "johnny","mychessgame", new ChessGame());
-        gameMap.put(9248, gameData);
+        GameData gameData = new GameData(gameID,"", "johnny","mychessgame", new ChessGame());
+        gameMap.put(gameID, gameData);
         MemoryUserDAO dao = new MemoryUserDAO(null, authMap, gameMap);
         GameService service = new GameService(dao);
 
-        JoinGameRequest req = new JoinGameRequest("32", "WHITE", "gameName");
+        JoinGameRequest req = new JoinGameRequest("32", "WHITE", null);
         Exception ex = Assertions.assertThrows(ServiceException.class, () -> service.joinGame(req));
         Assertions.assertEquals("unauthorized game id", ex.getMessage());
     }
     @Test
     public void testJoin_Negative_alreadyTaken() {
+        int gameID = 1234;
+
         // authorization map
         HashMap<String, String> authMap = new HashMap<>();
         AuthData authData = new AuthData("eli", "32");
@@ -134,12 +143,12 @@ public class GameServiceTests {
 
         // gameMap
         HashMap<Integer, GameData> gameMap = new HashMap<>();
-        GameData gameData = new GameData(1234,"eli", "","mychessgame", new ChessGame());
+        GameData gameData = new GameData(gameID,"eli", "","mychessgame", new ChessGame());
         gameMap.put(gameData.gameID(), gameData);
         MemoryUserDAO dao = new MemoryUserDAO(null, authMap, gameMap);
         GameService service = new GameService(dao);
 
-        JoinGameRequest req = new JoinGameRequest("32", "WHITE", "gameName");
+        JoinGameRequest req = new JoinGameRequest("32", "WHITE", gameID);
         Exception ex = Assertions.assertThrows(ServiceException.class, () -> service.joinGame(req));
         Assertions.assertEquals("color already taken", ex.getMessage());
     }
