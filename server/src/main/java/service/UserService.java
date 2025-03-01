@@ -40,7 +40,7 @@ public class UserService {
             return new LoginResult(authData.username(), authData.authToken());
         } catch (DataAccessException e) {
             // this is the case where the database is broken.
-            throw new ServiceException("Data access exception: " + e);
+            throw new ServiceException("Data access exception (register): " + e);
         }
     }
     public LoginResult login(LoginRequest req) {
@@ -56,18 +56,18 @@ public class UserService {
             AuthData authData = dataAccess.createAuth(userData.username());
             return new LoginResult(authData.username(), authData.authToken());
         } catch (DataAccessException e) {   // 500 error
-            throw new ServiceException("Data access exception: " + e);
+            throw new ServiceException("Data access exception (login): " + e);
         }
     }
     public void logout(String authToken) {
         try {
-            if (!dataAccess.isAuthorized(authToken))  {   // if we don't have access
+            if (dataAccess.isNotAuthorized(authToken))  {   // if we don't have access
                 throw new ServiceException("unauthorized auth data");
             }
 
             dataAccess.removeAuth(authToken);
         } catch(DataAccessException e) {    // 500 error
-            throw new ServiceException("Data access exception: " + e);
+            throw new ServiceException("Data access exception (logout): " + e);
         }
     }
 }
