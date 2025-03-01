@@ -3,6 +3,7 @@ package dataaccess;
 import chess.ChessGame;
 import model.AuthData;
 import model.GameData;
+import model.GameMetaData;
 import model.UserData;
 import java.util.*;
 
@@ -80,6 +81,14 @@ public class MemoryUserDAO implements UserDAO {
     public void updateGame(int gameID, GameData gameData) {
         gameDataMap.remove(gameID);
         gameDataMap.put(gameID, gameData);
+    }
+
+    public ArrayList<GameMetaData> listGames() {
+        ArrayList<GameMetaData> games = new ArrayList<>();
+        for (Map.Entry<Integer, GameData> entry : gameDataMap.entrySet()) {
+            games.add(new GameMetaData(entry.getValue()));
+        }
+        return games;
     }
 
 }

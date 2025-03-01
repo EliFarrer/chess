@@ -3,7 +3,10 @@ package dataaccess;
 import chess.ChessGame;
 import model.AuthData;
 import model.GameData;
+import model.GameMetaData;
 import model.UserData;
+
+import java.util.ArrayList;
 
 public interface UserDAO {
     // in here are all the declarations of the methods we need to run eventually like clear and add and stuff like that
@@ -32,4 +35,6 @@ public interface UserDAO {
     boolean colorNotAvailable(int gameID, ChessGame.TeamColor requestedColor);
 
     void updateGame(int gameID, GameData gameData);
-}
+
+    ArrayList<GameMetaData> listGames();
+    }

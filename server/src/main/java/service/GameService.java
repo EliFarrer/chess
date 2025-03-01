@@ -5,9 +5,11 @@ import dataaccess.DataAccessException;
 import dataaccess.MemoryUserDAO;
 import dataaccess.UserDAO;
 import model.GameData;
+import model.GameMetaData;
 import request.CreateGameRequest;
 import request.JoinGameRequest;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class GameService {
@@ -64,6 +66,17 @@ public class GameService {
 
         } catch(DataAccessException e) {
             throw new ServiceException("Data access exception (joining game): " + e);
+        }
+    }
+
+    public ArrayList<GameMetaData> listGames(String authToken) {
+        try {
+            if (dataAccess.isNotAuthorized(authToken)) {
+                throw new ServiceException("unauthorized auth data");
+            }
+            return dataAccess.listGames();
+        } catch(DataAccessException e) {
+            throw new ServiceException("Data access exception (listing games): " + e);
         }
     }
 }
