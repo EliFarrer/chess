@@ -15,20 +15,20 @@ public class UserService {
     private final UserDAO dataAccess;
 
     public UserService(UserDAO dao) {
-        this.dataAccess = Objects.requireNonNullElseGet(dao, () -> new MemoryUserDAO(null, null));
+        this.dataAccess = Objects.requireNonNullElseGet(dao, () -> new MemoryUserDAO(null, null, null));
     }
 
     public LoginResult register(RegisterRequest req) throws ServiceException {
         try {
+            // 400 error, the data is bad
+            if (req.username().isEmpty() || req.password().isEmpty() || req.email().isEmpty()) {
+                throw new ServiceException("bad data");
+            }
+
             // check to see if the user is already registered
             UserData testUserData = dataAccess.getUser(req.username());
             if (testUserData != null) {
                 throw new ServiceException("the user is already registered");
-            }
-
-            // 400 error, the data is bad
-            if (req.username().isEmpty() || req.password().isEmpty() || req.email().isEmpty()) {
-                throw new ServiceException("bad data");
             }
 
             // create the new user
