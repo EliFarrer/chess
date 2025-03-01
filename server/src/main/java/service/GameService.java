@@ -34,23 +34,33 @@ public class GameService {
         }
     }
 
-    public void joinGame(JoinGameRequest req) {//commit
+    public void joinGame(JoinGameRequest req) {
         try {
-            if (req.gameID().isEmpty() || req.playerColor().isEmpty()) {
+            if (req.gameID() == null || req.playerColor() == null) {
                 throw new ServiceException("bad data");
             }
             if (dataAccess.isNotAuthorized(req.authToken())) {
                 throw new ServiceException("unauthorized auth data");
             }
-//            if (dataAccess.gameNotAuthorized(req.gameID())) {
-//                throw new ServiceException("unauthorized game id");
-//            }
-//            GameData gameData = dataAccess.getGame(req.gameID());
-//            ChessGame.TeamColor requestedColor = req.playerColor().equals("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
-//            if (dataAccess.colorNotAvailable(requestedColor)) {
-//                throw new ServiceException("color already taken");
-//            }
+            if (dataAccess.gameNotAuthorized(req.gameID())) {
+                throw new ServiceException("unauthorized game id");
+            }
 
+            GameData gameData = dataAccess.getGame(req.gameID());
+            String username = dataAccess.getUsername(req.authToken());
+            GameData newGameData;
+            if (req.playerColor() == ChessGame.TeamColor.WHITE) {
+                if (dataAccess.colorNotAvailable(req.gameID(), ChessGame.TeamColor.WHITE)) {
+                    throw new ServiceException("color already taken");
+                }
+                newGameData = new GameData(req.gameID(), username, gameData.blackUsername(), gameData.gameName(), gameData.game());
+            } else {
+                if (dataAccess.colorNotAvailable(req.gameID(), ChessGame.TeamColor.BLACK)) {
+                    throw new ServiceException("color already taken");
+                }
+                newGameData = new GameData(req.gameID(), gameData.whiteUsername(), username, gameData.gameName(), gameData.game());
+            }
+            dataAccess.updateGame(req.gameID(), newGameData);
 
         } catch(DataAccessException e) {
             throw new ServiceException("Data access exception (joining game): " + e);
