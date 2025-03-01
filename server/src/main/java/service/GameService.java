@@ -34,7 +34,7 @@ public class GameService {
         }
     }
 
-    public void joinGame(JoinGameRequest req) {
+    public void joinGame(JoinGameRequest req) {//commit
         try {
             if (req.gameID().isEmpty() || req.playerColor().isEmpty()) {
                 throw new ServiceException("bad data");
