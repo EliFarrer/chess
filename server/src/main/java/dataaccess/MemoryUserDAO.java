@@ -1,22 +1,28 @@
 package dataaccess;
 
+import chess.ChessGame;
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 import java.util.*;
 
 
 public class MemoryUserDAO implements UserDAO {
     public Map<String, UserData> userDataMap;
-    public Map<String, String> authDataMap;
+    public Map<String, String> authDataMap; // maps from authToken to username
+    public Map<Integer, GameData> gameDataMap; // maps from authToken to username
 
-    public MemoryUserDAO(Map<String, UserData> userMap, Map<String, String> authMap) {
+
+    public MemoryUserDAO(Map<String, UserData> userMap, Map<String, String> authMap, Map<Integer, GameData> gameMap) {
         this.userDataMap = Objects.requireNonNullElseGet(userMap, HashMap::new);
         this.authDataMap = Objects.requireNonNullElseGet(authMap, HashMap::new);
+        this.gameDataMap = Objects.requireNonNullElseGet(gameMap, HashMap::new);
     }
 
-    public void clearAllEntries() throws DataAccessException {
+    public void clear() throws DataAccessException {
         userDataMap.clear();
         authDataMap.clear();
+        gameDataMap.clear();
     }
 
     public void createUser(UserData userData) throws DataAccessException {
@@ -45,5 +51,15 @@ public class MemoryUserDAO implements UserDAO {
     public void removeAuth(String authToken) throws DataAccessException {
         authDataMap.remove(authToken);
     }
+
+    public void createGame(int gameID, String gameName) {
+        GameData gameData = new GameData(gameID, "", "", gameName, new ChessGame());
+        gameDataMap.put(gameID, gameData);
+    }
+
+    public GameData getGame(int gameID) {
+        return gameDataMap.get(gameID);
+    }
+
 
 }
