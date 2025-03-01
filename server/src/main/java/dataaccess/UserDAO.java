@@ -1,6 +1,8 @@
 package dataaccess;
 
+import chess.ChessGame;
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 
 public interface UserDAO {
@@ -19,6 +21,15 @@ public interface UserDAO {
 
     void removeAuth(String authToken) throws DataAccessException;
 
+    String getUsername(String authToken);
+
     void createGame(int gameID, String gameName) throws DataAccessException;
 
+    GameData getGame(int gameID);
+
+    boolean gameNotAuthorized(int gameID);
+
+    boolean colorNotAvailable(int gameID, ChessGame.TeamColor requestedColor);
+
+    void updateGame(int gameID, GameData gameData);
 }
