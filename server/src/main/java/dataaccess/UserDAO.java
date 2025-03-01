@@ -1,7 +1,6 @@
 package dataaccess;
 
 import model.AuthData;
-import model.GameData;
 import model.UserData;
 
 public interface UserDAO {
@@ -16,7 +15,7 @@ public interface UserDAO {
 
     boolean isAuthDataMapEmpty() throws DataAccessException;
 
-    boolean isAuthorized(String authToken) throws DataAccessException;
+    boolean isNotAuthorized(String authToken) throws DataAccessException;
 
     void removeAuth(String authToken) throws DataAccessException;
 
