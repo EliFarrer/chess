@@ -43,9 +43,9 @@ public class MemoryUserDAO implements UserDAO {
         return authDataMap.isEmpty();
     }
 
-    public boolean isAuthorized(String authToken) throws DataAccessException {
+    public boolean isNotAuthorized(String authToken) throws DataAccessException {
         // if the authToken is in the database, we return true because it is authorized
-        return (authDataMap.get(authToken) != null);
+        return (authDataMap.get(authToken) == null);
     }
 
     public void removeAuth(String authToken) throws DataAccessException {
