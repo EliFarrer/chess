@@ -3,11 +3,13 @@ import chess.ChessGame;
 import dataaccess.MemoryUserDAO;
 import model.AuthData;
 import model.GameData;
+import model.GameMetaData;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 import request.CreateGameRequest;
 import request.JoinGameRequest;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class GameServiceTests {
@@ -154,11 +156,57 @@ public class GameServiceTests {
         Assertions.assertEquals("color already taken", ex.getMessage());
     }
     @Test
-    public void testList_Positive() {
 
+    public void testList_Positive() {
+        String authToken = "32";
+        int gameID1 = 1234;
+        int gameID2 = 1244;
+
+        // authorization map
+        HashMap<String, String> authMap = new HashMap<>();
+        AuthData authData = new AuthData("eli", authToken);
+        authMap.put(authData.authToken(), authData.username());
+
+        // gameMap
+        HashMap<Integer, GameData> gameMap = new HashMap<>();
+        GameData gameData1 = new GameData(gameID1, "eli", "johnny", "mychessgame", new ChessGame());
+        GameData gameData2 = new GameData(gameID2, "johnny", "eli", "mychessgame13", new ChessGame());
+
+        ArrayList<GameMetaData> expectedGames = new ArrayList<>();
+        expectedGames.add(new GameMetaData(gameData1));
+        expectedGames.add(new GameMetaData(gameData2));
+
+        gameMap.put(gameID1, gameData1);
+        gameMap.put(gameID2, gameData2);
+        MemoryUserDAO dao = new MemoryUserDAO(null, authMap, gameMap);
+        GameService service = new GameService(dao);
+
+        ArrayList<GameMetaData> actualGames = service.listGames(authToken);
+        Assertions.assertEquals(expectedGames, actualGames);
     }
     @Test
-    public void testList_Negative() {
+    public void testList_Negative_unauthorizedAuthData() {
+        String expectedAuthToken = "32";
+        String testAuthToken = "31";
+        int gameID1 = 1234;
+        int gameID2 = 1244;
 
+        // authorization map
+        HashMap<String, String> authMap = new HashMap<>();
+        AuthData authData = new AuthData("eli", expectedAuthToken);
+        authMap.put(authData.authToken(), authData.username());
+
+        // gameMap
+        HashMap<Integer, GameData> gameMap = new HashMap<>();
+        GameData gameData1 = new GameData(gameID1, "eli", "johnny", "mychessgame", new ChessGame());
+        GameData gameData2 = new GameData(gameID2, "johnny", "eli", "mychessgame13", new ChessGame());
+
+        gameMap.put(gameID1, gameData1);
+        gameMap.put(gameID2, gameData2);
+        MemoryUserDAO dao = new MemoryUserDAO(null, authMap, gameMap);
+        GameService service = new GameService(dao);
+
+        Exception ex = Assertions.assertThrows(ServiceException.class, () -> service.listGames(testAuthToken));
+        Assertions.assertEquals("unauthorized auth data", ex.getMessage());
     }
 }
