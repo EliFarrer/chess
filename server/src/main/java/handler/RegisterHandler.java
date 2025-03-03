@@ -1,42 +1,41 @@
-package HTTPHandler;
+package handler;
 
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryUserDAO;
-import result.CreateGameResult;
 import result.ErrorResult;
-import request.CreateGameRequest;
-import service.GameService;
+import request.RegisterRequest;
+import result.LoginResult;
+import service.AlreadyTakenException;
 import service.BadRequestException;
-import service.UnauthorizedException;
+import service.UserService;
 import spark.Request;
 import spark.Response;
 
-
-public class CreateGameHandler {
-    GameService service;
+public class RegisterHandler {
+    UserService service;
     Gson serializer;
-    public CreateGameHandler(MemoryUserDAO dao) {
-        service = new GameService(dao);
+    public RegisterHandler(MemoryUserDAO dao) {
+        service = new UserService(dao);
         serializer = new Gson();
     }
 
     public Object handle(Request req, Response res) {
         try {
-            String authToken = req.headers("Authorization");
-            CreateGameRequest CGreq = serializer.fromJson(req.body(), CreateGameRequest.class);
-            CreateGameResult CGRes = service.createGame(authToken, CGreq);
+            RegisterRequest regReq = serializer.fromJson(req.body(), RegisterRequest.class);
+            LoginResult regRes = service.register(regReq);
             res.status(200);
-            return serializer.toJson(CGRes);
+            return serializer.toJson(regRes);
         } catch (DataAccessException e) {
             res.status(500);
             return serializer.toJson(new ErrorResult(e.getMessage()));
         } catch (BadRequestException e) {
             res.status(400);
             return serializer.toJson(new ErrorResult(e.getMessage()));
-        } catch (UnauthorizedException e) {
-            res.status(401);
+        } catch (AlreadyTakenException e) {
+            res.status(403);
             return serializer.toJson(new ErrorResult(e.getMessage()));
         }
+
     }
 }

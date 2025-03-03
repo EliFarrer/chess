@@ -10,8 +10,8 @@ import java.util.Objects;
  * signature of the existing methods.
  */
 public class ChessBoard {
-
-    public ChessPiece[][] board = new ChessPiece[8][8]; // why we are using 9, I dunno, but the first row is all null, and each column starts with null after that...
+    // why we are using 9, I dunno, but the first row is all null, and each column starts with null after that...
+    public ChessPiece[][] board = new ChessPiece[8][8];
     public ChessBoard() {
 
     }

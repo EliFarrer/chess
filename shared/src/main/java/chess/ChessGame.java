@@ -105,7 +105,8 @@ public class ChessGame {
         if (isMyTurn(piece.getTeamColor()) && isMoveLegal(move)) {
             board.addPiece(move.getStartPosition(), null);
             // if the promotion piece in move is null, it will keep the same piece, if not it will get the promotion piece
-            ChessPiece newPiece = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece() == null ? piece.getPieceType() : move.getPromotionPiece());
+            TeamColor col = piece.getTeamColor();
+            ChessPiece newPiece = new ChessPiece(col, move.getPromotionPiece() == null ? piece.getPieceType() : move.getPromotionPiece());
             board.addPiece(move.getEndPosition(), newPiece);
         } else {
             throw new InvalidMoveException("Invalid move");
@@ -138,7 +139,8 @@ public class ChessGame {
 
                 if (attackPiece.getTeamColor() != teamColor) {    //verify the opposite color
                     Collection<ChessMove> possibleMoves = attackPiece.pieceMoves(board, attackPosition);
-                    if (extractEndPositionFromChessMoves(possibleMoves).contains(kingPosition)) { // extracts a collection of end positions. Is position in that list?
+                    // extracts a collection of end positions. Is position in that list?
+                    if (extractEndPositionFromChessMoves(possibleMoves).contains(kingPosition)) {
                         return true;
                     }
                 }

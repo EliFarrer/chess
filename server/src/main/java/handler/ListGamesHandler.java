@@ -1,4 +1,4 @@
-package HTTPHandler;
+package handler;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -27,10 +27,10 @@ public class ListGamesHandler {
     public Object handle(Request req, Response res) {
         try {
             String authToken = req.headers("Authorization");
-            ArrayList<GameMetaData> LGRes = service.listGames(authToken);
+            ArrayList<GameMetaData> listGamesRes = service.listGames(authToken);
             res.status(200);
             var jsonObject = new JsonObject();
-            jsonObject.add("games", serializer.toJsonTree(LGRes));
+            jsonObject.add("games", serializer.toJsonTree(listGamesRes));
             return jsonObject;
         } catch (UnauthorizedException e) {
             res.status(401);

@@ -50,8 +50,9 @@ public class ChessPosition {
         return row == that.row && col == that.col;
     }
 
+    // returns a hashed code for this object. Then we can see if it is the same as another object instance in the same position.
     @Override
-    public int hashCode() { // returns a hashed code for this object. Then we can see if it is the same as another object instance in the same position.
+    public int hashCode() {
         return Objects.hash(this.row, this.col);
     }
 }

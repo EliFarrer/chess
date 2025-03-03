@@ -1,5 +1,5 @@
 package server;
-import HTTPHandler.*;
+import handler.*;
 import dataaccess.MemoryUserDAO;
 import spark.*;
 

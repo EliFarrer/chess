@@ -12,7 +12,7 @@ import java.util.HashMap;
 
 public class UserServiceTests {
     @Test
-    public void testRegister_Positive() {
+    public void testRegisterPositive() {
         UserService service = new UserService(null);
         RegisterRequest req = new RegisterRequest("eli", "ile", "eli@ile.com");
 
@@ -23,7 +23,7 @@ public class UserServiceTests {
         });
     }
     @Test
-    public void testRegister_Negative_userAlreadyRegistered() {
+    public void testRegisterNegativeUserAlreadyRegistered() {
         UserService service = new UserService(null);
         RegisterRequest req = new RegisterRequest("eli", "ile", "eli@ile.com");
 
@@ -34,7 +34,7 @@ public class UserServiceTests {
         Assertions.assertEquals("Error: the user is already registered", ex.getMessage());
     }
     @Test
-    public void testRegister_Negative_badData() {
+    public void testRegisterNegativeBadData() {
         UserService service = new UserService(null);
         RegisterRequest req = new RegisterRequest("", "ile", "eli@ile.com");
         Exception ex = Assertions.assertThrows(BadRequestException.class, () -> service.register(req));
@@ -42,7 +42,7 @@ public class UserServiceTests {
     }
 
     @Test
-    public void testLogin_Positive() {
+    public void testLoginPositive() {
         HashMap<String, UserData> map = new HashMap<>();
         UserData userData = new UserData("eli", "ile", "eli@ile.com");
         map.put(userData.username(), userData);
@@ -58,7 +58,7 @@ public class UserServiceTests {
         });
     }
     @Test
-    public void testLogin_Negative_unauthorized() {
+    public void testLoginNegativeUnauthorized() {
         UserData userData = new UserData("eli", "ile", "eli@ile.com");
         UserService service = new UserService(null);
 
@@ -68,7 +68,7 @@ public class UserServiceTests {
     }
 
     @Test
-    public void testLogout_Positive() {
+    public void testLogoutPositive() {
         HashMap<String, String> map = new HashMap<>();
         AuthData authData = new AuthData("eli", "32");
         map.put(authData.authToken(), authData.username());
@@ -81,7 +81,7 @@ public class UserServiceTests {
         });
     }
     @Test
-    public void testLogout_Negative_unauthorized() {
+    public void testLogoutNegativeUnauthorized() {
         String expectedAuthToken = "32";
         String testAuthToken = "33";
         HashMap<String, String> map = new HashMap<>();

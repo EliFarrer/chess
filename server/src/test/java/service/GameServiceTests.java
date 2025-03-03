@@ -15,7 +15,7 @@ import java.util.HashMap;
 
 public class GameServiceTests {
     @Test
-    public void testCreate_Positive() {
+    public void testCreatePositive() {
         HashMap<String, String> map = new HashMap<>();
         AuthData authData = new AuthData("eli", "32");
         map.put(authData.authToken(), authData.username());
@@ -29,7 +29,7 @@ public class GameServiceTests {
         });
     }
     @Test
-    public void testCreate_Negative_badData() {
+    public void testCreateNegativeBadData() {
         HashMap<String, String> map = new HashMap<>();
         AuthData authData = new AuthData("eli", "32");
         map.put(authData.authToken(), authData.username());
@@ -41,7 +41,7 @@ public class GameServiceTests {
         Assertions.assertEquals("Error: bad request", ex.getMessage());
     }
     @Test
-    public void testCreate_Negative_unauthorized() {
+    public void testCreateNegativeUnauthorized() {
         HashMap<String, String> map = new HashMap<>();
         AuthData authData = new AuthData("eli", "32");
         map.put(authData.authToken(), authData.username());
@@ -54,7 +54,7 @@ public class GameServiceTests {
     }
 
     @Test
-    public void testJoin_Positive() {
+    public void testJoinPositive() {
         int gameID = 1234;
 
         // authorization map
@@ -77,7 +77,7 @@ public class GameServiceTests {
         // we assume that if it didn't throw an error it worked correctly.
     }
     @Test
-    public void testJoin_Negative_badData() {
+    public void testJoinNegativeBadData() {
         int gameID = 1234;
 
         // authorization map
@@ -98,7 +98,7 @@ public class GameServiceTests {
         Assertions.assertEquals("Error: bad request", ex.getMessage());
     }
     @Test
-    public void testJoin_Negative_unauthorizedAuthData() {
+    public void testJoinNegativeUnauthorizedAuthData() {
         String expectedAuthToken = "32";
         String testAuthToken = "31";
         int gameID = 1234;
@@ -120,7 +120,7 @@ public class GameServiceTests {
         Assertions.assertEquals("Error: unauthorized auth data", ex.getMessage());
     }
     @Test
-    public void testJoin_Negative_unauthorizedGameID() {
+    public void testJoinNegativeUnauthorizedGameID() {
         int expectedGameID = 1234;
         int testGameID = 4221;
 
@@ -141,7 +141,7 @@ public class GameServiceTests {
         Assertions.assertEquals("Error: unauthorized game id", ex.getMessage());
     }
     @Test
-    public void testJoin_Negative_alreadyTaken() {
+    public void testJoinNegativeAlreadyTaken() {
         int gameID = 1234;
 
         // authorization map
@@ -162,7 +162,7 @@ public class GameServiceTests {
     }
     @Test
 
-    public void testList_Positive() {
+    public void testListPositive() {
         String authToken = "32";
         int gameID1 = 1234;
         int gameID2 = 1244;
@@ -193,7 +193,7 @@ public class GameServiceTests {
 
     }
     @Test
-    public void testList_Negative_unauthorizedAuthData() {
+    public void testListNegativeUnauthorizedAuthData() {
         String expectedAuthToken = "32";
         String testAuthToken = "31";
         int gameID1 = 1234;

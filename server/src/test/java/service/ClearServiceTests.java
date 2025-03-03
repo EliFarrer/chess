@@ -11,7 +11,7 @@ import java.util.HashMap;
 
 public class ClearServiceTests {
     @Test
-    public void testClear_Positive() {
+    public void testClearPositive() {
         String authToken = "32";
         int gameID = 1234;
 

@@ -19,9 +19,8 @@ public class GameService {
         this.dataAccess = Objects.requireNonNullElseGet(dao, () -> new MemoryUserDAO(null, null, null));
     }
 
-//    public ListGamesResult listGames(String authToken) {}
-
-    public CreateGameResult createGame(String authToken, CreateGameRequest req) throws DataAccessException, BadRequestException, UnauthorizedException {
+    public CreateGameResult createGame(String authToken, CreateGameRequest req)
+            throws DataAccessException, BadRequestException, UnauthorizedException {
         try {
             if (authToken.isEmpty() || req.gameName().isEmpty()) {
                 throw new BadRequestException("Error: bad request");

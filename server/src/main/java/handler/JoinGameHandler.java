@@ -1,4 +1,4 @@
-package HTTPHandler;
+package handler;
 
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
@@ -24,10 +24,10 @@ public class JoinGameHandler {
     public Object handle(Request req, Response res) {
         try {
             String authToken = req.headers("Authorization");
-            JoinGameRequest JGReq = serializer.fromJson(req.body(), JoinGameRequest.class);
+            JoinGameRequest joinGameRequest = serializer.fromJson(req.body(), JoinGameRequest.class);
             res.status(200);
 
-            service.joinGame(authToken, JGReq);
+            service.joinGame(authToken, joinGameRequest);
             res.status(200);
             return "";
         } catch (DataAccessException e) {
