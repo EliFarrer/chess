@@ -1,12 +1,10 @@
 package HTTPHandler;
 import com.google.gson.Gson;
+import dataaccess.DataAccessException;
 import dataaccess.MemoryUserDAO;
-import dataaccess.UserDAO;
 import service.ClearService;
 import service.ServiceException;
 import spark.*;
-
-import java.util.Map;
 
 
 public class ClearHandler implements Route {
@@ -21,11 +19,9 @@ public class ClearHandler implements Route {
         try {
             service.clearGame();
             return "";
-        } catch (ServiceException e) {
+        } catch (DataAccessException e) {
             res.status(500);
             return serializer.toJson(e.getMessage());
         }
-
     }
-
 }

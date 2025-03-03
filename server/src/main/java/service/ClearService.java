@@ -12,11 +12,11 @@ public class ClearService {
         this.dataAccess = Objects.requireNonNullElseGet(dao, () -> new MemoryUserDAO(null, null, null));
     }
 
-    public void clearGame() {
+    public void clearGame() throws DataAccessException {
         try {
             dataAccess.clear();
         } catch (DataAccessException ex) {
-            throw new ServiceException("did not clear");
+            throw new DataAccessException(ex.getMessage());
         }
 
     }

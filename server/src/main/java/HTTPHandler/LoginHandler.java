@@ -1,6 +1,7 @@
 package HTTPHandler;
 
 import com.google.gson.Gson;
+import dataaccess.DataAccessException;
 import dataaccess.MemoryUserDAO;
 import request.LoginRequest;
 import result.LoginResult;
@@ -23,10 +24,12 @@ public class LoginHandler {
             LoginResult logRes = service.login(logReq);
             res.status(200);
             return serializer.toJson(logRes);
+        } catch (DataAccessException e) {
+            res.status(400);
+            return serializer.toJson(e.getMessage());
         } catch (ServiceException e) {
             res.status(500);
             return serializer.toJson(e.getMessage());
         }
-
     }
 }

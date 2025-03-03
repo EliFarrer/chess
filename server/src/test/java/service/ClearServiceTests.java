@@ -1,5 +1,6 @@
 package service;
 import chess.ChessGame;
+import dataaccess.DataAccessException;
 import dataaccess.MemoryUserDAO;
 import model.AuthData;
 import model.GameData;
@@ -29,7 +30,7 @@ public class ClearServiceTests {
         MemoryUserDAO dao = new MemoryUserDAO(null, authMap, gameMap);
         ClearService service = new ClearService(dao);
 
-        service.clearGame();
+        Assertions.assertDoesNotThrow(service::clearGame);
         Assertions.assertTrue(dao.isEmpty());
 
     }

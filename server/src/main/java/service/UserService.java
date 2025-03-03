@@ -18,7 +18,7 @@ public class UserService {
         this.dataAccess = Objects.requireNonNullElseGet(dao, () -> new MemoryUserDAO(null, null, null));
     }
 
-    public LoginResult register(RegisterRequest req) throws ServiceException {
+    public LoginResult register(RegisterRequest req) throws ServiceException, DataAccessException {
         try {
             // 400 error, the data is bad
             if (req.username().isEmpty() || req.password().isEmpty() || req.email().isEmpty()) {
@@ -40,13 +40,12 @@ public class UserService {
             return new LoginResult(authData.username(), authData.authToken());
         } catch (DataAccessException e) {
             // this is the case where the database is broken.
-            throw new ServiceException("Data access exception (register): " + e);
+            throw new DataAccessException(e.getMessage());
         }
     }
-    public LoginResult login(LoginRequest req) {
+    public LoginResult login(LoginRequest req) throws ServiceException, DataAccessException {
         try {
             UserData userData = dataAccess.getUser(req.username());
-
             // if the user is not registered
             if (userData == null) {
                 throw new ServiceException("this user is not registered");
@@ -56,18 +55,18 @@ public class UserService {
             AuthData authData = dataAccess.createAuth(userData.username());
             return new LoginResult(authData.username(), authData.authToken());
         } catch (DataAccessException e) {   // 500 error
-            throw new ServiceException("Data access exception (login): " + e);
+            throw new DataAccessException(e.getMessage());
         }
     }
-    public void logout(String authToken) {
+    public void logout(String authToken) throws ServiceException, DataAccessException{
         try {
             if (dataAccess.isNotAuthorized(authToken))  {   // if we don't have access
                 throw new ServiceException("unauthorized auth data");
             }
 
             dataAccess.removeAuth(authToken);
-        } catch(DataAccessException e) {    // 500 error
-            throw new ServiceException("Data access exception (logout): " + e);
+        } catch (DataAccessException e) {    // 500 error
+            throw new DataAccessException(e.getMessage());
         }
     }
 }
