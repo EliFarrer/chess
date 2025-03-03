@@ -7,17 +7,16 @@ import java.util.Objects;
 
 public class ClearService {
     private final UserDAO dataAccess;
-    public ClearService() {
+    public ClearService(MemoryUserDAO dao) {
         // if we pass in a dao, it will use that, if not it will use a newly created DAO.
-        this.dataAccess = new MemoryUserDAO(null, null, null);
+        this.dataAccess = Objects.requireNonNullElseGet(dao, () -> new MemoryUserDAO(null, null, null));
     }
 
     public void clearGame() {
         try {
             dataAccess.clear();
-//            return new ClearResult("");
         } catch (DataAccessException ex) {
-//            return new ClearResult("did not clear");
+            throw new ServiceException("did not clear");
         }
 
     }
