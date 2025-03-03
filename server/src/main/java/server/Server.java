@@ -7,7 +7,7 @@ public class Server {
     private final ClearService service;
 
     public Server() {
-        this.service = new ClearService();
+        this.service = new ClearService(null);
     }
 
     public int run(int desiredPort) {
