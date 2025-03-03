@@ -43,6 +43,18 @@ public class MemoryUserDAO implements UserDAO {
         return authDataMap.isEmpty();
     }
 
+    public boolean isUserDataMapEmpty() {
+        return userDataMap.isEmpty();
+    }
+
+    public boolean isGameDataMapEmpty() {
+        return gameDataMap.isEmpty();
+    }
+
+    public boolean isEmpty() {
+        return (isGameDataMapEmpty() && isUserDataMapEmpty() && isAuthDataMapEmpty());
+    }
+
     public boolean isNotAuthorized(String authToken) throws DataAccessException {
         // if the authToken is in the database, we return true because it is authorized
         return (authDataMap.get(authToken) == null);
