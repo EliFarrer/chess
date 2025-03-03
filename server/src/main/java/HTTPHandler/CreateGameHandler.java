@@ -3,9 +3,12 @@ package HTTPHandler;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryUserDAO;
+import result.CreateGameResult;
+import result.ErrorResult;
 import request.CreateGameRequest;
 import service.GameService;
-import service.ServiceException;
+import service.BadRequestException;
+import service.UnauthorizedException;
 import spark.Request;
 import spark.Response;
 
@@ -22,15 +25,18 @@ public class CreateGameHandler {
         try {
             String authToken = req.headers("Authorization");
             CreateGameRequest CGreq = new CreateGameRequest(authToken, req.body());
-            Integer CGRes = service.createGame(CGreq);
+            CreateGameResult CGRes = service.createGame(CGreq);
             res.status(200);
             return serializer.toJson(CGRes);
         } catch (DataAccessException e) {
             res.status(500);
-            return serializer.toJson(e.getMessage());
-        } catch (ServiceException e) {
+            return serializer.toJson(new ErrorResult(e.getMessage()));
+        } catch (BadRequestException e) {
             res.status(400);
-            return serializer.toJson(e.getMessage());
+            return serializer.toJson(new ErrorResult(e.getMessage()));
+        } catch (UnauthorizedException e) {
+            res.status(401);
+            return serializer.toJson(new ErrorResult(e.getMessage()));
         }
     }
 }

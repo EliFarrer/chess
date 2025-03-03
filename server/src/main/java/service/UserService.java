@@ -18,20 +18,20 @@ public class UserService {
         this.dataAccess = Objects.requireNonNullElseGet(dao, () -> new MemoryUserDAO(null, null, null));
     }
 
-    public LoginResult register(RegisterRequest req) throws ServiceException, DataAccessException {
+    public LoginResult register(RegisterRequest req) throws BadRequestException, DataAccessException, AlreadyTakenException {
         try {
             if (req.username() == null || req.password() == null || req.email() == null) {
-                throw new ServiceException("bad data");
+                throw new BadRequestException("Error: bad request");
             }
             // 400 error, the data is bad
             if (req.username().isEmpty() || req.password().isEmpty() || req.email().isEmpty()) {
-                throw new ServiceException("bad data");
+                throw new BadRequestException("Error: bad request");
             }
 
             // check to see if the user is already registered
             UserData testUserData = dataAccess.getUser(req.username());
             if (testUserData != null) {
-                throw new ServiceException("the user is already registered");
+                throw new AlreadyTakenException("Error: the user is already registered");
             }
 
             // create the new user
@@ -46,17 +46,17 @@ public class UserService {
             throw new DataAccessException(e.getMessage());
         }
     }
-    public LoginResult login(LoginRequest req) throws ServiceException, DataAccessException {
+    public LoginResult login(LoginRequest req) throws BadRequestException, DataAccessException, UnauthorizedException {
         try {
             UserData userData = dataAccess.getUser(req.username());
             // if the user is not registered
             if (userData == null) {
-                throw new ServiceException("this user is not registered");
+                throw new UnauthorizedException("Error: this user is not registered");
             }
 
             // if bad password
             if (!Objects.equals(req.password(), userData.password())) {
-                throw new ServiceException("incorrect password");
+                throw new UnauthorizedException("Error: incorrect password");
             }
 
             // the user is registered, so create auth and return LoginResult
@@ -66,10 +66,10 @@ public class UserService {
             throw new DataAccessException(e.getMessage());
         }
     }
-    public void logout(String authToken) throws ServiceException, DataAccessException{
+    public void logout(String authToken) throws BadRequestException, DataAccessException{
         try {
             if (dataAccess.isNotAuthorized(authToken))  {   // if we don't have access
-                throw new ServiceException("unauthorized auth data");
+                throw new UnauthorizedException("Error: unauthorized auth data");
             }
 
             dataAccess.removeAuth(authToken);

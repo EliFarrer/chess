@@ -2,8 +2,8 @@ package HTTPHandler;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryUserDAO;
+import result.ErrorResult;
 import service.ClearService;
-import service.ServiceException;
 import spark.*;
 
 
@@ -21,7 +21,7 @@ public class ClearHandler implements Route {
             return "";
         } catch (DataAccessException e) {
             res.status(500);
-            return serializer.toJson(e.getMessage());
+            return serializer.toJson(new ErrorResult(e.getMessage()));
         }
     }
 }

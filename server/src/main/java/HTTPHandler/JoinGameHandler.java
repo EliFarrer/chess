@@ -3,9 +3,12 @@ package HTTPHandler;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryUserDAO;
+import result.ErrorResult;
 import request.JoinGameRequest;
+import service.AlreadyTakenException;
 import service.GameService;
-import service.ServiceException;
+import service.BadRequestException;
+import service.UnauthorizedException;
 import spark.Request;
 import spark.Response;
 
@@ -29,10 +32,16 @@ public class JoinGameHandler {
             return "";
         } catch (DataAccessException e) {
             res.status(500);
-            return serializer.toJson(e.getMessage());
-        } catch (ServiceException e) {
+            return serializer.toJson(new ErrorResult(e.getMessage()));
+        } catch (BadRequestException e) {
             res.status(400);
-            return serializer.toJson(e.getMessage());
+            return serializer.toJson(new ErrorResult(e.getMessage()));
+        } catch (UnauthorizedException e) {
+            res.status(401);
+            return serializer.toJson(new ErrorResult(e.getMessage()));
+        } catch (AlreadyTakenException e) {
+            res.status(403);
+            return serializer.toJson(new ErrorResult(e.getMessage()));
         }
     }
 }

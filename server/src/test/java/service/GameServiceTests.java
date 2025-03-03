@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 import request.CreateGameRequest;
 import request.JoinGameRequest;
+import result.CreateGameResult;
+import result.ListGamesResult;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,7 +25,7 @@ public class GameServiceTests {
 
         CreateGameRequest req = new CreateGameRequest("32", "gameName");
         Assertions.assertDoesNotThrow(() -> {
-            Integer gameID = service.createGame(req);
+            CreateGameResult gameID = service.createGame(req);
             Assertions.assertNotNull(gameID);
         });
     }
@@ -36,7 +38,7 @@ public class GameServiceTests {
         GameService service = new GameService(dao);
 
         CreateGameRequest req = new CreateGameRequest("", "gameName");
-        Exception ex = Assertions.assertThrows(ServiceException.class, () -> service.createGame(req));
+        Exception ex = Assertions.assertThrows(BadRequestException.class, () -> service.createGame(req));
         Assertions.assertEquals("bad data", ex.getMessage());
     }
     @Test
@@ -48,7 +50,7 @@ public class GameServiceTests {
         GameService service = new GameService(dao);
 
         CreateGameRequest req = new CreateGameRequest("33", "gameName");
-        Exception ex = Assertions.assertThrows(ServiceException.class, () -> service.createGame(req));
+        Exception ex = Assertions.assertThrows(BadRequestException.class, () -> service.createGame(req));
         Assertions.assertEquals("unauthorized auth data", ex.getMessage());
     }
 
@@ -93,7 +95,7 @@ public class GameServiceTests {
         GameService service = new GameService(dao);
 
         JoinGameRequest req = new JoinGameRequest(null, gameID);
-        Exception ex = Assertions.assertThrows(ServiceException.class, () -> service.joinGame("32", req));
+        Exception ex = Assertions.assertThrows(BadRequestException.class, () -> service.joinGame("32", req));
         Assertions.assertEquals("bad data", ex.getMessage());
     }
     @Test
@@ -115,7 +117,7 @@ public class GameServiceTests {
         GameService service = new GameService(dao);
 
         JoinGameRequest req = new JoinGameRequest(ChessGame.TeamColor.WHITE, gameID);
-        Exception ex = Assertions.assertThrows(ServiceException.class, () -> service.joinGame(testAuthToken, req));
+        Exception ex = Assertions.assertThrows(BadRequestException.class, () -> service.joinGame(testAuthToken, req));
         Assertions.assertEquals("unauthorized auth data", ex.getMessage());
     }
     @Test
@@ -136,7 +138,7 @@ public class GameServiceTests {
         GameService service = new GameService(dao);
 
         JoinGameRequest req = new JoinGameRequest(ChessGame.TeamColor.WHITE, testGameID);
-        Exception ex = Assertions.assertThrows(ServiceException.class, () -> service.joinGame("32", req));
+        Exception ex = Assertions.assertThrows(BadRequestException.class, () -> service.joinGame("32", req));
         Assertions.assertEquals("unauthorized game id", ex.getMessage());
     }
     @Test
@@ -156,7 +158,7 @@ public class GameServiceTests {
         GameService service = new GameService(dao);
 
         JoinGameRequest req = new JoinGameRequest(ChessGame.TeamColor.WHITE, gameID);
-        Exception ex = Assertions.assertThrows(ServiceException.class, () -> service.joinGame("32", req));
+        Exception ex = Assertions.assertThrows(BadRequestException.class, () -> service.joinGame("32", req));
         Assertions.assertEquals("color already taken", ex.getMessage());
     }
     @Test
@@ -186,8 +188,8 @@ public class GameServiceTests {
         GameService service = new GameService(dao);
 
         Assertions.assertDoesNotThrow(() -> {
-            ArrayList<GameMetaData> actualGames = service.listGames(authToken);
-            Assertions.assertEquals(expectedGames, actualGames);
+            ListGamesResult actualGames = service.listGames(authToken);
+            Assertions.assertEquals(new ListGamesResult(expectedGames), actualGames);
         });
 
     }
@@ -213,7 +215,7 @@ public class GameServiceTests {
         MemoryUserDAO dao = new MemoryUserDAO(null, authMap, gameMap);
         GameService service = new GameService(dao);
 
-        Exception ex = Assertions.assertThrows(ServiceException.class, () -> service.listGames(testAuthToken));
+        Exception ex = Assertions.assertThrows(BadRequestException.class, () -> service.listGames(testAuthToken));
         Assertions.assertEquals("unauthorized auth data", ex.getMessage());
     }
 }

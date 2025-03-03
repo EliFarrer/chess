@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Assertions;
 import request.LoginRequest;
 import request.RegisterRequest;
 import result.LoginResult;
-import spark.utils.Assert;
 
 import java.util.HashMap;
 
@@ -31,14 +30,14 @@ public class UserServiceTests {
         // register a user
         Assertions.assertDoesNotThrow(() -> service.register(req));
 
-        Exception ex = Assertions.assertThrows(ServiceException.class, () -> service.register(req));
+        Exception ex = Assertions.assertThrows(BadRequestException.class, () -> service.register(req));
         Assertions.assertEquals("the user is already registered", ex.getMessage());
     }
     @Test
     public void testRegister_Negative_badData() {
         UserService service = new UserService(null);
         RegisterRequest req = new RegisterRequest("", "ile", "eli@ile.com");
-        Exception ex = Assertions.assertThrows(ServiceException.class, () -> service.register(req));
+        Exception ex = Assertions.assertThrows(BadRequestException.class, () -> service.register(req));
         Assertions.assertEquals("bad data", ex.getMessage());
     }
 
@@ -64,7 +63,7 @@ public class UserServiceTests {
         UserService service = new UserService(null);
 
         LoginRequest req = new LoginRequest(userData.username(), userData.password());
-        Exception ex = Assertions.assertThrows(ServiceException.class, () -> service.login(req));
+        Exception ex = Assertions.assertThrows(BadRequestException.class, () -> service.login(req));
         Assertions.assertEquals("this user is not registered", ex.getMessage());
     }
 
@@ -91,7 +90,7 @@ public class UserServiceTests {
         MemoryUserDAO dao = new MemoryUserDAO(null, map, null);
         UserService service = new UserService(dao);
 
-        Exception ex = Assertions.assertThrows(ServiceException.class, () -> service.logout(testAuthToken));
+        Exception ex = Assertions.assertThrows(BadRequestException.class, () -> service.logout(testAuthToken));
         Assertions.assertEquals("unauthorized auth data", ex.getMessage());
     }
 }

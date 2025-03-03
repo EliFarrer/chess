@@ -3,7 +3,9 @@ package HTTPHandler;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryUserDAO;
-import service.ServiceException;
+import result.ErrorResult;
+import service.BadRequestException;
+import service.UnauthorizedException;
 import service.UserService;
 import spark.Request;
 import spark.Response;
@@ -23,11 +25,10 @@ public class LogoutHandler {
             return "";
         } catch (DataAccessException e) {
             res.status(500);
-            return serializer.toJson(e.getMessage());
-        } catch (ServiceException e) {
-            res.status(400);
-            return serializer.toJson(e.getMessage());
+            return serializer.toJson(new ErrorResult(e.getMessage()));
+        } catch (UnauthorizedException e) {
+            res.status(401);
+            return serializer.toJson(new ErrorResult(e.getMessage()));
         }
-
     }
 }
