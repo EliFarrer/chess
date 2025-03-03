@@ -5,11 +5,12 @@ import dataaccess.DataAccessException;
 import dataaccess.MemoryUserDAO;
 import dataaccess.UserDAO;
 import model.GameData;
+import model.GameMetaData;
 import request.CreateGameRequest;
 import request.JoinGameRequest;
 import result.CreateGameResult;
-import result.ListGamesResult;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class GameService {
@@ -20,15 +21,15 @@ public class GameService {
 
 //    public ListGamesResult listGames(String authToken) {}
 
-    public CreateGameResult createGame(CreateGameRequest req) throws DataAccessException, BadRequestException, UnauthorizedException {
+    public CreateGameResult createGame(String authToken, CreateGameRequest req) throws DataAccessException, BadRequestException, UnauthorizedException {
         try {
-            if (req.authToken().isEmpty() || req.gameName().isEmpty()) {
+            if (authToken.isEmpty() || req.gameName().isEmpty()) {
                 throw new BadRequestException("Error: bad request");
             }
-            if (dataAccess.isNotAuthorized(req.authToken())) {
+            if (dataAccess.isNotAuthorized(authToken)) {
                 throw new UnauthorizedException("Error: unauthorized auth data");
             }
-            int gameID = req.gameName().hashCode();
+            int gameID = Math.abs(req.gameName().hashCode());
             dataAccess.createGame(gameID, req.gameName());
             return new CreateGameResult(gameID);
         } catch(DataAccessException e) {
@@ -69,12 +70,12 @@ public class GameService {
         }
     }
 
-    public ListGamesResult listGames(String authToken) throws DataAccessException, UnauthorizedException {
+    public ArrayList<GameMetaData> listGames(String authToken) throws DataAccessException, UnauthorizedException {
         try {
             if (dataAccess.isNotAuthorized(authToken)) {
                 throw new UnauthorizedException("Error: unauthorized auth data");
             }
-            return new ListGamesResult(dataAccess.listGames());
+            return dataAccess.listGames();
         } catch(DataAccessException e) {
             throw new DataAccessException(e.getMessage());
         }

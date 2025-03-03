@@ -24,8 +24,8 @@ public class CreateGameHandler {
     public Object handle(Request req, Response res) {
         try {
             String authToken = req.headers("Authorization");
-            CreateGameRequest CGreq = new CreateGameRequest(authToken, req.body());
-            CreateGameResult CGRes = service.createGame(CGreq);
+            CreateGameRequest CGreq = serializer.fromJson(req.body(), CreateGameRequest.class);
+            CreateGameResult CGRes = service.createGame(authToken, CGreq);
             res.status(200);
             return serializer.toJson(CGRes);
         } catch (DataAccessException e) {

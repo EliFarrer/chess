@@ -30,15 +30,15 @@ public class UserServiceTests {
         // register a user
         Assertions.assertDoesNotThrow(() -> service.register(req));
 
-        Exception ex = Assertions.assertThrows(BadRequestException.class, () -> service.register(req));
-        Assertions.assertEquals("the user is already registered", ex.getMessage());
+        Exception ex = Assertions.assertThrows(AlreadyTakenException.class, () -> service.register(req));
+        Assertions.assertEquals("Error: the user is already registered", ex.getMessage());
     }
     @Test
     public void testRegister_Negative_badData() {
         UserService service = new UserService(null);
         RegisterRequest req = new RegisterRequest("", "ile", "eli@ile.com");
         Exception ex = Assertions.assertThrows(BadRequestException.class, () -> service.register(req));
-        Assertions.assertEquals("bad data", ex.getMessage());
+        Assertions.assertEquals("Error: bad request", ex.getMessage());
     }
 
     @Test
@@ -63,8 +63,8 @@ public class UserServiceTests {
         UserService service = new UserService(null);
 
         LoginRequest req = new LoginRequest(userData.username(), userData.password());
-        Exception ex = Assertions.assertThrows(BadRequestException.class, () -> service.login(req));
-        Assertions.assertEquals("this user is not registered", ex.getMessage());
+        Exception ex = Assertions.assertThrows(UnauthorizedException.class, () -> service.login(req));
+        Assertions.assertEquals("Error: this user is not registered", ex.getMessage());
     }
 
     @Test
@@ -90,7 +90,7 @@ public class UserServiceTests {
         MemoryUserDAO dao = new MemoryUserDAO(null, map, null);
         UserService service = new UserService(dao);
 
-        Exception ex = Assertions.assertThrows(BadRequestException.class, () -> service.logout(testAuthToken));
-        Assertions.assertEquals("unauthorized auth data", ex.getMessage());
+        Exception ex = Assertions.assertThrows(UnauthorizedException.class, () -> service.logout(testAuthToken));
+        Assertions.assertEquals("Error: unauthorized auth data", ex.getMessage());
     }
 }

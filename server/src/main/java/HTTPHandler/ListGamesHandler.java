@@ -1,15 +1,17 @@
 package HTTPHandler;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryUserDAO;
+import model.GameMetaData;
 import result.ErrorResult;
-import result.ListGamesResult;
 import service.GameService;
-import service.BadRequestException;
 import service.UnauthorizedException;
 import spark.Request;
 import spark.Response;
+
+import java.util.ArrayList;
 
 public class ListGamesHandler {
     GameService service;
@@ -19,12 +21,17 @@ public class ListGamesHandler {
         serializer = new Gson();
     }
 
+    // var jsonObject = new JsonObject();
+    // jsonObject.add("games", gson.toJsonTree(games));
+    // res.type too?
     public Object handle(Request req, Response res) {
         try {
             String authToken = req.headers("Authorization");
-           ListGamesResult LGRes = service.listGames(authToken);
+            ArrayList<GameMetaData> LGRes = service.listGames(authToken);
             res.status(200);
-            return serializer.toJson(LGRes);
+            var jsonObject = new JsonObject();
+            jsonObject.add("games", serializer.toJsonTree(LGRes));
+            return jsonObject;
         } catch (UnauthorizedException e) {
             res.status(401);
             return serializer.toJson(new ErrorResult(e.getMessage()));
