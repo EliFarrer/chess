@@ -22,8 +22,10 @@ public class GameServiceTests {
         GameService service = new GameService(dao);
 
         CreateGameRequest req = new CreateGameRequest("32", "gameName");
-        Integer gameID = service.createGame(req);
-        Assertions.assertNotNull(gameID);
+        Assertions.assertDoesNotThrow(() -> {
+            Integer gameID = service.createGame(req);
+            Assertions.assertNotNull(gameID);
+        });
     }
     @Test
     public void testCreate_Negative_badData() {
@@ -67,8 +69,10 @@ public class GameServiceTests {
         MemoryUserDAO dao = new MemoryUserDAO(null, authMap, gameMap);
         GameService service = new GameService(dao);
 
-        JoinGameRequest req = new JoinGameRequest("32", ChessGame.TeamColor.WHITE, gameID);
-        service.joinGame(req);
+        JoinGameRequest req = new JoinGameRequest(ChessGame.TeamColor.WHITE, gameID);
+
+        Assertions.assertDoesNotThrow(() -> service.joinGame("32", req)
+        );
         // we assume that if it didn't throw an error it worked correctly.
     }
     @Test
@@ -88,8 +92,8 @@ public class GameServiceTests {
         MemoryUserDAO dao = new MemoryUserDAO(null, authMap, gameMap);
         GameService service = new GameService(dao);
 
-        JoinGameRequest req = new JoinGameRequest("32",null, gameID);
-        Exception ex = Assertions.assertThrows(ServiceException.class, () -> service.joinGame(req));
+        JoinGameRequest req = new JoinGameRequest(null, gameID);
+        Exception ex = Assertions.assertThrows(ServiceException.class, () -> service.joinGame("32", req));
         Assertions.assertEquals("bad data", ex.getMessage());
     }
     @Test
@@ -110,8 +114,8 @@ public class GameServiceTests {
         MemoryUserDAO dao = new MemoryUserDAO(null, authMap, gameMap);
         GameService service = new GameService(dao);
 
-        JoinGameRequest req = new JoinGameRequest(testAuthToken, ChessGame.TeamColor.WHITE, gameID);
-        Exception ex = Assertions.assertThrows(ServiceException.class, () -> service.joinGame(req));
+        JoinGameRequest req = new JoinGameRequest(ChessGame.TeamColor.WHITE, gameID);
+        Exception ex = Assertions.assertThrows(ServiceException.class, () -> service.joinGame(testAuthToken, req));
         Assertions.assertEquals("unauthorized auth data", ex.getMessage());
     }
     @Test
@@ -131,8 +135,8 @@ public class GameServiceTests {
         MemoryUserDAO dao = new MemoryUserDAO(null, authMap, gameMap);
         GameService service = new GameService(dao);
 
-        JoinGameRequest req = new JoinGameRequest("32", ChessGame.TeamColor.WHITE, testGameID);
-        Exception ex = Assertions.assertThrows(ServiceException.class, () -> service.joinGame(req));
+        JoinGameRequest req = new JoinGameRequest(ChessGame.TeamColor.WHITE, testGameID);
+        Exception ex = Assertions.assertThrows(ServiceException.class, () -> service.joinGame("32", req));
         Assertions.assertEquals("unauthorized game id", ex.getMessage());
     }
     @Test
@@ -151,8 +155,8 @@ public class GameServiceTests {
         MemoryUserDAO dao = new MemoryUserDAO(null, authMap, gameMap);
         GameService service = new GameService(dao);
 
-        JoinGameRequest req = new JoinGameRequest("32", ChessGame.TeamColor.WHITE, gameID);
-        Exception ex = Assertions.assertThrows(ServiceException.class, () -> service.joinGame(req));
+        JoinGameRequest req = new JoinGameRequest(ChessGame.TeamColor.WHITE, gameID);
+        Exception ex = Assertions.assertThrows(ServiceException.class, () -> service.joinGame("32", req));
         Assertions.assertEquals("color already taken", ex.getMessage());
     }
     @Test
@@ -181,8 +185,11 @@ public class GameServiceTests {
         MemoryUserDAO dao = new MemoryUserDAO(null, authMap, gameMap);
         GameService service = new GameService(dao);
 
-        ArrayList<GameMetaData> actualGames = service.listGames(authToken);
-        Assertions.assertEquals(expectedGames, actualGames);
+        Assertions.assertDoesNotThrow(() -> {
+            ArrayList<GameMetaData> actualGames = service.listGames(authToken);
+            Assertions.assertEquals(expectedGames, actualGames);
+        });
+
     }
     @Test
     public void testList_Negative_unauthorizedAuthData() {

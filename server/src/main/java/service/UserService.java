@@ -20,6 +20,9 @@ public class UserService {
 
     public LoginResult register(RegisterRequest req) throws ServiceException, DataAccessException {
         try {
+            if (req.username() == null || req.password() == null || req.email() == null) {
+                throw new ServiceException("bad data");
+            }
             // 400 error, the data is bad
             if (req.username().isEmpty() || req.password().isEmpty() || req.email().isEmpty()) {
                 throw new ServiceException("bad data");
@@ -49,6 +52,11 @@ public class UserService {
             // if the user is not registered
             if (userData == null) {
                 throw new ServiceException("this user is not registered");
+            }
+
+            // if bad password
+            if (!Objects.equals(req.password(), userData.password())) {
+                throw new ServiceException("incorrect password");
             }
 
             // the user is registered, so create auth and return LoginResult

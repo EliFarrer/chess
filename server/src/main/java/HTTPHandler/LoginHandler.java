@@ -25,10 +25,10 @@ public class LoginHandler {
             res.status(200);
             return serializer.toJson(logRes);
         } catch (DataAccessException e) {
-            res.status(400);
+            res.status(500);
             return serializer.toJson(e.getMessage());
         } catch (ServiceException e) {
-            res.status(500);
+            res.status(400);
             return serializer.toJson(e.getMessage());
         }
     }

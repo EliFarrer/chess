@@ -3,24 +3,28 @@ package HTTPHandler;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryUserDAO;
+import request.CreateGameRequest;
+import service.GameService;
 import service.ServiceException;
-import service.UserService;
 import spark.Request;
 import spark.Response;
 
-public class LogoutHandler {
-    UserService service;
+
+public class CreateGameHandler {
+    GameService service;
     Gson serializer;
-    public LogoutHandler(MemoryUserDAO dao) {
-        service = new UserService(dao);
+    public CreateGameHandler(MemoryUserDAO dao) {
+        service = new GameService(dao);
         serializer = new Gson();
     }
 
     public Object handle(Request req, Response res) {
         try {
-            service.logout(req.headers("Authorization"));
+            String authToken = req.headers("Authorization");
+            CreateGameRequest CGreq = new CreateGameRequest(authToken, req.body());
+            Integer CGRes = service.createGame(CGreq);
             res.status(200);
-            return "";
+            return serializer.toJson(CGRes);
         } catch (DataAccessException e) {
             res.status(500);
             return serializer.toJson(e.getMessage());
@@ -28,6 +32,5 @@ public class LogoutHandler {
             res.status(400);
             return serializer.toJson(e.getMessage());
         }
-
     }
 }

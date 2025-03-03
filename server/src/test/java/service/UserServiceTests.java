@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Assertions;
 import request.LoginRequest;
 import request.RegisterRequest;
 import result.LoginResult;
+import spark.utils.Assert;
 
 import java.util.HashMap;
 
@@ -15,15 +16,21 @@ public class UserServiceTests {
     public void testRegister_Positive() {
         UserService service = new UserService(null);
         RegisterRequest req = new RegisterRequest("eli", "ile", "eli@ile.com");
-        LoginResult res = service.register(req);
-        Assertions.assertEquals(req.username(), res.username());
-        Assertions.assertNotNull(res.authToken());
+
+        Assertions.assertDoesNotThrow(() -> {
+            LoginResult res = service.register(req);
+            Assertions.assertEquals(req.username(), res.username());
+            Assertions.assertNotNull(res.authToken());
+        });
     }
     @Test
     public void testRegister_Negative_userAlreadyRegistered() {
         UserService service = new UserService(null);
         RegisterRequest req = new RegisterRequest("eli", "ile", "eli@ile.com");
-        service.register(req);
+
+        // register a user
+        Assertions.assertDoesNotThrow(() -> service.register(req));
+
         Exception ex = Assertions.assertThrows(ServiceException.class, () -> service.register(req));
         Assertions.assertEquals("the user is already registered", ex.getMessage());
     }
@@ -44,9 +51,12 @@ public class UserServiceTests {
         UserService service = new UserService(dao);
 
         LoginRequest req = new LoginRequest(userData.username(), userData.password());
-        LoginResult res = service.login(req);
-        Assertions.assertEquals(req.username(), res.username());
-        Assertions.assertNotNull(res.authToken());
+
+        Assertions.assertDoesNotThrow(() -> {
+            LoginResult res = service.login(req);
+            Assertions.assertEquals(req.username(), res.username());
+            Assertions.assertNotNull(res.authToken());
+        });
     }
     @Test
     public void testLogin_Negative_unauthorized() {
@@ -66,8 +76,10 @@ public class UserServiceTests {
         MemoryUserDAO dao = new MemoryUserDAO(null, map, null);
         UserService service = new UserService(dao);
 
-        service.logout(authData.authToken());
-        Assertions.assertTrue(dao.isAuthDataMapEmpty());
+        Assertions.assertDoesNotThrow(() -> {
+            service.logout(authData.authToken());
+            Assertions.assertTrue(dao.isAuthDataMapEmpty());
+        });
     }
     @Test
     public void testLogout_Negative_unauthorized() {

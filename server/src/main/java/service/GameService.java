@@ -20,7 +20,7 @@ public class GameService {
 
 //    public ListGamesResult listGames(String authToken) {}
 
-    public Integer createGame(CreateGameRequest req) {
+    public Integer createGame(CreateGameRequest req) throws DataAccessException, ServiceException{
         try {
             if (req.authToken().isEmpty() || req.gameName().isEmpty()) {
                 throw new ServiceException("bad data");
@@ -32,16 +32,16 @@ public class GameService {
             dataAccess.createGame(gameID, req.gameName());
             return gameID;
         } catch(DataAccessException e) {
-            throw new ServiceException("Data access exception (creating game): " + e);
+            throw new DataAccessException(e.getMessage());
         }
     }
 
-    public void joinGame(JoinGameRequest req) {
+    public void joinGame(String authToken, JoinGameRequest req) throws DataAccessException, ServiceException {
         try {
             if (req.gameID() == null || req.playerColor() == null) {
                 throw new ServiceException("bad data");
             }
-            if (dataAccess.isNotAuthorized(req.authToken())) {
+            if (dataAccess.isNotAuthorized(authToken)) {
                 throw new ServiceException("unauthorized auth data");
             }
             if (dataAccess.gameNotAuthorized(req.gameID())) {
@@ -49,7 +49,7 @@ public class GameService {
             }
 
             GameData gameData = dataAccess.getGame(req.gameID());
-            String username = dataAccess.getUsername(req.authToken());
+            String username = dataAccess.getUsername(authToken);
             GameData newGameData;
             if (req.playerColor() == ChessGame.TeamColor.WHITE) {
                 if (dataAccess.colorNotAvailable(req.gameID(), ChessGame.TeamColor.WHITE)) {
@@ -65,18 +65,18 @@ public class GameService {
             dataAccess.updateGame(req.gameID(), newGameData);
 
         } catch(DataAccessException e) {
-            throw new ServiceException("Data access exception (joining game): " + e);
+            throw new DataAccessException(e.getMessage());
         }
     }
 
-    public ArrayList<GameMetaData> listGames(String authToken) {
+    public ArrayList<GameMetaData> listGames(String authToken) throws DataAccessException, ServiceException{
         try {
             if (dataAccess.isNotAuthorized(authToken)) {
                 throw new ServiceException("unauthorized auth data");
             }
             return dataAccess.listGames();
         } catch(DataAccessException e) {
-            throw new ServiceException("Data access exception (listing games): " + e);
+            throw new DataAccessException(e.getMessage());
         }
     }
 }

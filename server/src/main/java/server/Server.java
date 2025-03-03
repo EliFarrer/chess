@@ -1,11 +1,6 @@
 package server;
-import HTTPHandler.ClearHandler;
-import HTTPHandler.LoginHandler;
-import HTTPHandler.LogoutHandler;
-import HTTPHandler.RegisterHandler;
+import HTTPHandler.*;
 import dataaccess.MemoryUserDAO;
-import org.eclipse.jetty.server.Authentication;
-import service.ClearService;
 import spark.*;
 
 public class Server {
@@ -34,9 +29,9 @@ public class Server {
         Spark.post("/user", this::handleRegisterUser);
         Spark.post("/session", this::handleLoginUser);
         Spark.delete("/session", this::handleLogoutUser);
-//        Spark.get("/game", this::handleListGames);
-//        Spark.post("/game", this::handleCreateGame);
-//        Spark.put("/game", this::handleJoinGame);
+        Spark.get("/game", this::handleListGames);
+        Spark.post("/game", this::handleCreateGame);
+        Spark.put("/game", this::handleJoinGame);
     }
 
     private Object handleClearGame(Request req, Response res) {
@@ -55,18 +50,18 @@ public class Server {
         LogoutHandler handler = new LogoutHandler(dao);
         return handler.handle(req, res);
     }
-//    private Object handleListGames(Request req, Response res) {
-//        ListGamesHandler handler = new ListGamesHandler(dao);
-//        return handler.handle(req, res);
-//    }
-//    private Object handleCreateGame(Request req, Response res) {
-//        CreateGameHandler handler = new CreateGameHandler(dao);
-//        return handler.handle(req, res);
-//    }
-//    private Object handleJoinGame(Request req, Response res) {
-//        JoinGameHandler handler = new JoinGameHandler(dao);
-//        return handler.handle(req, res);
-//    }
+    private Object handleListGames(Request req, Response res) {
+        ListGamesHandler handler = new ListGamesHandler(dao);
+        return handler.handle(req, res);
+    }
+    private Object handleCreateGame(Request req, Response res) {
+        CreateGameHandler handler = new CreateGameHandler(dao);
+        return handler.handle(req, res);
+    }
+    private Object handleJoinGame(Request req, Response res) {
+        JoinGameHandler handler = new JoinGameHandler(dao);
+        return handler.handle(req, res);
+    }
 
     public void stop() {
         Spark.stop();
