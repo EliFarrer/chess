@@ -44,6 +44,14 @@ public class MemoryDAO implements DataAccess {
         }
     }
 
+    public boolean userExists(String username) throws DataAccessException {
+        try {
+            return userDataMap.get(username) != null;
+        } catch (Exception e) {
+            throw new DataAccessException(e.getMessage());
+        }
+    }
+
     public AuthData createAuth(String userName) throws DataAccessException{
         try {
             String id = UUID.randomUUID().toString();

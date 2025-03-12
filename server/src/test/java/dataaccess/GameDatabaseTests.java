@@ -16,6 +16,8 @@ import service.BadRequestException;
 import service.GameService;
 import service.UnauthorizedException;
 
+import javax.xml.crypto.Data;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -44,23 +46,46 @@ public class GameDatabaseTests {
     }
 
     @Test
-    public void testCreateGameNegative() {
-
+    public void testCreateGameNegativeBadData() {
+        // look up something that doesn't exist....
+        DatabaseDAO db = new DatabaseDAO();
+        int id = 1;
+        Assertions.assertDoesNotThrow(() -> {
+            db.isGameDatabaseEmpty();
+            db.createGame(id, null);
+        });
+        Assertions.assertThrows(DataAccessException.class, () -> db.createGame(id, "myChessGame"));
     }
+
+    @Test
+    public void testCreateGameNegativeDuplicate() {
+        // look up something that doesn't exist....
+        DatabaseDAO db = new DatabaseDAO();
+        int id = 1;
+        Assertions.assertDoesNotThrow(() -> {
+            db.isGameDatabaseEmpty();
+            db.createGame(id, "myChessGame");
+        });
+        Assertions.assertThrows(DataAccessException.class, () -> db.createGame(id, "myChessGame"));
+    }
+
     @Test
     public void testGetGamePositive() {
         DatabaseDAO db = new DatabaseDAO();
         int id = 1;
         Assertions.assertDoesNotThrow(() -> {
-            Assertions.assertNull(db.getGame(id));
             db.createGame(id, "myChessGame");
             Assertions.assertNotNull(db.getGame(id));
         });
     }
     @Test
-    public void testGetGameNegative() {
-
+    public void testGetGameNegativeBadData() {
+        // bad input
+        DatabaseDAO db = new DatabaseDAO();
+        int id = 1;
+        Assertions.assertDoesNotThrow(() -> Assertions.assertNull(db.getGame(id)));
     }
+
     @Test
     public void testGameNotAuthorizedPositive() {
         DatabaseDAO db = new DatabaseDAO();
@@ -74,7 +99,10 @@ public class GameDatabaseTests {
 
     @Test
     public void testGameNotAuthorizedNegative() {
-
+        // game not created
+        DatabaseDAO db = new DatabaseDAO();
+        int id = 1;
+        Assertions.assertDoesNotThrow(() -> Assertions.assertTrue(db.gameNotAuthorized(id)));
     }
 
     @Test
@@ -90,8 +118,14 @@ public class GameDatabaseTests {
         });
     }
     @Test
-    public void testUpdateGameNegative() {
-
+    public void testUpdateGameNegativeBadData() {
+        DatabaseDAO db = new DatabaseDAO();
+        int id = 1;
+        String gameName = "myChessGame";
+        Assertions.assertDoesNotThrow(() -> {
+            db.createGame(id, gameName);
+        });
+        Assertions.assertThrows(DataAccessException.class, () -> db.updateGame(id, null));
     }
 
     @Test
@@ -108,8 +142,15 @@ public class GameDatabaseTests {
     }
 
     @Test
-    public void testColorNotAvailableNegative() {
-
+    public void testColorNotAvailableNegativeBadData() {
+        DatabaseDAO db = new DatabaseDAO();
+        int id = 1;
+        String gameName = "myChessGame";
+        Assertions.assertDoesNotThrow(() -> {
+            db.createGame(id, gameName);
+            db.updateGame(id, new GameData(id, "", "eli", gameName, new ChessGame()));
+        });
+        Assertions.assertThrows(DataAccessException.class, () -> db.colorNotAvailable(id, null));
     }
 
     @Test
@@ -117,8 +158,8 @@ public class GameDatabaseTests {
         DatabaseDAO db = new DatabaseDAO();
         ArrayList<GameMetaData> expectedGames = new ArrayList<>();
         expectedGames.add(new GameMetaData(1, "eli", "ile", "game1"));
-        expectedGames.add(new GameMetaData(2, "peter", "retep", "game2"));
-        expectedGames.add(new GameMetaData(3, "john", "nhoj", "game3"));
+        expectedGames.add(new GameMetaData(2, "peter", "peter", "game2"));
+        expectedGames.add(new GameMetaData(3, "john", "john", "game3"));
         Assertions.assertDoesNotThrow(() -> {
             db.createGame(1, "game1");
             db.updateGame(1, new GameData(expectedGames.get(0)));
@@ -129,19 +170,13 @@ public class GameDatabaseTests {
             ArrayList<GameMetaData> actualGames = db.listGames();
             Assertions.assertEquals(expectedGames, actualGames);
         });
-
     }
     @Test
     public void testListGamesNegative() {
-
-    }
-    @Test
-    public void testIsGameDatabaseEmptyPositive() {
-
-    }
-    @Test
-    public void testIsGameDatabaseEmptyNegative() {
-
+        // no games created
+        DatabaseDAO db = new DatabaseDAO();
+        ArrayList<GameMetaData> expectedGames = new ArrayList<>();
+        Assertions.assertDoesNotThrow(db::listGames);
     }
 
     @AfterAll

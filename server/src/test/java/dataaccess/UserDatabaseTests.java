@@ -7,6 +7,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mindrot.jbcrypt.BCrypt;
 
+import javax.xml.crypto.Data;
+
 
 public class UserDatabaseTests {
     @BeforeEach
@@ -22,7 +24,7 @@ public class UserDatabaseTests {
     }
 
     @Test
-    public void testCreateUserPositive() {  // invalid data,
+    public void testCreateUserPositive() {
         // string username to user text
         DatabaseDAO db = new DatabaseDAO();
         UserData expectedUserData = new UserData("eli", "ile", "eli@ile.com");
@@ -38,17 +40,19 @@ public class UserDatabaseTests {
 
     }
 
-    // go into ta lab, how do I do a negative test case here
-    // what about writing tests for helper functions?
     @Test
-    public void testCreateUserNegative() {
-        // this is the already registered case
+    public void testCreateUserNegativeBadData() {
         DatabaseDAO db = new DatabaseDAO();
         UserData expectedUserData = new UserData("eli", "ile", "eli@ile.com");
         Assertions.assertDoesNotThrow(() -> db.createUser(expectedUserData));
         Assertions.assertThrows(DataAccessException.class, () -> db.createUser(expectedUserData));
+    }
 
-        // note that the bad data is handled by the service, already registered should be as well.
+    @Test
+    public void testCreateUserNegativeDuplicate() {
+        DatabaseDAO db = new DatabaseDAO();
+        UserData expectedUserData = new UserData(null, "ile", "eli@ile.com");
+        Assertions.assertThrows(DataAccessException.class, () -> db.createUser(expectedUserData));
     }
 
     @Test
@@ -56,27 +60,44 @@ public class UserDatabaseTests {
         DatabaseDAO db = new DatabaseDAO();
         UserData expectedUserData = new UserData("eli", "ile", "eli@ile.com");
 
-        Assertions.assertDoesNotThrow(() -> db.createUser(expectedUserData));
-
         Assertions.assertDoesNotThrow(() -> {
+            db.createUser(expectedUserData);
             UserData actualUserData = db.getUser(expectedUserData.username());
             Assertions.assertEquals(expectedUserData.username(), actualUserData.username());
             Assertions.assertTrue(BCrypt.checkpw(expectedUserData.password(), actualUserData.password()));
             Assertions.assertEquals(expectedUserData.email(), actualUserData.email());
         });
     }
-    @Test
-    public void testGetUserNegative() {
 
+    @Test
+    public void testGetUserNegativeBadData() {
+        DatabaseDAO db = new DatabaseDAO();
+        UserData expectedUserData = new UserData("eli", "ile", "eli@ile.com");
+
+        Assertions.assertDoesNotThrow(() -> db.createUser(expectedUserData));
+
+        Assertions.assertThrows(DataAccessException.class, () -> db.getUser(null));
     }
 
     @Test
-    public void testIsUserDatabaseEmptyPositive() {
+    public void testUserExistsPositive() {
+        DatabaseDAO db = new DatabaseDAO();
+        UserData expectedUserData = new UserData("eli", "ile", "eli@ile.com");
 
+        Assertions.assertDoesNotThrow(() -> {
+            db.createUser(expectedUserData);
+            Assertions.assertTrue(db.userExists(expectedUserData.username()));
+        });
     }
-    @Test
-    public void testIsUserDatabaseEmptyNegative() {
 
+    @Test
+    public void testUserExistsNegative() {
+        DatabaseDAO db = new DatabaseDAO();
+        UserData expectedUserData = new UserData("eli", "ile", "eli@ile.com");
+
+        Assertions.assertDoesNotThrow(() -> {
+            Assertions.assertFalse(db.userExists(expectedUserData.username()));
+        });
     }
 
     @AfterAll
