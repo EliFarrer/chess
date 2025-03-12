@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class DatabaseDAO implements DataAccess {
     String[] databases = {"user", "game", "auth"};
-    public DatabaseDAO(Map<String, UserData> userMap, Map<String, String> authMap, Map<Integer, GameData> gameMap) {
+    public DatabaseDAO() {
         try {
             DatabaseManager.createDatabase();
             DatabaseManager.createTables();
@@ -24,17 +24,15 @@ public class DatabaseDAO implements DataAccess {
     }
 
     public void clear() throws DataAccessException {
-        var clearTableTemplate = "drop table ?";
-        try (var conn = DatabaseManager.getConnection()) {
-            try (PreparedStatement clearTableStatement = conn.prepareStatement(clearTableTemplate)) {
-                for (var db : databases) {
-                    var stmt = clearTableStatement;
-                    stmt.setString(1, db);
-                    stmt.executeUpdate();
+        for (var db : databases) {
+            var clearTableTemplate = "drop table " + db;
+            try (var conn = DatabaseManager.getConnection()) {
+                try (PreparedStatement clearTableStatement = conn.prepareStatement(clearTableTemplate)) {
+                    clearTableStatement.executeUpdate();
                 }
+            } catch (SQLException e) {
+                throw new DataAccessException(e.getMessage());
             }
-        } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
         }
     }
 
@@ -47,6 +45,7 @@ public class DatabaseDAO implements DataAccess {
     }
 
     public boolean isUserDatabaseEmpty() throws DataAccessException {
+        DatabaseManager.createTables();
         try (var connection = DatabaseManager.getConnection()) {
             try (PreparedStatement stmt = connection.prepareStatement("SELECT username FROM user")) {
                 ResultSet rs = stmt.executeQuery();
