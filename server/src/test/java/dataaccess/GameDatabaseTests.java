@@ -114,7 +114,21 @@ public class GameDatabaseTests {
 
     @Test
     public void testListGamesPositive() {
-
+        DatabaseDAO db = new DatabaseDAO();
+        ArrayList<GameMetaData> expectedGames = new ArrayList<>();
+        expectedGames.add(new GameMetaData(1, "eli", "ile", "game1"));
+        expectedGames.add(new GameMetaData(2, "peter", "retep", "game2"));
+        expectedGames.add(new GameMetaData(3, "john", "nhoj", "game3"));
+        Assertions.assertDoesNotThrow(() -> {
+            db.createGame(1, "game1");
+            db.updateGame(1, new GameData(expectedGames.get(0)));
+            db.createGame(2, "game2");
+            db.updateGame(2, new GameData(expectedGames.get(1)));
+            db.createGame(3, "game3");
+            db.updateGame(3, new GameData(expectedGames.get(2)));
+            ArrayList<GameMetaData> actualGames = db.listGames();
+            Assertions.assertEquals(expectedGames, actualGames);
+        });
 
     }
     @Test
