@@ -204,7 +204,7 @@ public class DatabaseDAO implements DataAccess {
             try (var statement = conn.prepareStatement("INSERT INTO game (gameID, gameData) VALUES (?, ?)")) {
                 statement.setInt(1, gameID);
 
-                GameData gameData = new GameData(gameID, "", "", gameName, new ChessGame());
+                GameData gameData = new GameData(gameID, null, null, gameName, new ChessGame());
                 var json = new Gson().toJson(gameData);
                 statement.setString(2, json);
                 statement.executeUpdate();
@@ -292,9 +292,9 @@ public class DatabaseDAO implements DataAccess {
 
                     // check to see if the color is available
                     if (requestedColor == ChessGame.TeamColor.WHITE) {
-                        return !Objects.equals(gameData.whiteUsername(), "");
+                        return !Objects.equals(gameData.whiteUsername(), null);
                     } else {
-                        return !Objects.equals(gameData.blackUsername(), "");
+                        return !Objects.equals(gameData.blackUsername(), null);
                     }
                 }
             }

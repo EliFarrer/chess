@@ -135,7 +135,7 @@ public class GameDatabaseTests {
         String gameName = "myChessGame";
         Assertions.assertDoesNotThrow(() -> {
             db.createGame(id, gameName);
-            db.updateGame(id, new GameData(id, "", "eli", gameName, new ChessGame()));
+            db.updateGame(id, new GameData(id, null, "eli", gameName, new ChessGame()));
             Assertions.assertFalse(db.colorNotAvailable(id, ChessGame.TeamColor.WHITE));
             Assertions.assertTrue(db.colorNotAvailable(id, ChessGame.TeamColor.BLACK));
         });
@@ -148,7 +148,7 @@ public class GameDatabaseTests {
         String gameName = "myChessGame";
         Assertions.assertDoesNotThrow(() -> {
             db.createGame(id, gameName);
-            db.updateGame(id, new GameData(id, "", "eli", gameName, new ChessGame()));
+            db.updateGame(id, new GameData(id, null, "eli", gameName, new ChessGame()));
         });
         Assertions.assertThrows(DataAccessException.class, () -> db.colorNotAvailable(id, null));
     }
