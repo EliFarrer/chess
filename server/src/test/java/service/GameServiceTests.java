@@ -217,4 +217,5 @@ public class GameServiceTests {
         Exception ex = Assertions.assertThrows(UnauthorizedException.class, () -> service.listGames(testAuthToken));
         Assertions.assertEquals("Error: unauthorized auth data", ex.getMessage());
     }
+
 }

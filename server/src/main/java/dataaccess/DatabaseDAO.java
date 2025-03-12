@@ -44,6 +44,9 @@ public class DatabaseDAO implements DataAccess {
                 throw new DataAccessException(e.getMessage());
             }
         }
+        if (!isUserDatabaseEmpty() || !isAuthDatabaseEmpty() || !isGameDatabaseEmpty()) {
+            throw new DataAccessException("Error: The database did not clear properly");
+        }
     }
 
     /*
@@ -79,6 +82,21 @@ public class DatabaseDAO implements DataAccess {
                     var json = rs.getString("userData");
                     var gson = new GsonBuilder().create();
                     return gson.fromJson(json, UserData.class);
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+    }
+
+    public boolean userExists(String username) throws DataAccessException {
+        DatabaseManager.createTables();
+        try (var conn = DatabaseManager.getConnection()) {
+            String select = "SELECT username, userData FROM user WHERE username = ?";
+            try (var statement = conn.prepareStatement(select)) {
+                statement.setString(1, username);
+                try (var rs = statement.executeQuery()) {
+                    return rs.next();
                 }
             }
         } catch (SQLException e) {
@@ -234,6 +252,9 @@ public class DatabaseDAO implements DataAccess {
 
     public void updateGame(int gameID, GameData gameData) throws DataAccessException {
         DatabaseManager.createTables();
+        if (gameData == null) {
+            throw new DataAccessException("Error: no gameData provided");
+        }
         try (var connection = DatabaseManager.getConnection()) {
             try (PreparedStatement stmt = connection.prepareStatement("DELETE FROM game WHERE gameID = ?")) {
                 stmt.setInt(1, gameID);
@@ -253,6 +274,9 @@ public class DatabaseDAO implements DataAccess {
 
     public boolean colorNotAvailable(int gameID, ChessGame.TeamColor requestedColor) throws DataAccessException {
         DatabaseManager.createTables();
+        if (requestedColor == null) {
+            throw new DataAccessException("Error: no gameData provided");
+        }
         try (var conn = DatabaseManager.getConnection()) {
             try (var statement = conn.prepareStatement("SELECT gameData FROM game WHERE gameID = ?")) {
                 statement.setInt(1, gameID);

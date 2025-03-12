@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.DataAccessException;
+import dataaccess.DatabaseDAO;
 import dataaccess.MemoryDAO;
 import dataaccess.DataAccess;
 import model.AuthData;
@@ -15,7 +16,7 @@ public class UserService {
     private final DataAccess dataAccess;
 
     public UserService(DataAccess dao) {
-        this.dataAccess = Objects.requireNonNullElseGet(dao, () -> new MemoryDAO(null, null, null));
+        this.dataAccess = Objects.requireNonNullElseGet(dao, DatabaseDAO::new);
     }
 
     public LoginResult register(RegisterRequest req) throws BadRequestException, DataAccessException, AlreadyTakenException {
@@ -29,8 +30,8 @@ public class UserService {
             }
 
             // check to see if the user is already registered
-            UserData testUserData = dataAccess.getUser(req.username());
-            if (testUserData != null) {
+
+            if (dataAccess.userExists(req.username())) {
                 throw new AlreadyTakenException("Error: the user is already registered");
             }
 

@@ -15,6 +15,8 @@ public interface DataAccess {
 
     UserData getUser(String username) throws DataAccessException;
 
+    boolean userExists(String username) throws DataAccessException;
+
     AuthData createAuth(String userName) throws DataAccessException;
 
     boolean isNotAuthorized(String authToken) throws DataAccessException;

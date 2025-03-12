@@ -1,7 +1,11 @@
 package service;
+import dataaccess.DataAccessException;
+import dataaccess.DatabaseManager;
 import dataaccess.MemoryDAO;
 import model.AuthData;
 import model.UserData;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 import request.LoginRequest;
@@ -13,7 +17,7 @@ import java.util.HashMap;
 public class UserServiceTests {
     @Test
     public void testRegisterPositive() {
-        UserService service = new UserService(null);
+        UserService service = new UserService(new MemoryDAO(null, null, null));
         RegisterRequest req = new RegisterRequest("eli", "ile", "eli@ile.com");
 
         Assertions.assertDoesNotThrow(() -> {
@@ -24,7 +28,7 @@ public class UserServiceTests {
     }
     @Test
     public void testRegisterNegativeUserAlreadyRegistered() {
-        UserService service = new UserService(null);
+        UserService service = new UserService(new MemoryDAO(null, null, null));
         RegisterRequest req = new RegisterRequest("eli", "ile", "eli@ile.com");
 
         // register a user
@@ -35,7 +39,7 @@ public class UserServiceTests {
     }
     @Test
     public void testRegisterNegativeBadData() {
-        UserService service = new UserService(null);
+        UserService service = new UserService(new MemoryDAO(null, null, null));
         RegisterRequest req = new RegisterRequest("", "ile", "eli@ile.com");
         Exception ex = Assertions.assertThrows(BadRequestException.class, () -> service.register(req));
         Assertions.assertEquals("Error: bad request", ex.getMessage());
@@ -60,7 +64,7 @@ public class UserServiceTests {
     @Test
     public void testLoginNegativeUnauthorized() {
         UserData userData = new UserData("eli", "ile", "eli@ile.com");
-        UserService service = new UserService(null);
+        UserService service = new UserService(new MemoryDAO(null, null, null));
 
         LoginRequest req = new LoginRequest(userData.username(), userData.password());
         Exception ex = Assertions.assertThrows(UnauthorizedException.class, () -> service.login(req));
