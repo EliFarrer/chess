@@ -140,7 +140,8 @@ public class MemoryDAO implements DataAccess {
             }
         } catch (Exception e) {
             throw new DataAccessException(e.getMessage());
-        }    }
+        }
+    }
 
     public void updateGame(int gameID, GameData gameData) throws DataAccessException {
         try {
