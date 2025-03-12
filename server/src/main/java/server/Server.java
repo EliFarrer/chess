@@ -2,11 +2,8 @@ package server;
 import dataaccess.DataAccess;
 import dataaccess.DatabaseDAO;
 import handler.*;
-import dataaccess.MemoryDAO;
 import spark.*;
 
-import java.util.HashMap;
-import java.util.Objects;
 
 public class Server {
     // not sure what to do with service here. I wma going to have multiple of them...

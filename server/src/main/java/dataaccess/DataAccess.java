@@ -17,8 +17,6 @@ public interface DataAccess {
 
     AuthData createAuth(String userName) throws DataAccessException;
 
-    boolean isAuthDataMapEmpty() throws DataAccessException;
-
     boolean isNotAuthorized(String authToken) throws DataAccessException;
 
     void removeAuth(String authToken) throws DataAccessException;
