@@ -22,7 +22,7 @@ public class GameService {
     public CreateGameResult createGame(String authToken, CreateGameRequest req)
             throws DataAccessException, BadRequestException, UnauthorizedException {
         try {
-            if (authToken.isEmpty() || req.gameName().isEmpty()) {
+            if (Objects.equals(authToken, "") || Objects.equals(req.gameName(), "")) {
                 throw new BadRequestException("Error: bad request");
             }
             if (dataAccess.isNotAuthorized(authToken)) {
