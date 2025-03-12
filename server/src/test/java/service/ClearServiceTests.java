@@ -22,14 +22,14 @@ public class ClearServiceTests {
 
         // gameMap
         HashMap<Integer, GameData> gameMap = new HashMap<>();
-        GameData gameData = new GameData(gameID, "eli", "johnny", "mychessgame", new ChessGame());
+        GameData gameData = new GameData(gameID, "eli", "johnny", "myChessGame", new ChessGame());
 
         gameMap.put(gameID, gameData);
         MemoryDAO dao = new MemoryDAO(null, authMap, gameMap);
         ClearService service = new ClearService(dao);
 
         Assertions.assertDoesNotThrow(service::clearGame);
-        Assertions.assertDoesNotThrow(dao::isEmpty);
+        Assertions.assertDoesNotThrow(() -> Assertions.assertTrue(dao.isEmpty()));
     }
 
     // don't need a negative testClear test case
