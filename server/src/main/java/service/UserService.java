@@ -1,8 +1,8 @@
 package service;
 
 import dataaccess.DataAccessException;
-import dataaccess.MemoryUserDAO;
-import dataaccess.UserDAO;
+import dataaccess.MemoryDAO;
+import dataaccess.DataAccess;
 import model.AuthData;
 import model.UserData;
 import request.LoginRequest;
@@ -12,10 +12,10 @@ import result.LoginResult;
 import java.util.Objects;
 
 public class UserService {
-    private final UserDAO dataAccess;
+    private final DataAccess dataAccess;
 
-    public UserService(UserDAO dao) {
-        this.dataAccess = Objects.requireNonNullElseGet(dao, () -> new MemoryUserDAO(null, null, null));
+    public UserService(DataAccess dao) {
+        this.dataAccess = Objects.requireNonNullElseGet(dao, () -> new MemoryDAO(null, null, null));
     }
 
     public LoginResult register(RegisterRequest req) throws BadRequestException, DataAccessException, AlreadyTakenException {

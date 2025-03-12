@@ -1,7 +1,8 @@
 package handler;
 import com.google.gson.Gson;
+import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
-import dataaccess.MemoryUserDAO;
+import dataaccess.MemoryDAO;
 import result.ErrorResult;
 import service.ClearService;
 import spark.*;
@@ -10,7 +11,7 @@ import spark.*;
 public class ClearHandler implements Route {
     ClearService service;
     Gson serializer;
-    public ClearHandler(MemoryUserDAO dao) {
+    public ClearHandler(DataAccess dao) {
         service = new ClearService(dao);
         serializer = new Gson();
     }

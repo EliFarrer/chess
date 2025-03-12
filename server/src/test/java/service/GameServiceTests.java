@@ -1,6 +1,6 @@
 package service;
 import chess.ChessGame;
-import dataaccess.MemoryUserDAO;
+import dataaccess.MemoryDAO;
 import model.AuthData;
 import model.GameData;
 import model.GameMetaData;
@@ -19,7 +19,7 @@ public class GameServiceTests {
         HashMap<String, String> map = new HashMap<>();
         AuthData authData = new AuthData("eli", "32");
         map.put(authData.authToken(), authData.username());
-        MemoryUserDAO dao = new MemoryUserDAO(null, map, null);
+        MemoryDAO dao = new MemoryDAO(null, map, null);
         GameService service = new GameService(dao);
 
         CreateGameRequest req = new CreateGameRequest("gameName");
@@ -33,7 +33,7 @@ public class GameServiceTests {
         HashMap<String, String> map = new HashMap<>();
         AuthData authData = new AuthData("eli", "32");
         map.put(authData.authToken(), authData.username());
-        MemoryUserDAO dao = new MemoryUserDAO(null, map, null);
+        MemoryDAO dao = new MemoryDAO(null, map, null);
         GameService service = new GameService(dao);
 
         CreateGameRequest req = new CreateGameRequest("gameName");
@@ -45,7 +45,7 @@ public class GameServiceTests {
         HashMap<String, String> map = new HashMap<>();
         AuthData authData = new AuthData("eli", "32");
         map.put(authData.authToken(), authData.username());
-        MemoryUserDAO dao = new MemoryUserDAO(null, map, null);
+        MemoryDAO dao = new MemoryDAO(null, map, null);
         GameService service = new GameService(dao);
 
         CreateGameRequest req = new CreateGameRequest("gameName");
@@ -67,7 +67,7 @@ public class GameServiceTests {
         GameData gameData = new GameData(1234,null, "johnny","mychessgame", new ChessGame());
         gameMap.put(gameData.gameID(), gameData);
 
-        MemoryUserDAO dao = new MemoryUserDAO(null, authMap, gameMap);
+        MemoryDAO dao = new MemoryDAO(null, authMap, gameMap);
         GameService service = new GameService(dao);
 
         JoinGameRequest req = new JoinGameRequest(ChessGame.TeamColor.WHITE, gameID);
@@ -90,7 +90,7 @@ public class GameServiceTests {
         GameData gameData = new GameData(1234,null, "johnny","mychessgame", new ChessGame());
         gameMap.put(gameData.gameID(), gameData);
 
-        MemoryUserDAO dao = new MemoryUserDAO(null, authMap, gameMap);
+        MemoryDAO dao = new MemoryDAO(null, authMap, gameMap);
         GameService service = new GameService(dao);
 
         JoinGameRequest req = new JoinGameRequest(null, gameID);
@@ -112,7 +112,7 @@ public class GameServiceTests {
         HashMap<Integer, GameData> gameMap = new HashMap<>();
         GameData gameData = new GameData(gameID,null, "johnny","mychessgame", new ChessGame());
         gameMap.put(gameID, gameData);
-        MemoryUserDAO dao = new MemoryUserDAO(null, authMap, gameMap);
+        MemoryDAO dao = new MemoryDAO(null, authMap, gameMap);
         GameService service = new GameService(dao);
 
         JoinGameRequest req = new JoinGameRequest(ChessGame.TeamColor.WHITE, gameID);
@@ -133,7 +133,7 @@ public class GameServiceTests {
         HashMap<Integer, GameData> gameMap = new HashMap<>();
         GameData gameData = new GameData(expectedGameID,null, "johnny","mychessgame", new ChessGame());
         gameMap.put(expectedGameID, gameData);
-        MemoryUserDAO dao = new MemoryUserDAO(null, authMap, gameMap);
+        MemoryDAO dao = new MemoryDAO(null, authMap, gameMap);
         GameService service = new GameService(dao);
 
         JoinGameRequest req = new JoinGameRequest(ChessGame.TeamColor.WHITE, testGameID);
@@ -153,7 +153,7 @@ public class GameServiceTests {
         HashMap<Integer, GameData> gameMap = new HashMap<>();
         GameData gameData = new GameData(gameID,"eli", null,"mychessgame", new ChessGame());
         gameMap.put(gameData.gameID(), gameData);
-        MemoryUserDAO dao = new MemoryUserDAO(null, authMap, gameMap);
+        MemoryDAO dao = new MemoryDAO(null, authMap, gameMap);
         GameService service = new GameService(dao);
 
         JoinGameRequest req = new JoinGameRequest(ChessGame.TeamColor.WHITE, gameID);
@@ -183,7 +183,7 @@ public class GameServiceTests {
 
         gameMap.put(gameID1, gameData1);
         gameMap.put(gameID2, gameData2);
-        MemoryUserDAO dao = new MemoryUserDAO(null, authMap, gameMap);
+        MemoryDAO dao = new MemoryDAO(null, authMap, gameMap);
         GameService service = new GameService(dao);
 
         Assertions.assertDoesNotThrow(() -> {
@@ -211,7 +211,7 @@ public class GameServiceTests {
 
         gameMap.put(gameID1, gameData1);
         gameMap.put(gameID2, gameData2);
-        MemoryUserDAO dao = new MemoryUserDAO(null, authMap, gameMap);
+        MemoryDAO dao = new MemoryDAO(null, authMap, gameMap);
         GameService service = new GameService(dao);
 
         Exception ex = Assertions.assertThrows(UnauthorizedException.class, () -> service.listGames(testAuthToken));

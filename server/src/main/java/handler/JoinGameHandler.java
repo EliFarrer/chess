@@ -1,8 +1,9 @@
 package handler;
 
 import com.google.gson.Gson;
+import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
-import dataaccess.MemoryUserDAO;
+import dataaccess.MemoryDAO;
 import result.ErrorResult;
 import request.JoinGameRequest;
 import service.AlreadyTakenException;
@@ -16,7 +17,7 @@ import spark.Response;
 public class JoinGameHandler {
     GameService service;
     Gson serializer;
-    public JoinGameHandler(MemoryUserDAO dao) {
+    public JoinGameHandler(DataAccess dao) {
         service = new GameService(dao);
         serializer = new Gson();
     }

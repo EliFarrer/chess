@@ -2,8 +2,9 @@ package handler;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
-import dataaccess.MemoryUserDAO;
+import dataaccess.MemoryDAO;
 import model.GameMetaData;
 import result.ErrorResult;
 import service.GameService;
@@ -16,7 +17,7 @@ import java.util.ArrayList;
 public class ListGamesHandler {
     GameService service;
     Gson serializer;
-    public ListGamesHandler(MemoryUserDAO dao) {
+    public ListGamesHandler(DataAccess dao) {
         service = new GameService(dao);
         serializer = new Gson();
     }

@@ -2,8 +2,8 @@ package service;
 
 import chess.ChessGame;
 import dataaccess.DataAccessException;
-import dataaccess.MemoryUserDAO;
-import dataaccess.UserDAO;
+import dataaccess.MemoryDAO;
+import dataaccess.DataAccess;
 import model.GameData;
 import model.GameMetaData;
 import request.CreateGameRequest;
@@ -14,9 +14,9 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class GameService {
-    private final UserDAO dataAccess;
-    public GameService(MemoryUserDAO dao) {
-        this.dataAccess = Objects.requireNonNullElseGet(dao, () -> new MemoryUserDAO(null, null, null));
+    private final DataAccess dataAccess;
+    public GameService(DataAccess dao) {
+        this.dataAccess = Objects.requireNonNullElseGet(dao, () -> new MemoryDAO(null, null, null));
     }
 
     public CreateGameResult createGame(String authToken, CreateGameRequest req)

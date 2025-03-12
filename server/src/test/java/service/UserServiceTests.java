@@ -1,5 +1,5 @@
 package service;
-import dataaccess.MemoryUserDAO;
+import dataaccess.MemoryDAO;
 import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.Test;
@@ -46,7 +46,7 @@ public class UserServiceTests {
         HashMap<String, UserData> map = new HashMap<>();
         UserData userData = new UserData("eli", "ile", "eli@ile.com");
         map.put(userData.username(), userData);
-        MemoryUserDAO dao = new MemoryUserDAO(map, null, null);
+        MemoryDAO dao = new MemoryDAO(map, null, null);
         UserService service = new UserService(dao);
 
         LoginRequest req = new LoginRequest(userData.username(), userData.password());
@@ -72,7 +72,7 @@ public class UserServiceTests {
         HashMap<String, String> map = new HashMap<>();
         AuthData authData = new AuthData("eli", "32");
         map.put(authData.authToken(), authData.username());
-        MemoryUserDAO dao = new MemoryUserDAO(null, map, null);
+        MemoryDAO dao = new MemoryDAO(null, map, null);
         UserService service = new UserService(dao);
 
         Assertions.assertDoesNotThrow(() -> {
@@ -87,7 +87,7 @@ public class UserServiceTests {
         HashMap<String, String> map = new HashMap<>();
         AuthData authData = new AuthData("eli", expectedAuthToken);
         map.put(expectedAuthToken, authData.username());
-        MemoryUserDAO dao = new MemoryUserDAO(null, map, null);
+        MemoryDAO dao = new MemoryDAO(null, map, null);
         UserService service = new UserService(dao);
 
         Exception ex = Assertions.assertThrows(UnauthorizedException.class, () -> service.logout(testAuthToken));

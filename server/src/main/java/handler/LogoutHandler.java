@@ -1,8 +1,9 @@
 package handler;
 
 import com.google.gson.Gson;
+import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
-import dataaccess.MemoryUserDAO;
+import dataaccess.MemoryDAO;
 import result.ErrorResult;
 import service.UnauthorizedException;
 import service.UserService;
@@ -12,7 +13,7 @@ import spark.Response;
 public class LogoutHandler {
     UserService service;
     Gson serializer;
-    public LogoutHandler(MemoryUserDAO dao) {
+    public LogoutHandler(DataAccess dao) {
         service = new UserService(dao);
         serializer = new Gson();
     }

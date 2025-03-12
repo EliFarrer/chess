@@ -1,8 +1,9 @@
 package handler;
 
 import com.google.gson.Gson;
+import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
-import dataaccess.MemoryUserDAO;
+import dataaccess.MemoryDAO;
 import result.ErrorResult;
 import request.LoginRequest;
 import result.LoginResult;
@@ -14,7 +15,7 @@ import spark.Response;
 public class LoginHandler {
     UserService service;
     Gson serializer;
-    public LoginHandler(MemoryUserDAO dao) {
+    public LoginHandler(DataAccess dao) {
         service = new UserService(dao);
         serializer = new Gson();
     }

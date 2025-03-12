@@ -1,14 +1,19 @@
 package server;
+import dataaccess.DataAccess;
+import dataaccess.DatabaseDAO;
 import handler.*;
-import dataaccess.MemoryUserDAO;
+import dataaccess.MemoryDAO;
 import spark.*;
+
+import java.util.HashMap;
+import java.util.Objects;
 
 public class Server {
     // not sure what to do with service here. I wma going to have multiple of them...
-    private final MemoryUserDAO dao;
+    private final DataAccess dao;
 
     public Server() {
-        this.dao = new MemoryUserDAO(null, null, null);
+        this.dao = new DatabaseDAO(null, null, null);
     }
 
     public int run(int desiredPort) {

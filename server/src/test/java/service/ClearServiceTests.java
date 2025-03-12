@@ -1,6 +1,6 @@
 package service;
 import chess.ChessGame;
-import dataaccess.MemoryUserDAO;
+import dataaccess.MemoryDAO;
 import model.AuthData;
 import model.GameData;
 import org.junit.jupiter.api.Assertions;
@@ -25,7 +25,7 @@ public class ClearServiceTests {
         GameData gameData = new GameData(gameID, "eli", "johnny", "mychessgame", new ChessGame());
 
         gameMap.put(gameID, gameData);
-        MemoryUserDAO dao = new MemoryUserDAO(null, authMap, gameMap);
+        MemoryDAO dao = new MemoryDAO(null, authMap, gameMap);
         ClearService service = new ClearService(dao);
 
         Assertions.assertDoesNotThrow(service::clearGame);

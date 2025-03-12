@@ -7,13 +7,12 @@ import model.GameMetaData;
 import model.UserData;
 import java.util.*;
 
-public class MemoryUserDAO implements UserDAO {
-    public Map<String, UserData> userDataMap;
-    public Map<String, String> authDataMap; // maps from authToken to username
-    public Map<Integer, GameData> gameDataMap; // maps from authToken to username
+public class MemoryDAO implements DataAccess {
+    public Map<String, UserData> userDataMap;   // maps from username to userdata
+    public Map<String, String> authDataMap; // maps from id to username
+    public Map<Integer, GameData> gameDataMap;  // maps from gameID to game data
 
-
-    public MemoryUserDAO(Map<String, UserData> userMap, Map<String, String> authMap, Map<Integer, GameData> gameMap) {
+    public MemoryDAO(Map<String, UserData> userMap, Map<String, String> authMap, Map<Integer, GameData> gameMap) {
         this.userDataMap = Objects.requireNonNullElseGet(userMap, HashMap::new);
         this.authDataMap = Objects.requireNonNullElseGet(authMap, HashMap::new);
         this.gameDataMap = Objects.requireNonNullElseGet(gameMap, HashMap::new);
