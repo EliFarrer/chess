@@ -1,21 +1,12 @@
 package dataaccess;
 
-import com.google.gson.Gson;
-import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import request.LoginRequest;
-import request.RegisterRequest;
-import result.LoginResult;
-import service.AlreadyTakenException;
-import service.BadRequestException;
-import service.UnauthorizedException;
-import service.UserService;
+import org.mindrot.jbcrypt.BCrypt;
 
-import java.util.HashMap;
 
 public class UserDatabaseTests {
     @BeforeEach
@@ -31,7 +22,7 @@ public class UserDatabaseTests {
     }
 
     @Test
-    public void testCreateUserPositive() {
+    public void testCreateUserPositive() {  // invalid data,
         // string username to user text
         DatabaseDAO db = new DatabaseDAO();
         UserData expectedUserData = new UserData("eli", "ile", "eli@ile.com");
@@ -40,7 +31,9 @@ public class UserDatabaseTests {
 
         Assertions.assertDoesNotThrow(() -> {
             UserData actualUserData = db.getUser(expectedUserData.username());
-            Assertions.assertEquals(expectedUserData, actualUserData);
+            Assertions.assertEquals(expectedUserData.username(), actualUserData.username());
+            Assertions.assertTrue(BCrypt.checkpw(expectedUserData.password(), actualUserData.password()));
+            Assertions.assertEquals(expectedUserData.email(), actualUserData.email());
         });
 
     }
@@ -67,7 +60,9 @@ public class UserDatabaseTests {
 
         Assertions.assertDoesNotThrow(() -> {
             UserData actualUserData = db.getUser(expectedUserData.username());
-            Assertions.assertEquals(expectedUserData, actualUserData);
+            Assertions.assertEquals(expectedUserData.username(), actualUserData.username());
+            Assertions.assertTrue(BCrypt.checkpw(expectedUserData.password(), actualUserData.password()));
+            Assertions.assertEquals(expectedUserData.email(), actualUserData.email());
         });
     }
     @Test
