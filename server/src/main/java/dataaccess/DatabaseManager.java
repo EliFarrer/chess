@@ -49,6 +49,65 @@ public class DatabaseManager {
     }
 
     /**
+    This will create the tables if they do not exist
+     */
+    static void createTables() throws DataAccessException {
+        try {
+            var createUserTable = """
+            CREATE TABLE IF NOT EXISTS user (
+                username VARCHAR(255) NOT NULL,
+                userdata TEXT NOT NULL,
+                PRIMARY KEY (username)
+            )""";
+            var createAuthTable = """
+            CREATE TABLE IF NOT EXISTS auth (
+                id VARCHAR(255) NOT NULL,
+                username VARCHAR(255) NOT NULL,
+                PRIMARY KEY (id)
+            )""";
+            var createGameTable = """
+            CREATE TABLE IF NOT EXISTS game (
+                gameID INTEGER NOT NULL,
+                gameData TEXT NOT NULL,
+                PRIMARY KEY (gameID)
+            )""";
+            var conn = getConnection();
+            try (var createUserTableStatement = conn.prepareStatement(createUserTable)) {
+                createUserTableStatement.executeUpdate();
+            }
+            try (var createAuthTableStatement = conn.prepareStatement(createAuthTable)) {
+                createAuthTableStatement.executeUpdate();
+            }
+            try (var createGameTableStatement = conn.prepareStatement(createGameTable)) {
+                createGameTableStatement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+    }
+
+    /**
+     This will drop all the tables
+     */
+    static void dropTables() throws DataAccessException {
+        String[] databases = {"user", "game", "auth"};
+
+        try {
+            var dropTable = "drop table if exists ";
+
+            var conn = getConnection();
+
+            for (var db : databases) {
+                try (var statement = conn.prepareStatement(dropTable + db + ";")) {
+                    statement.executeUpdate();
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+    }
+
+    /**
      * Create a connection to the database and sets the catalog based upon the
      * properties specified in db.properties. Connections to the database should
      * be short-lived, and you must close the connection when you are done with it.
