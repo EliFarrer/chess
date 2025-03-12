@@ -1,13 +1,10 @@
 package service;
-import dataaccess.DataAccessException;
-import dataaccess.DatabaseManager;
 import dataaccess.MemoryDAO;
 import model.AuthData;
 import model.UserData;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
+import org.mindrot.jbcrypt.BCrypt;
 import request.LoginRequest;
 import request.RegisterRequest;
 import result.LoginResult;
@@ -48,12 +45,13 @@ public class UserServiceTests {
     @Test
     public void testLoginPositive() {
         HashMap<String, UserData> map = new HashMap<>();
-        UserData userData = new UserData("eli", "ile", "eli@ile.com");
+        String password = "ile";
+        UserData userData = new UserData("eli", BCrypt.hashpw(password, BCrypt.gensalt()), "eli@ile.com");
         map.put(userData.username(), userData);
         MemoryDAO dao = new MemoryDAO(map, null, null);
         UserService service = new UserService(dao);
 
-        LoginRequest req = new LoginRequest(userData.username(), userData.password());
+        LoginRequest req = new LoginRequest(userData.username(), password);
 
         Assertions.assertDoesNotThrow(() -> {
             LoginResult res = service.login(req);

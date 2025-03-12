@@ -5,6 +5,8 @@ import model.AuthData;
 import model.GameData;
 import model.GameMetaData;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
+
 import java.util.*;
 
 public class MemoryDAO implements DataAccess {
@@ -30,7 +32,9 @@ public class MemoryDAO implements DataAccess {
 
     public void createUser(UserData userData) throws DataAccessException {
         try {
-            userDataMap.put(userData.username(), userData);
+            var hashedPassword = BCrypt.hashpw(userData.password(), BCrypt.gensalt());
+            UserData secureUserData = new UserData(userData.username(), hashedPassword, userData.email());
+            userDataMap.put(secureUserData.username(), secureUserData);
         } catch (Exception e) {
             throw new DataAccessException(e.getMessage());
         }

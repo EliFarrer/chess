@@ -2,10 +2,10 @@ package service;
 
 import dataaccess.DataAccessException;
 import dataaccess.DatabaseDAO;
-import dataaccess.MemoryDAO;
 import dataaccess.DataAccess;
 import model.AuthData;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 import request.LoginRequest;
 import request.RegisterRequest;
 import result.LoginResult;
@@ -30,7 +30,6 @@ public class UserService {
             }
 
             // check to see if the user is already registered
-
             if (dataAccess.userExists(req.username())) {
                 throw new AlreadyTakenException("Error: the user is already registered");
             }
@@ -56,7 +55,7 @@ public class UserService {
             }
 
             // if bad password
-            if (!Objects.equals(req.password(), userData.password())) {
+            if (!BCrypt.checkpw(req.password(), userData.password())) {
                 throw new UnauthorizedException("Error: incorrect password");
             }
 
@@ -64,7 +63,7 @@ public class UserService {
             AuthData authData = dataAccess.createAuth(userData.username());
             return new LoginResult(authData.username(), authData.authToken());
         } catch (DataAccessException e) {   // 500 error
-            throw new DataAccessException(e.getMessage());
+            throw new UnauthorizedException("Error: unauthorized user");
         }
     }
     public void logout(String authToken) throws BadRequestException, DataAccessException{
