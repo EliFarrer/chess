@@ -1,6 +1,9 @@
 package dataaccess;
 
+import model.AuthData;
+import model.UserData;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -18,18 +21,13 @@ public class AuthDatabaseTests {
     }
 
     @Test
-    public void testGetUsernamePositive() {
-
-    }
-
-    @Test
-    public void testGetUsernameNegative() {
-
-    }
-
-    @Test
     public void testCreateAuthPositive() {
-
+        DatabaseDAO db = new DatabaseDAO();
+        Assertions.assertDoesNotThrow(() -> {
+            AuthData authData = db.createAuth("eli");
+            Assertions.assertNotNull(authData);
+            Assertions.assertFalse(db.isAuthDatabaseEmpty());
+        });
     }
 
     @Test
@@ -38,8 +36,30 @@ public class AuthDatabaseTests {
     }
 
     @Test
-    public void testIsNotAuthorizedPositive() {
+    public void testGetUsernamePositive() {
+        DatabaseDAO db = new DatabaseDAO();
+        String expectedUsername = "eli";
+        Assertions.assertDoesNotThrow(() -> {
+            AuthData authData = db.createAuth(expectedUsername);
+            String actualUsername = db.getUsername(authData.authToken());
+            Assertions.assertEquals(expectedUsername, actualUsername);
+        });
+    }
 
+    @Test
+    public void testGetUsernameNegative() {
+
+    }
+
+    @Test
+    public void testIsNotAuthorizedPositive() {
+        DatabaseDAO db = new DatabaseDAO();
+        String expectedUsername = "eli";
+        Assertions.assertDoesNotThrow(() -> {
+            AuthData authData = db.createAuth(expectedUsername);
+            Assertions.assertFalse(db.isNotAuthorized(authData.authToken()));
+            Assertions.assertTrue(db.isNotAuthorized("hello"));
+        });
     }
 
     @Test
@@ -49,6 +69,13 @@ public class AuthDatabaseTests {
 
     @Test
     public void testRemoveAuthPositive() {
+    DatabaseDAO db = new DatabaseDAO();
+    Assertions.assertDoesNotThrow(() ->{
+        AuthData authData = db.createAuth("eli");
+        Assertions.assertFalse(db.isAuthDatabaseEmpty());
+        db.removeAuth(authData.authToken());
+        Assertions.assertTrue(db.isAuthDatabaseEmpty());
+    });
 
     }
 

@@ -12,7 +12,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.UUID;
+
 import org.mindrot.jbcrypt.BCrypt;
+
+import javax.xml.crypto.Data;
 
 public class DatabaseDAO implements DataAccess {
     String[] databases = {"user", "game", "auth"};
@@ -29,6 +33,7 @@ public class DatabaseDAO implements DataAccess {
     Clear
      */
     public void clear() throws DataAccessException {
+        DatabaseManager.createTables();
         for (var db : databases) {
             var clearTableTemplate = "drop table " + db;
             try (var conn = DatabaseManager.getConnection()) {
@@ -45,6 +50,7 @@ public class DatabaseDAO implements DataAccess {
     User DAO
      */
     public void createUser(UserData userData) throws DataAccessException {
+        DatabaseManager.createTables();
         UserData secureUserData = new UserData(userData.username(), BCrypt.hashpw(userData.password(), BCrypt.gensalt()), userData.email());
         try (var conn = DatabaseManager.getConnection()) {
             try (var statement = conn.prepareStatement("insert into user (username, userData) values (?, ?)")) {
@@ -61,6 +67,7 @@ public class DatabaseDAO implements DataAccess {
     }
 
     public UserData getUser(String username) throws DataAccessException {
+        DatabaseManager.createTables();
         try (var conn = DatabaseManager.getConnection()) {
             String select = "SELECT username, userData FROM user WHERE username = ?";
             try (var statement = conn.prepareStatement(select)) {
@@ -96,20 +103,62 @@ public class DatabaseDAO implements DataAccess {
     /*
     Auth DAO
      */
-    public String getUsername(String authToken) throws DataAccessException {
-        return "";
+
+    public AuthData createAuth(String username) throws DataAccessException {
+        DatabaseManager.createTables();
+        String id = UUID.randomUUID().toString();
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var statement = conn.prepareStatement("insert into auth (id, username) values (?, ?)")) {
+                statement.setString(1, id);
+                statement.setString(2, username);
+                statement.executeUpdate();
+            }
+            return new AuthData(username, id);
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
     }
 
-    public AuthData createAuth(String userName) throws DataAccessException {
-        return null;
+    public String getUsername(String authToken) throws DataAccessException {
+        DatabaseManager.createTables();
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var statement = conn.prepareStatement("SELECT username FROM auth WHERE id = ?")) {
+                statement.setString(1, authToken);
+                try (var rs = statement.executeQuery()) {
+                    rs.next();
+                    return rs.getString("username");
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
     }
 
     public boolean isNotAuthorized(String authToken) throws DataAccessException {
-        return false;
+        DatabaseManager.createTables();
+        try (var conn = DatabaseManager.getConnection()) {
+            try (var statement = conn.prepareStatement("SELECT username FROM auth WHERE id = ?")) {
+                statement.setString(1, authToken);
+                try (var rs = statement.executeQuery()) {
+                    // if there are not any usernames that match the auth, then rs.next() will return false. So we return true
+                    return !rs.next();
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
     }
 
     public void removeAuth(String authToken) throws DataAccessException {
-        //
+        DatabaseManager.createTables();
+        try (var connection = DatabaseManager.getConnection()) {
+            try (PreparedStatement stmt = connection.prepareStatement("DELETE FROM auth WHERE id = ?")) {
+                stmt.setString(1, authToken);
+                stmt.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public boolean isAuthDatabaseEmpty() throws DataAccessException {
@@ -131,26 +180,38 @@ public class DatabaseDAO implements DataAccess {
     Game DAO
      */
     public void createGame(int gameID, String gameName) throws DataAccessException {
+        DatabaseManager.createTables();
+
         //
     }
 
     public GameData getGame(int gameID) throws DataAccessException {
+        DatabaseManager.createTables();
+
         return null;
     }
 
     public boolean gameNotAuthorized(int gameID) throws DataAccessException {
+        DatabaseManager.createTables();
+
         return false;
     }
 
     public boolean colorNotAvailable(int gameID, ChessGame.TeamColor requestedColor) throws DataAccessException {
+        DatabaseManager.createTables();
+
         return false;
     }
 
     public void updateGame(int gameID, GameData gameData) throws DataAccessException {
+        DatabaseManager.createTables();
+
 
     }
 
     public ArrayList<GameMetaData> listGames() throws DataAccessException {
+        DatabaseManager.createTables();
+
         return null;
     }
 

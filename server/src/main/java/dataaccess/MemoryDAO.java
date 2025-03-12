@@ -85,7 +85,7 @@ public class MemoryDAO implements DataAccess {
         }    }
 
     public boolean isNotAuthorized(String authToken) throws DataAccessException {
-        // if the authToken is in the database, we return true because it is authorized
+        // if the authToken is in the database, we return false because it is unauthorized
         try {
             return (authDataMap.get(authToken) == null);
         } catch (Exception e) {

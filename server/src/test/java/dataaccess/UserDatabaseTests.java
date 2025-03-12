@@ -75,7 +75,6 @@ public class UserDatabaseTests {
 
     }
 
-
     @Test
     public void testIsUserDatabaseEmptyPositive() {
 
