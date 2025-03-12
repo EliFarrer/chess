@@ -73,21 +73,23 @@ public class DatabaseDAO implements DataAccess {
             try (var statement = conn.prepareStatement(select)) {
                 statement.setString(1, username);
                 try (var rs = statement.executeQuery()) {
-                    rs.next();
+                    if (!rs.next()) {
+                        throw new DataAccessException("Error: The user does not exist");
+                    }
                     var json = rs.getString("userData");
                     var gson = new GsonBuilder().create();
                     return gson.fromJson(json, UserData.class);
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException(e.getMessage());
         }
     }
 
     public boolean isUserDatabaseEmpty() throws DataAccessException {
         DatabaseManager.createTables();
         try (var connection = DatabaseManager.getConnection()) {
-            try (PreparedStatement stmt = connection.prepareStatement("SELECT username FROM userData")) {
+            try (PreparedStatement stmt = connection.prepareStatement("SELECT username FROM user")) {
                 ResultSet rs = stmt.executeQuery();
                 if (!rs.next()) {   // if we are past the last row, then it is empty
                     return true;
@@ -95,7 +97,7 @@ public class DatabaseDAO implements DataAccess {
             }
             return false;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException(e.getMessage());
         }
     }
 
@@ -156,7 +158,7 @@ public class DatabaseDAO implements DataAccess {
                 stmt.executeUpdate();
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException(e.getMessage());
         }
     }
 
@@ -171,7 +173,7 @@ public class DatabaseDAO implements DataAccess {
             }
             return false;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException(e.getMessage());
         }
     }
 
@@ -211,7 +213,7 @@ public class DatabaseDAO implements DataAccess {
                 }
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException(e.getMessage());
         }
     }
 
@@ -245,7 +247,7 @@ public class DatabaseDAO implements DataAccess {
                 statement.executeUpdate();
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException(e.getMessage());
         }
     }
 
@@ -278,9 +280,23 @@ public class DatabaseDAO implements DataAccess {
     }
 
     public ArrayList<GameMetaData> listGames() throws DataAccessException {
+        ArrayList<GameMetaData> games = new ArrayList<>();
         DatabaseManager.createTables();
-
-        return null;
+        try (var connection = DatabaseManager.getConnection()) {
+            try (PreparedStatement stmt = connection.prepareStatement("SELECT gameData FROM game")) {
+                try (ResultSet rs = stmt.executeQuery()) {
+                    while (rs.next()) {
+                        var json = rs.getString("gameData");
+                        var gson = new GsonBuilder().create();
+                        GameMetaData gameMetaData = gson.fromJson(json, GameMetaData.class);
+                        games.add(gameMetaData);
+                    }
+                }
+            }
+            return games;
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
     }
 
     public boolean isGameDatabaseEmpty() throws DataAccessException {
@@ -294,7 +310,7 @@ public class DatabaseDAO implements DataAccess {
             }
             return false;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException(e.getMessage());
         }
     }
 }
