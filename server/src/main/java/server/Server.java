@@ -13,7 +13,7 @@ public class Server {
     private final DataAccess dao;
 
     public Server() {
-        this.dao = new DatabaseDAO(null, null, null);
+        this.dao = new DatabaseDAO();
     }
 
     public int run(int desiredPort) {
