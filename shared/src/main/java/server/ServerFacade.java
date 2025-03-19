@@ -19,7 +19,12 @@ public class ServerFacade {
         url = "http://localhost:" + port;
     }
 
-    public LoginResult register(RegisterRequest req) {
+    public void clear() throws ResponseException {
+        String path = "/db";
+        this.makeRequest("DELETE", path, null, null, null);
+    }
+
+    public LoginResult register(RegisterRequest req) throws ResponseException {
         String path = "/user";
         return this.makeRequest("POST", path, req, LoginResult.class);
     }
