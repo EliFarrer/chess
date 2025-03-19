@@ -2,7 +2,11 @@ package server;
 
 
 import com.google.gson.Gson;
+import request.CreateGameRequest;
+import request.LoginRequest;
 import request.RegisterRequest;
+import result.CreateGameResult;
+import result.ListGamesResult;
 import result.LoginResult;
 
 import java.io.IOException;
@@ -34,9 +38,19 @@ public class ServerFacade {
         this.makeRequest("DELETE", path, null, null, authToken);
     }
 
-    public LoginResult login(LoginResult req) {
+    public LoginResult login(LoginRequest req) {
         String path = "/session";
         return this.makeRequest("POST", path, req, LoginResult.class, null);
+    }
+
+    public CreateGameResult createGame(String authToken, CreateGameRequest req) {
+        String path = "/game";
+        return this.makeRequest("POST", path, req, CreateGameResult.class, authToken);
+    }
+
+    public ListGamesResult listGames(String authToken) {
+        String path = "/game";
+        return this.makeRequest("GET", path, null, ListGamesResult.class, authToken);
     }
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authorization) throws ResponseException {
