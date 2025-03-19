@@ -29,6 +29,11 @@ public class ServerFacade {
         return this.makeRequest("POST", path, req, LoginResult.class);
     }
 
+    public void logout(String authToken) throws ResponseException {
+        String path = "/session";
+        this.makeRequest("DELETE", path, null, null, authToken);
+    }
+
     public LoginResult login(LoginResult req) {
         String path = "/session";
         return this.makeRequest("POST", path, req, LoginResult.class);
