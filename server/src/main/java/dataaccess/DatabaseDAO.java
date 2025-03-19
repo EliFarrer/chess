@@ -35,7 +35,7 @@ public class DatabaseDAO implements DataAccess {
     public void clear() throws DataAccessException {
         DatabaseManager.createTables();
         for (var db : databases) {
-            var clearTableTemplate = "drop table " + db;
+            var clearTableTemplate = "DROP TABLE " + db;
             try (var conn = DatabaseManager.getConnection()) {
                 try (PreparedStatement clearTableStatement = conn.prepareStatement(clearTableTemplate)) {
                     clearTableStatement.executeUpdate();
@@ -44,6 +44,7 @@ public class DatabaseDAO implements DataAccess {
                 throw new DataAccessException(e.getMessage());
             }
         }
+//        DatabaseManager.createTables();
         if (!isUserDatabaseEmpty() || !isAuthDatabaseEmpty() || !isGameDatabaseEmpty()) {
             throw new DataAccessException("Error: The database did not clear properly");
         }
