@@ -21,7 +21,7 @@ public class ClearHandler implements Route {
             service.clearGame();
             return "";
         } catch (DataAccessException e) {
-            res.status(500);
+            res.status(e.getStatusCode());
             return serializer.toJson(new ErrorResult(e.getMessage()));
         }
     }

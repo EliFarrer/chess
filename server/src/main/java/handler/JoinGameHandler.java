@@ -26,22 +26,21 @@ public class JoinGameHandler {
         try {
             String authToken = req.headers("Authorization");
             JoinGameRequest joinGameRequest = serializer.fromJson(req.body(), JoinGameRequest.class);
-            res.status(200);
 
             service.joinGame(authToken, joinGameRequest);
             res.status(200);
             return "";
         } catch (DataAccessException e) {
-            res.status(500);
+            res.status(e.getStatusCode());
             return serializer.toJson(new ErrorResult(e.getMessage()));
         } catch (BadRequestException e) {
-            res.status(400);
+            res.status(e.getStatusCode());
             return serializer.toJson(new ErrorResult(e.getMessage()));
         } catch (UnauthorizedException e) {
-            res.status(401);
+            res.status(e.getStatusCode());
             return serializer.toJson(new ErrorResult(e.getMessage()));
         } catch (AlreadyTakenException e) {
-            res.status(403);
+            res.status(e.getStatusCode());
             return serializer.toJson(new ErrorResult(e.getMessage()));
         }
     }

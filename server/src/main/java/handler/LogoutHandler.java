@@ -24,10 +24,10 @@ public class LogoutHandler {
             res.status(200);
             return "";
         } catch (DataAccessException e) {
-            res.status(500);
+            res.status(e.getStatusCode());
             return serializer.toJson(new ErrorResult(e.getMessage()));
         } catch (UnauthorizedException e) {
-            res.status(401);
+            res.status(e.getStatusCode());
             return serializer.toJson(new ErrorResult(e.getMessage()));
         }
     }
