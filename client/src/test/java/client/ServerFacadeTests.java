@@ -1,20 +1,16 @@
 package client;
 
 import chess.ChessGame;
-import dataaccess.DatabaseManager;
-import model.GameData;
 import model.GameMetaData;
 import org.junit.jupiter.api.*;
 import request.CreateGameRequest;
+import request.JoinGameRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
 import result.CreateGameResult;
-import result.LoginResult;
 import server.ResponseException;
 import server.Server;
 import server.ServerFacade;
-
-import java.lang.module.ResolutionException;
 import java.util.ArrayList;
 
 
@@ -144,23 +140,41 @@ public class ServerFacadeTests {
 
     @Test
     void joinGamePositive() {
-
+        String username = "user";
+        String gameName = "myGame";
+        var authData = facade.register(new RegisterRequest(username, "password", "p1@email.com"));
+        CreateGameResult gameID = facade.createGame(authData.authToken(), new CreateGameRequest(gameName));
+        Assertions.assertDoesNotThrow(() -> facade.joinGame(authData.authToken(), new JoinGameRequest(ChessGame.TeamColor.WHITE, gameID.gameID())));
+        ArrayList<GameMetaData> games = facade.listGames(authData.authToken()).games();
+        Assertions.assertEquals(new GameMetaData(gameID.gameID(), username, null, gameName), games.getFirst());
     }
     @Test
     void joinGameNegativeUnauthorized() {
-
+        var authData = facade.register(new RegisterRequest("user", "password", "p1@email.com"));
+        CreateGameResult gameID = facade.createGame(authData.authToken(), new CreateGameRequest("myGame"));
+        facade.logout(authData.authToken());
+        Assertions.assertThrows(ResponseException.class, () -> facade.joinGame(authData.authToken(), new JoinGameRequest(ChessGame.TeamColor.WHITE, gameID.gameID())));
     }
     @Test
     void joinGameNegativeBadDataNull() {
-
+        var authData = facade.register(new RegisterRequest("user", "password", "p1@email.com"));
+        CreateGameResult gameID = facade.createGame(authData.authToken(), new CreateGameRequest("myGame"));
+        Assertions.assertThrows(ResponseException.class, () -> facade.joinGame(null, new JoinGameRequest(ChessGame.TeamColor.WHITE, gameID.gameID())));
+        Assertions.assertThrows(ResponseException.class, () -> facade.joinGame(authData.authToken(), null));
     }
     @Test
     void joinGameNegativeBadDataEmptyString() {
-
+        var authData = facade.register(new RegisterRequest("user", "password", "p1@email.com"));
+        CreateGameResult gameID = facade.createGame(authData.authToken(), new CreateGameRequest("myGame"));
+        Assertions.assertThrows(ResponseException.class, () -> facade.joinGame("", new JoinGameRequest(ChessGame.TeamColor.WHITE, gameID.gameID())));
     }
     @Test
     void joinGameNegativeAlreadyTaken() {
-
+        var authData1 = facade.register(new RegisterRequest("user1", "password", "p1@email.com"));
+        var authData2 = facade.register(new RegisterRequest("user2", "password", "p2@email.com"));
+        CreateGameResult gameID = facade.createGame(authData1.authToken(), new CreateGameRequest("mygame"));
+        facade.joinGame(authData1.authToken(), new JoinGameRequest(ChessGame.TeamColor.WHITE, gameID.gameID()));
+        Assertions.assertThrows(ResponseException.class, () -> facade.joinGame(authData2.authToken(), new JoinGameRequest(ChessGame.TeamColor.WHITE, gameID.gameID())));
     }
 
     @AfterEach
