@@ -26,7 +26,7 @@ public class ServerFacade {
 
     public LoginResult register(RegisterRequest req) throws ResponseException {
         String path = "/user";
-        return this.makeRequest("POST", path, req, LoginResult.class);
+        return this.makeRequest("POST", path, req, LoginResult.class, null);
     }
 
     public void logout(String authToken) throws ResponseException {
@@ -36,10 +36,10 @@ public class ServerFacade {
 
     public LoginResult login(LoginResult req) {
         String path = "/session";
-        return this.makeRequest("POST", path, req, LoginResult.class);
+        return this.makeRequest("POST", path, req, LoginResult.class, null);
     }
 
-    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
+    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authorization) throws ResponseException {
         // note that this is a generic method (T) that returns something of type T and takes in a class of type T as the response
         try {
             URL url = (new URI(this.url + path)).toURL();   // create a URL
@@ -47,7 +47,12 @@ public class ServerFacade {
             http.setRequestMethod(method);  // set the HTTP method
             http.setDoOutput(true); // we will be sending data over
 
-            writeBody(request, http);
+            if (authorization != null) {
+                http.setRequestProperty("Authorization", authorization);
+            }
+            if (request != null) {
+                writeBody(request, http);
+            }
             http.connect();
             throwIfNotSuccessful(http);
             return readBody(http, responseClass);
