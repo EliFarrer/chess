@@ -1,6 +1,7 @@
 package server;
 
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import request.CreateGameRequest;
 import request.JoinGameRequest;
@@ -29,8 +30,9 @@ public class ServerFacade {
         this.makeRequest("DELETE", path, null, null, null);
     }
 
-    public LoginResult register(RegisterRequest req) throws ResponseException {
+    public LoginResult register(String username, String password, String email) throws ResponseException {
         String path = "/user";
+        RegisterRequest req = new RegisterRequest(username, password, email);
         return this.makeRequest("POST", path, req, LoginResult.class, null);
     }
 
@@ -39,13 +41,15 @@ public class ServerFacade {
         this.makeRequest("DELETE", path, null, null, authToken);
     }
 
-    public LoginResult login(LoginRequest req) {
+    public LoginResult login(String username, String password) {
         String path = "/session";
+        LoginRequest req = new LoginRequest(username, password);
         return this.makeRequest("POST", path, req, LoginResult.class, null);
     }
 
-    public CreateGameResult createGame(String authToken, CreateGameRequest req) {
+    public CreateGameResult createGame(String authToken, String gameName) {
         String path = "/game";
+        CreateGameRequest req = new CreateGameRequest(gameName);
         return this.makeRequest("POST", path, req, CreateGameResult.class, authToken);
     }
 
@@ -54,8 +58,9 @@ public class ServerFacade {
         return this.makeRequest("GET", path, null, ListGamesResult.class, authToken);
     }
 
-    public void joinGame(String authToken, JoinGameRequest req) {
+    public void joinGame(String authToken, ChessGame.TeamColor playerColor, Integer gameID) {
         String path = "/game";
+        JoinGameRequest req = new JoinGameRequest(playerColor, gameID);
         this.makeRequest("PUT", path, req, null, authToken);
     }
 
