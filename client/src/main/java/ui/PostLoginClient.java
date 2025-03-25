@@ -1,9 +1,9 @@
 package ui;
 
-public class GameplayClient implements Client {
+public class PostLoginClient implements Client {
     public final int port;
 
-    public GameplayClient(int port) {
+    public PostLoginClient(int port) {
         this.port = port;
     }
 
