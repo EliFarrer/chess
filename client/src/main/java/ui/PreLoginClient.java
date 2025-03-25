@@ -1,12 +1,13 @@
 package ui;
 
+import server.ResponseException;
 import server.ServerFacade;
 import java.util.Arrays;
-import static ui.EscapeSequences.*;
 
 public class PreLoginClient implements Client {
     public final int port;
     ServerFacade server;
+    State state = State.PRE_LOGIN;
 
     public PreLoginClient(int port) {
         this.port = port;
@@ -21,24 +22,35 @@ public class PreLoginClient implements Client {
                 """;
     }
 
-    public String evaluate(String line) {
-        var commands = line.toLowerCase().split(" ");
-        var command = (commands.length > 0) ? commands[0] : "help";
-        var parameters = Arrays.copyOfRange(commands, 1, command.length());
+    public State getNewState() {
+        return state;
+    }
 
-        return switch (command) {
-            case "quit" -> "quit";
-            case "login" -> login(parameters);
-            case "register" -> register(parameters);
-            default -> help();
-        };
+    public String evaluate(String line, State state) {
+        try {
+            var commands = line.toLowerCase().split(" ");
+            var command = (commands.length > 0) ? commands[0] : "help";
+            var parameters = Arrays.copyOfRange(commands, 1, command.length());
+
+            return switch (command) {
+                case "quit" -> "quit";
+                case "login" -> login(parameters);
+                case "register" -> register(parameters);
+                default -> help();
+            };
+        } catch (ResponseException ex) {
+            return ex.getMessage();
+        }
+
     }
 
     public String login(String[] params) {
+        state = State.POST_LOGIN;
         return "login";
     }
 
     public String register(String[] params) {
+        state = State.POST_LOGIN;
         return "register";
     }
 

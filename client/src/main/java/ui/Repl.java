@@ -1,5 +1,7 @@
 package ui;
 
+import server.ResponseException;
+
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
@@ -25,16 +27,30 @@ public class Repl {
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
+        State newState;
+
         while (!result.equals("quit")) {
-            String line = scanner.nextLine();
-            if (state == State.PRE_LOGIN) {
-                result = preLogin.evaluate(line);
-            } else if (state == State.POST_LOGIN) {
-                result = postLogin.evaluate(line);
-            } else {
-                result = gameplay.evaluate(line);
+            try {
+                String line = scanner.nextLine();
+                if (state == State.PRE_LOGIN) {
+                    result = preLogin.evaluate(line, state);
+                    newState = preLogin.getNewState();
+                } else if (state == State.POST_LOGIN) {
+                    result = postLogin.evaluate(line, state);
+                    newState = postLogin.getNewState();
+                } else {
+                    result = gameplay.evaluate(line, state);
+                    newState = gameplay.getNewState();
+                }
+                System.out.println(result);
+                if (state != newState) {
+                    state = newState;
+                }
+            } catch (Exception ex) {
+                System.out.println("Error: " + ex.getMessage());
             }
-            System.out.println(result);
+
+
         }
     }
 

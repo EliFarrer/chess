@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 public class GameplayClient implements Client {
     public final int port;
+    public State state = State.GAMEPLAY;
 
     public GameplayClient(int port) {
         this.port = port;
@@ -16,7 +17,11 @@ public class GameplayClient implements Client {
                 "register <username> <password> <email>" to register
                 """;    }
 
-    public String evaluate(String line) {
+    public State getNewState() {
+        return state;
+    }
+
+    public String evaluate(String line, State state) {
 //        var commands = line.toLowerCase().split(" ");
 //        var command = (commands.length > 0) ? commands[0] : "help";
 //        var parameters = Arrays.copyOfRange(commands, 1, command.length());

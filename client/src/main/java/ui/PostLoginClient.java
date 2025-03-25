@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 public class PostLoginClient implements Client {
     public final int port;
+    public State state = State.POST_LOGIN;
 
     public PostLoginClient(int port) {
         this.port = port;
@@ -18,7 +19,11 @@ public class PostLoginClient implements Client {
                 "observe <game id>" to observe a game being played
                 """;    }
 
-    public String evaluate(String line) {
+    public State getNewState() {
+        return state;
+    }
+
+    public String evaluate(String line, State state) {
         var commands = line.toLowerCase().split(" ");
         var command = (commands.length > 0) ? commands[0] : "help";
         var parameters = Arrays.copyOfRange(commands, 1, command.length());
@@ -29,27 +34,32 @@ public class PostLoginClient implements Client {
             case "list" -> listGames(parameters);
             case "play" -> joinGame(parameters);
             case "observe" -> observeGame(parameters);
-            default -> "help";
+            default -> help();
         };
     }
 
     private String observeGame(String[] parameters) {
+        state = State.GAMEPLAY;
         return "observing";
     }
 
     private String joinGame(String[] parameters) {
+        state = State.GAMEPLAY;
         return "join game";
     }
 
     private String listGames(String[] parameters) {
+        state = State.GAMEPLAY;
         return "list games";
     }
 
     private String createGame(String[] parameters) {
+        state = State.GAMEPLAY;
         return "create game";
     }
 
     private String logout(String[] parameters) {
+        state = State.PRE_LOGIN;
         return "logout";
     }
 }
