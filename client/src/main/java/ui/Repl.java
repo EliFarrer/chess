@@ -2,6 +2,8 @@ package ui;
 
 import java.util.Scanner;
 
+import static ui.EscapeSequences.*;
+
 public class Repl {
     State state = State.PRE_LOGIN;
     final int port;
@@ -17,6 +19,7 @@ public class Repl {
     }
 
     public void run() {
+        System.out.print(reset());
         System.out.println("Welcome to the 240 Chess Client ♕");
         System.out.println(preLogin.help());
 
@@ -31,7 +34,11 @@ public class Repl {
             } else {
                 result = gameplay.evaluate(line);
             }
+            System.out.println(result);
         }
     }
 
+    public String printInput() { return SET_TEXT_COLOR_MAGENTA + ">>> "; }
+
+    public String reset() { return RESET_TEXT_COLOR; }
 }
