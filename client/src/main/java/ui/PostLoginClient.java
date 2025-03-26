@@ -22,6 +22,7 @@ public class PostLoginClient implements Client {
     }
 
     public String help() {
+        this.state = State.POST_LOGIN;
         return """
                 "logout" to logout
                 "create <game name>" to create a new game
@@ -38,6 +39,7 @@ public class PostLoginClient implements Client {
         try {
             var commands = line.toLowerCase().split(" ");
             var command = (commands.length > 0) ? commands[0] : "help";
+            if (commands.length == 0) { return help(); };
             var parameters = Arrays.copyOfRange(commands, 1, commands.length);
 
             return switch (command) {
@@ -45,7 +47,7 @@ public class PostLoginClient implements Client {
                 case "logout" -> logout();
                 case "create" -> createGame(parameters);
                 case "list" -> listGames();
-                case "play" -> joinGame(parameters);
+                case "join" -> joinGame(parameters);
                 case "observe" -> observeGame(parameters);
                 default -> help();
             };
@@ -61,19 +63,19 @@ public class PostLoginClient implements Client {
         }
         state = State.POST_LOGIN;
 
-        return printBoard(Integer.parseInt(parameters[0]), ChessGame.TeamColor.WHITE);
+        return gatBoardString(Integer.parseInt(parameters[0]), ChessGame.TeamColor.WHITE);
     }
 
     private String joinGame(String[] parameters) {
         if (parameters.length != 2) {
-            throw new ResponseException(400, "Error: Expected play <color> <game id>");
+            throw new ResponseException(400, "Error: Expected join <color> <game id>");
         }
         var color = parameters[0].equalsIgnoreCase("white") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
 
         server.joinGame(new JoinGameRequest(color, Integer.parseInt(parameters[1])));
 
         state = State.GAMEPLAY;
-        return printBoard(Integer.parseInt(parameters[0]), color);
+        return gatBoardString(Integer.parseInt(parameters[1]), color);
     }
 
     private String listGames() {
@@ -114,17 +116,17 @@ public class PostLoginClient implements Client {
         return null;
     }
 
-    public String printBoard(Integer gameID, ChessGame.TeamColor perspective) {
+    public String gatBoardString(Integer gameID, ChessGame.TeamColor perspective) {
         var game = Objects.requireNonNull(getGame(gameID)).game();
         if (game == null) {
             throw new ResponseException(400, "Error: game doesn't exist");
         }
 
-        var board = game.getBoard().board;
+        boolean whitePerspective = true;
+        if (perspective != ChessGame.TeamColor.WHITE) {
+            whitePerspective = false;
+        }
 
-
-
-
-        return "this is the printed board";
+        return new BoardPrinter(game.getBoard()).getBoardString(whitePerspective);
     }
 }

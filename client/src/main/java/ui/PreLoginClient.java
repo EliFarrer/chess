@@ -16,6 +16,7 @@ public class PreLoginClient implements Client {
     }
 
     public String help() {
+        this.state = State.PRE_LOGIN;
         return """
                 "quit" to exit the game
                 "login <username> <password>" to login
@@ -26,11 +27,12 @@ public class PreLoginClient implements Client {
     public State getNewState() {
         return state;
     }
-
+// every time we call one of these methods, we need to update the state
     public String evaluate(String line, State state) {
         try {
             var commands = line.toLowerCase().split(" ");
             var command = (commands.length > 0) ? commands[0] : "help";
+            if (commands.length == 0) { return help(); };
             var parameters = Arrays.copyOfRange(commands, 1, commands.length);
 
             return switch (command) {
@@ -53,6 +55,9 @@ public class PreLoginClient implements Client {
         }
         LoginRequest req = new LoginRequest(params[0], params[1]);
         LoginResult res = server.login(req);
+        if (res == null) {
+            throw new ResponseException(400, "Error: Did not get a result");
+        }
         state = State.POST_LOGIN;
         return "logged in as " + res.username();
     }
