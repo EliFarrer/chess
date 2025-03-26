@@ -1,5 +1,8 @@
 package ui;
 
+import request.LoginRequest;
+import request.RegisterRequest;
+import result.LoginResult;
 import server.ResponseException;
 import server.ServerFacade;
 import java.util.Arrays;
@@ -44,14 +47,25 @@ public class PreLoginClient implements Client {
 
     }
 
+    // we don't care about the auth tokens here, the ServerFacade handles that
     public String login(String[] params) {
+        if (params.length != 2) {
+            throw new ResponseException(400, "Error: Expected login <username> <password>");
+        }
         state = State.POST_LOGIN;
-        return "login";
+        LoginRequest req = new LoginRequest(params[0], params[1]);
+        LoginResult res = server.login(req);
+        return "logged in as " + res.username();
     }
 
     public String register(String[] params) {
         state = State.POST_LOGIN;
-        return "register";
+        if (params.length != 3) {
+            throw new ResponseException(400, "Error: Expected register <username> <password> <email>");
+        }
+        RegisterRequest req = new RegisterRequest(params[0], params[1], params[2]);
+        LoginResult res = server.register(req);
+        return "registered as " + res.username();
     }
 
 }
