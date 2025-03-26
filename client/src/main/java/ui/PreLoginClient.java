@@ -34,7 +34,7 @@ public class PreLoginClient implements Client {
             var parameters = Arrays.copyOfRange(commands, 1, commands.length);
 
             return switch (command) {
-                case "quit" -> "Bye!";
+                case "quit" -> "quit";
                 case "login" -> login(parameters);
                 case "register" -> register(parameters);
                 default -> help();
