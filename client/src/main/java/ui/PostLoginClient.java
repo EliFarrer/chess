@@ -10,7 +10,6 @@ import server.ServerFacade;
 import java.util.Arrays;
 
 public class PostLoginClient implements Client {
-    public final int port;
     public State state = State.POST_LOGIN;
     ServerFacade server;
 
@@ -32,19 +31,24 @@ public class PostLoginClient implements Client {
     }
 
     public String evaluate(String line, State state) {
-        var commands = line.toLowerCase().split(" ");
-        var command = (commands.length > 0) ? commands[0] : "help";
-        var parameters = Arrays.copyOfRange(commands, 1, command.length());
+        try {
+            var commands = line.toLowerCase().split(" ");
+            var command = (commands.length > 0) ? commands[0] : "help";
+            var parameters = Arrays.copyOfRange(commands, 1, commands.length);
 
-        return switch (command) {
-            case "quit" -> "Bye!";
-            case "logout" -> logout();
-            case "create" -> createGame(parameters);
-            case "list" -> listGames();
-            case "play" -> joinGame(parameters);
-            case "observe" -> observeGame(parameters);
-            default -> help();
-        };
+            return switch (command) {
+                case "quit" -> "Bye!";
+                case "logout" -> logout();
+                case "create" -> createGame(parameters);
+                case "list" -> listGames();
+                case "play" -> joinGame(parameters);
+                case "observe" -> observeGame(parameters);
+                default -> help();
+            };
+        } catch (ResponseException ex) {
+            this.state = State.POST_LOGIN;
+            return ex.getMessage();
+        }
     }
 
     private String observeGame(String[] parameters) {
@@ -68,12 +72,14 @@ public class PostLoginClient implements Client {
 
     private String listGames() {
         var games = server.listGames().games();
-        var gson = new Gson();
         var res = new StringBuilder();
-        for (var game : games) {
-            res.append(gson.toJson(game)).append('\n');
+        for (int i = 0; i < games.size(); i++) {
+            res.append(i + 1).append(") ").append(games.get(i).toString()).append('\n');
         }
         state = State.POST_LOGIN;
+        if (res.toString().isEmpty()) {
+            return "No games...";
+        }
         return res.toString();
     }
 
