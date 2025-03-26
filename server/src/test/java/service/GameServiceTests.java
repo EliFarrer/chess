@@ -177,9 +177,9 @@ public class GameServiceTests {
         GameData gameData1 = new GameData(gameID1, "eli", "johnny", "mychessgame", new ChessGame());
         GameData gameData2 = new GameData(gameID2, "johnny", "eli", "mychessgame13", new ChessGame());
 
-        ArrayList<GameMetaData> expectedGames = new ArrayList<>();
-        expectedGames.add(new GameMetaData(gameData1));
-        expectedGames.add(new GameMetaData(gameData2));
+        ArrayList<GameData> expectedGames = new ArrayList<>();
+        expectedGames.add(gameData1);
+        expectedGames.add(gameData2);
 
         gameMap.put(gameID1, gameData1);
         gameMap.put(gameID2, gameData2);
@@ -187,7 +187,7 @@ public class GameServiceTests {
         GameService service = new GameService(dao);
 
         Assertions.assertDoesNotThrow(() -> {
-            ArrayList<GameMetaData> actualGames = service.listGames(authToken);
+            ArrayList<GameData> actualGames = service.listGames(authToken);
             Assertions.assertEquals(expectedGames, actualGames);
         });
 

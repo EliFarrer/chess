@@ -70,7 +70,7 @@ public class GameService {
         }
     }
 
-    public ArrayList<GameMetaData> listGames(String authToken) throws DataAccessException, UnauthorizedException {
+    public ArrayList<GameData> listGames(String authToken) throws DataAccessException, UnauthorizedException {
         try {
             if (dataAccess.isNotAuthorized(authToken)) {
                 throw new UnauthorizedException("Error: unauthorized auth data");

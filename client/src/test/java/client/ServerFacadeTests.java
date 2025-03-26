@@ -1,7 +1,7 @@
 package client;
 
 import chess.ChessGame;
-import model.GameMetaData;
+import model.GameData;
 import org.junit.jupiter.api.*;
 import request.CreateGameRequest;
 import request.JoinGameRequest;
@@ -110,11 +110,11 @@ public class ServerFacadeTests {
         CreateGameResult game2ID = facade.createGame(new CreateGameRequest(game2Name));
         CreateGameResult game3ID = facade.createGame(new CreateGameRequest(game3Name));
         CreateGameResult game1ID = facade.createGame(new CreateGameRequest(game1Name));
-        ArrayList<GameMetaData> games = facade.listGames().games();
+        ArrayList<GameData> games = facade.listGames().games();
         Assertions.assertEquals(3, games.size());
-        Assertions.assertEquals(new GameMetaData(game1ID.gameID(), null, null, game1Name), games.get(0));
-        Assertions.assertEquals(new GameMetaData(game2ID.gameID(), null, null, game2Name), games.get(1));
-        Assertions.assertEquals(new GameMetaData(game3ID.gameID(), null, null, game3Name), games.get(2));
+        Assertions.assertEquals(new GameData(game1ID.gameID(), null, null, game1Name, new ChessGame()), games.get(0));
+        Assertions.assertEquals(new GameData(game2ID.gameID(), null, null, game2Name, new ChessGame()), games.get(1));
+        Assertions.assertEquals(new GameData(game3ID.gameID(), null, null, game3Name, new ChessGame()), games.get(2));
 
     }
     @Test
@@ -137,8 +137,8 @@ public class ServerFacadeTests {
         facade.register(new RegisterRequest(username, "password", "p1@email.com"));
         CreateGameResult gameID = facade.createGame(new CreateGameRequest(gameName));
         Assertions.assertDoesNotThrow(() -> facade.joinGame(new JoinGameRequest(ChessGame.TeamColor.WHITE, gameID.gameID())));
-        ArrayList<GameMetaData> games = facade.listGames().games();
-        Assertions.assertEquals(new GameMetaData(gameID.gameID(), username, null, gameName), games.getFirst());
+        ArrayList<GameData> games = facade.listGames().games();
+        Assertions.assertEquals(new GameData(gameID.gameID(), username, null, gameName, new ChessGame()), games.getFirst());
     }
     @Test
     void joinGameNegativeUnauthorized() {

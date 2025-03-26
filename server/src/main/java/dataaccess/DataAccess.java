@@ -35,5 +35,5 @@ public interface DataAccess {
 
     void updateGame(int gameID, GameData gameData) throws DataAccessException;
 
-    ArrayList<GameMetaData> listGames() throws DataAccessException;
+    ArrayList<GameData> listGames() throws DataAccessException;
     }

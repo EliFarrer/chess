@@ -164,11 +164,11 @@ public class MemoryDAO implements DataAccess {
         }
     }
 
-    public ArrayList<GameMetaData> listGames() throws DataAccessException {
+    public ArrayList<GameData> listGames() throws DataAccessException {
         try {
-            ArrayList<GameMetaData> games = new ArrayList<>();
+            ArrayList<GameData> games = new ArrayList<>();
             for (Map.Entry<Integer, GameData> entry : gameDataMap.entrySet()) {
-                games.add(new GameMetaData(entry.getValue()));
+                games.add(entry.getValue());
             }
             return games;
         } catch (Exception e) {

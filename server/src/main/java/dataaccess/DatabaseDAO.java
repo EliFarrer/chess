@@ -304,8 +304,8 @@ public class DatabaseDAO implements DataAccess {
         }
     }
 
-    public ArrayList<GameMetaData> listGames() throws DataAccessException {
-        ArrayList<GameMetaData> games = new ArrayList<>();
+    public ArrayList<GameData> listGames() throws DataAccessException {
+        ArrayList<GameData> games = new ArrayList<>();
         DatabaseManager.createTables();
         try (var connection = DatabaseManager.getConnection()) {
             try (PreparedStatement stmt = connection.prepareStatement("SELECT gameData FROM game")) {
@@ -313,8 +313,8 @@ public class DatabaseDAO implements DataAccess {
                     while (rs.next()) {
                         var json = rs.getString("gameData");
                         var gson = new GsonBuilder().create();
-                        GameMetaData gameMetaData = gson.fromJson(json, GameMetaData.class);
-                        games.add(gameMetaData);
+                        GameData gameData = gson.fromJson(json, GameData.class);
+                        games.add(gameData);
                     }
                 }
             }

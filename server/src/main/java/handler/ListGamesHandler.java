@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryDAO;
+import model.GameData;
 import model.GameMetaData;
 import result.ErrorResult;
 import service.GameService;
@@ -28,7 +29,7 @@ public class ListGamesHandler {
     public Object handle(Request req, Response res) {
         try {
             String authToken = req.headers("Authorization");
-            ArrayList<GameMetaData> listGamesRes = service.listGames(authToken);
+            ArrayList<GameData> listGamesRes = service.listGames(authToken);
             res.status(200);
             var jsonObject = new JsonObject();
             jsonObject.add("games", serializer.toJsonTree(listGamesRes));

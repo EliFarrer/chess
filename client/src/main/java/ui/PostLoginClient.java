@@ -55,7 +55,8 @@ public class PostLoginClient implements Client {
         if (parameters.length != 1) {
             throw new ResponseException(400, "Error: Expected observe <game id>");
         }
-        state = State.GAMEPLAY;
+        state = State.POST_LOGIN;
+
         return "observing game " + parameters[0];
     }
 

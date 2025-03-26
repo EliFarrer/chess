@@ -34,6 +34,7 @@ public class Repl {
 
         while (!result.equals("quit")) {
             try {
+                System.out.print(printInput());
                 String line = scanner.nextLine();
                 if (state == State.PRE_LOGIN) {
                     result = preLogin.evaluate(line, state);
