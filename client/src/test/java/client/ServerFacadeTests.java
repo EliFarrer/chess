@@ -53,12 +53,12 @@ public class ServerFacadeTests {
 
     @Test
     void logoutPositive() {
-        var authData = facade.register(new RegisterRequest("user", "password", "p1@email.com"));
-        Assertions.assertDoesNotThrow(() -> facade.logout(authData.authToken()));
+        facade.register(new RegisterRequest("user", "password", "p1@email.com"));
+        Assertions.assertDoesNotThrow(() -> facade.logout());
     }
     @Test
     void logoutNegativeUnauthorized() {
-        Assertions.assertThrows(ResponseException.class, () -> facade.logout("randomString"));
+        Assertions.assertThrows(ResponseException.class, () -> facade.logout());
     }
 
     @Test
@@ -66,10 +66,10 @@ public class ServerFacadeTests {
         // register new user
         String username = "user";
         String password = "password";
-        var authData = facade.register(new RegisterRequest(username, password, "p1@email.com"));
+        facade.register(new RegisterRequest(username, password, "p1@email.com"));
 
         // log them out
-        facade.logout(authData.authToken());
+        facade.logout();
 
         Assertions.assertDoesNotThrow(() -> facade.login(new LoginRequest(username, password)));
     }
@@ -80,37 +80,37 @@ public class ServerFacadeTests {
 
     @Test
     void createGamePositive() {
-        var authData = facade.register(new RegisterRequest("user", "password", "p1@email.com"));
+        facade.register(new RegisterRequest("user", "password", "p1@email.com"));
         Assertions.assertDoesNotThrow(() -> {
-            CreateGameResult id = facade.createGame(authData.authToken(),new CreateGameRequest("myGame"));
+            CreateGameResult id = facade.createGame(new CreateGameRequest("myGame"));
             Assertions.assertNotNull(id.gameID());
         });
     }
     @Test
     void createGameNegativeUnauthorized() {
-        Assertions.assertThrows(ResponseException.class, () -> facade.createGame(null,new CreateGameRequest("myGame")));
+        Assertions.assertThrows(ResponseException.class, () -> facade.createGame(new CreateGameRequest("myGame")));
     }
     @Test
     void createGameNegativeBadDataNull() {
-        var authData = facade.register(new RegisterRequest("user", "password", "p1@email.com"));
-        Assertions.assertThrows(ResponseException.class, () -> facade.createGame(authData.authToken(),null));
+        facade.register(new RegisterRequest("user", "password", "p1@email.com"));
+        Assertions.assertThrows(ResponseException.class, () -> facade.createGame(null));
     }
     @Test
     void createGameNegativeBadDataEmptyString() {
-        var authData = facade.register(new RegisterRequest("user", "password", "p1@email.com"));
-        Assertions.assertThrows(ResponseException.class, () -> facade.createGame(authData.authToken(),new CreateGameRequest("")));
+        facade.register(new RegisterRequest("user", "password", "p1@email.com"));
+        Assertions.assertThrows(ResponseException.class, () -> facade.createGame(new CreateGameRequest("")));
     }
 
     @Test
     void listGamesPositive() {
-        var authData = facade.register(new RegisterRequest("user", "password", "p1@email.com"));
+        facade.register(new RegisterRequest("user", "password", "p1@email.com"));
         String game1Name = "game1";
         String game2Name = "game2";
         String game3Name = "game3";
-        CreateGameResult game1ID = facade.createGame(authData.authToken(),new CreateGameRequest(game1Name));
-        CreateGameResult game2ID = facade.createGame(authData.authToken(),new CreateGameRequest(game2Name));
-        CreateGameResult game3ID = facade.createGame(authData.authToken(),new CreateGameRequest(game3Name));
-        ArrayList<GameMetaData> games = facade.listGames(authData.authToken()).games();
+        CreateGameResult game2ID = facade.createGame(new CreateGameRequest(game2Name));
+        CreateGameResult game3ID = facade.createGame(new CreateGameRequest(game3Name));
+        CreateGameResult game1ID = facade.createGame(new CreateGameRequest(game1Name));
+        ArrayList<GameMetaData> games = facade.listGames().games();
         Assertions.assertEquals(3, games.size());
         Assertions.assertEquals(new GameMetaData(game1ID.gameID(), null, null, game1Name), games.get(0));
         Assertions.assertEquals(new GameMetaData(game2ID.gameID(), null, null, game2Name), games.get(1));
@@ -119,54 +119,41 @@ public class ServerFacadeTests {
     }
     @Test
     void listGamesNegativeUnauthorized() {
-        var authData = facade.register(new RegisterRequest("user", "password", "p1@email.com"));
+        facade.register(new RegisterRequest("user", "password", "p1@email.com"));
         String game1Name = "game1";
         String game2Name = "game2";
         String game3Name = "game3";
-        facade.createGame(authData.authToken(),new CreateGameRequest(game1Name));
-        facade.createGame(authData.authToken(),new CreateGameRequest(game2Name));
-        facade.createGame(authData.authToken(),new CreateGameRequest(game3Name));
-        facade.logout(authData.authToken());
-        Assertions.assertThrows(ResponseException.class, () -> facade.listGames(authData.authToken()).games());
+        facade.createGame(new CreateGameRequest(game1Name));
+        facade.createGame(new CreateGameRequest(game2Name));
+        facade.createGame(new CreateGameRequest(game3Name));
+        facade.logout();
+        Assertions.assertThrows(ResponseException.class, () -> facade.listGames().games());
     }
 
     @Test
     void joinGamePositive() {
         String username = "user";
         String gameName = "myGame";
-        var authData = facade.register(new RegisterRequest(username, "password", "p1@email.com"));
-        CreateGameResult gameID = facade.createGame(authData.authToken(),new CreateGameRequest(gameName));
-        Assertions.assertDoesNotThrow(() -> facade.joinGame(authData.authToken(), new JoinGameRequest(ChessGame.TeamColor.WHITE, gameID.gameID())));
-        ArrayList<GameMetaData> games = facade.listGames(authData.authToken()).games();
+        facade.register(new RegisterRequest(username, "password", "p1@email.com"));
+        CreateGameResult gameID = facade.createGame(new CreateGameRequest(gameName));
+        Assertions.assertDoesNotThrow(() -> facade.joinGame(new JoinGameRequest(ChessGame.TeamColor.WHITE, gameID.gameID())));
+        ArrayList<GameMetaData> games = facade.listGames().games();
         Assertions.assertEquals(new GameMetaData(gameID.gameID(), username, null, gameName), games.getFirst());
     }
     @Test
     void joinGameNegativeUnauthorized() {
-        var authData = facade.register(new RegisterRequest("user", "password", "p1@email.com"));
-        CreateGameResult gameID = facade.createGame(authData.authToken(),new CreateGameRequest("myGame"));
-        facade.logout(authData.authToken());
-        Assertions.assertThrows(ResponseException.class, () -> facade.joinGame(authData.authToken(), new JoinGameRequest(ChessGame.TeamColor.WHITE, gameID.gameID())));
-    }
-    @Test
-    void joinGameNegativeBadDataNull() {
-        var authData = facade.register(new RegisterRequest("user", "password", "p1@email.com"));
-        CreateGameResult gameID = facade.createGame(authData.authToken(),new CreateGameRequest("myGame"));
-        Assertions.assertThrows(ResponseException.class, () -> facade.joinGame(null, new JoinGameRequest(ChessGame.TeamColor.WHITE, gameID.gameID())));
-        Assertions.assertThrows(ResponseException.class, () -> facade.joinGame(authData.authToken(), new JoinGameRequest(null, null)));
-    }
-    @Test
-    void joinGameNegativeBadDataEmptyString() {
-        var authData = facade.register(new RegisterRequest("user", "password", "p1@email.com"));
-        CreateGameResult gameID = facade.createGame(authData.authToken(),new CreateGameRequest("myGame"));
-        Assertions.assertThrows(ResponseException.class, () -> facade.joinGame("", new JoinGameRequest(ChessGame.TeamColor.WHITE, gameID.gameID())));
+        facade.register(new RegisterRequest("user", "password", "p1@email.com"));
+        CreateGameResult gameID = facade.createGame(new CreateGameRequest("myGame"));
+        facade.logout();
+        Assertions.assertThrows(ResponseException.class, () -> facade.joinGame(new JoinGameRequest(ChessGame.TeamColor.WHITE, gameID.gameID())));
     }
     @Test
     void joinGameNegativeAlreadyTaken() {
-        var authData1 = facade.register(new RegisterRequest("user1", "password", "p1@email.com"));
-        var authData2 = facade.register(new RegisterRequest("user2", "password", "p2@email.com"));
-        CreateGameResult gameID = facade.createGame(authData1.authToken(),new CreateGameRequest("myGame"));
-        facade.joinGame(authData1.authToken(), new JoinGameRequest(ChessGame.TeamColor.WHITE, gameID.gameID()));
-        Assertions.assertThrows(ResponseException.class, () -> facade.joinGame(authData2.authToken(), new JoinGameRequest(ChessGame.TeamColor.WHITE, gameID.gameID())));
+        facade.register(new RegisterRequest("user1", "password", "p1@email.com"));
+        facade.register(new RegisterRequest("user2", "password", "p2@email.com"));
+        CreateGameResult gameID = facade.createGame(new CreateGameRequest("myGame"));
+        facade.joinGame(new JoinGameRequest(ChessGame.TeamColor.WHITE, gameID.gameID()));
+        Assertions.assertThrows(ResponseException.class, () -> facade.joinGame(new JoinGameRequest(ChessGame.TeamColor.WHITE, gameID.gameID())));
     }
 
     @AfterEach

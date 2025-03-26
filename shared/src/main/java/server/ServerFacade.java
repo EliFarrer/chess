@@ -1,7 +1,5 @@
 package server;
 
-
-import chess.ChessGame;
 import com.google.gson.Gson;
 import request.CreateGameRequest;
 import request.JoinGameRequest;
@@ -19,8 +17,12 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 
+
+// this class handles passing the authToken around
 public class ServerFacade {
     String url;
+    String authToken = "";
+
     public ServerFacade(int port) {
         url = "http://localhost:" + port;
     }
@@ -30,38 +32,39 @@ public class ServerFacade {
         this.makeRequest("DELETE", path, null, null, null);
     }
 
-    public LoginResult register(String username, String password, String email) throws ResponseException {
+    public LoginResult register(RegisterRequest req) throws ResponseException {
         String path = "/user";
-        RegisterRequest req = new RegisterRequest(username, password, email);
-        return this.makeRequest("POST", path, req, LoginResult.class, null);
+        var res = this.makeRequest("POST", path, req, LoginResult.class, null);
+        this.authToken = res.authToken();
+        return res;
     }
 
-    public void logout(String authToken) throws ResponseException {
+    public void logout() throws ResponseException {
         String path = "/session";
-        this.makeRequest("DELETE", path, null, null, authToken);
+        this.makeRequest("DELETE", path, null, null, this.authToken);
+        this.authToken = "";
     }
 
-    public LoginResult login(String username, String password) {
+    public LoginResult login(LoginRequest req) {
         String path = "/session";
-        LoginRequest req = new LoginRequest(username, password);
-        return this.makeRequest("POST", path, req, LoginResult.class, null);
+        var res = this.makeRequest("POST", path, req, LoginResult.class, null);
+        this.authToken = res.authToken();
+        return res;
     }
 
-    public CreateGameResult createGame(String authToken, String gameName) {
+    public CreateGameResult createGame(CreateGameRequest req) {
         String path = "/game";
-        CreateGameRequest req = new CreateGameRequest(gameName);
-        return this.makeRequest("POST", path, req, CreateGameResult.class, authToken);
+        return this.makeRequest("POST", path, req, CreateGameResult.class, this.authToken);
     }
 
-    public ListGamesResult listGames(String authToken) {
+    public ListGamesResult listGames() {
         String path = "/game";
-        return this.makeRequest("GET", path, null, ListGamesResult.class, authToken);
+        return this.makeRequest("GET", path, null, ListGamesResult.class, this.authToken);
     }
 
-    public void joinGame(String authToken, ChessGame.TeamColor playerColor, Integer gameID) {
+    public void joinGame(JoinGameRequest req) {
         String path = "/game";
-        JoinGameRequest req = new JoinGameRequest(playerColor, gameID);
-        this.makeRequest("PUT", path, req, null, authToken);
+        this.makeRequest("PUT", path, req, null, this.authToken);
     }
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authorization) throws ResponseException {
