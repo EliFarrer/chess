@@ -62,7 +62,7 @@ public class UserService {
             // the user is registered, so create auth and return LoginResult
             AuthData authData = dataAccess.createAuth(userData.username());
             return new LoginResult(authData.username(), authData.authToken());
-        } catch (DataAccessException e) {   // 500 error
+        } catch (DataAccessException e) {   // 401 error
             throw new UnauthorizedException("Error: unauthorized user");
         }
     }
