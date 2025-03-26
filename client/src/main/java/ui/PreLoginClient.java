@@ -8,13 +8,11 @@ import server.ServerFacade;
 import java.util.Arrays;
 
 public class PreLoginClient implements Client {
-    public final int port;
     ServerFacade server;
     State state = State.PRE_LOGIN;
 
-    public PreLoginClient(int port) {
-        this.port = port;
-        this.server = new ServerFacade(port);
+    public PreLoginClient(ServerFacade server) {
+        this.server = server;
     }
 
     public String help() {
@@ -42,6 +40,7 @@ public class PreLoginClient implements Client {
                 default -> help();
             };
         } catch (ResponseException ex) {
+            this.state = State.PRE_LOGIN;
             return ex.getMessage();
         }
 

@@ -14,9 +14,8 @@ public class PostLoginClient implements Client {
     public State state = State.POST_LOGIN;
     ServerFacade server;
 
-    public PostLoginClient(int port) {
-        this.port = port;
-        this.server = new ServerFacade(port);
+    public PostLoginClient(ServerFacade server) {
+        this.server = server;
     }
 
     public String help() {

@@ -1,6 +1,7 @@
 package ui;
 
 import server.ResponseException;
+import server.ServerFacade;
 
 import java.util.Scanner;
 
@@ -12,12 +13,14 @@ public class Repl {
     PreLoginClient preLogin;
     PostLoginClient postLogin;
     GameplayClient gameplay;
+    ServerFacade server;
 
     public Repl(int port) {
         this.port = port;
-        preLogin = new PreLoginClient(port);
-        postLogin = new PostLoginClient(port);
-        gameplay = new GameplayClient(port);
+        server = new ServerFacade(port);
+        preLogin = new PreLoginClient(server);
+        postLogin = new PostLoginClient(server);
+        gameplay = new GameplayClient(server);
     }
 
     public void run() {
