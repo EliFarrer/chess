@@ -1,13 +1,15 @@
 package ui;
 
+import server.ServerFacade;
+
 import java.util.Arrays;
 
 public class GameplayClient implements Client {
-    public final int port;
+    public ServerFacade server;
     public State state = State.GAMEPLAY;
 
-    public GameplayClient(int port) {
-        this.port = port;
+    public GameplayClient(ServerFacade server) {
+        this.server = server;
     }
 
     public String help() {
