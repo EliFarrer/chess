@@ -121,7 +121,7 @@ public class ServerFacade {
         if (!isSuccessful(status)) {
             try (InputStream respErr = http.getErrorStream()) { // getting the error message
                 if (respErr != null) {
-                    throw ResponseException.fromJson(respErr);
+                    throw ResponseException.fromJson(status, respErr);
                 }
             }
 
