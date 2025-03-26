@@ -1,7 +1,5 @@
 package ui;
 
-import server.ServerFacade;
-
 public class GameplayClient implements Client {
     public ServerFacade server;
     public State state = State.GAMEPLAY;

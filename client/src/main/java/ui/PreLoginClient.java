@@ -4,7 +4,7 @@ import request.LoginRequest;
 import request.RegisterRequest;
 import result.LoginResult;
 import server.ResponseException;
-import server.ServerFacade;
+
 import java.util.Arrays;
 
 public class PreLoginClient implements Client {
@@ -32,7 +32,7 @@ public class PreLoginClient implements Client {
         try {
             var commands = line.toLowerCase().split(" ");
             var command = (commands.length > 0) ? commands[0] : "help";
-            if (commands.length == 0) { return help(); };
+            if (commands.length == 0) { return help(); }
             var parameters = Arrays.copyOfRange(commands, 1, commands.length);
 
             return switch (command) {

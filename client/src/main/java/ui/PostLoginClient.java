@@ -1,13 +1,10 @@
 package ui;
 
-import chess.ChessBoard;
 import chess.ChessGame;
 import model.GameData;
 import request.CreateGameRequest;
 import request.JoinGameRequest;
-import result.ListGamesResult;
 import server.ResponseException;
-import server.ServerFacade;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,7 +36,7 @@ public class PostLoginClient implements Client {
         try {
             var commands = line.toLowerCase().split(" ");
             var command = (commands.length > 0) ? commands[0] : "help";
-            if (commands.length == 0) { return help(); };
+            if (commands.length == 0) { return help(); }
             var parameters = Arrays.copyOfRange(commands, 1, commands.length);
 
             return switch (command) {
@@ -122,10 +119,7 @@ public class PostLoginClient implements Client {
             throw new ResponseException(400, "Error: game doesn't exist");
         }
 
-        boolean whitePerspective = true;
-        if (perspective != ChessGame.TeamColor.WHITE) {
-            whitePerspective = false;
-        }
+        boolean whitePerspective = perspective == ChessGame.TeamColor.WHITE;
 
         return new BoardPrinter(game.getBoard()).getBoardString(whitePerspective);
     }

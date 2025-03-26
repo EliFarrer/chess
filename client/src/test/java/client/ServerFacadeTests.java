@@ -10,7 +10,7 @@ import request.RegisterRequest;
 import result.CreateGameResult;
 import server.ResponseException;
 import server.Server;
-import server.ServerFacade;
+import ui.ServerFacade;
 import java.util.ArrayList;
 
 

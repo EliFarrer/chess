@@ -1,4 +1,4 @@
-package server;
+package ui;
 
 import com.google.gson.Gson;
 import request.CreateGameRequest;
@@ -8,6 +8,7 @@ import request.RegisterRequest;
 import result.CreateGameResult;
 import result.ListGamesResult;
 import result.LoginResult;
+import server.ResponseException;
 
 import java.io.IOException;
 import java.io.InputStream;

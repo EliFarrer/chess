@@ -1,10 +1,5 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import server.ResponseException;
-import server.ServerFacade;
-
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
