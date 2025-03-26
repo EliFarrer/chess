@@ -33,10 +33,10 @@ public class PreLoginClient implements Client {
         try {
             var commands = line.toLowerCase().split(" ");
             var command = (commands.length > 0) ? commands[0] : "help";
-            var parameters = Arrays.copyOfRange(commands, 1, command.length());
+            var parameters = Arrays.copyOfRange(commands, 1, commands.length);
 
             return switch (command) {
-                case "quit" -> "quit";
+                case "quit" -> "Bye!";
                 case "login" -> login(parameters);
                 case "register" -> register(parameters);
                 default -> help();
@@ -52,19 +52,19 @@ public class PreLoginClient implements Client {
         if (params.length != 2) {
             throw new ResponseException(400, "Error: Expected login <username> <password>");
         }
-        state = State.POST_LOGIN;
         LoginRequest req = new LoginRequest(params[0], params[1]);
         LoginResult res = server.login(req);
+        state = State.POST_LOGIN;
         return "logged in as " + res.username();
     }
 
     public String register(String[] params) {
-        state = State.POST_LOGIN;
         if (params.length != 3) {
             throw new ResponseException(400, "Error: Expected register <username> <password> <email>");
         }
         RegisterRequest req = new RegisterRequest(params[0], params[1], params[2]);
         LoginResult res = server.register(req);
+        state = State.POST_LOGIN;
         return "registered as " + res.username();
     }
 
