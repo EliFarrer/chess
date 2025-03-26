@@ -2,8 +2,6 @@ package ui;
 
 import server.ServerFacade;
 
-import java.util.Arrays;
-
 public class GameplayClient implements Client {
     public ServerFacade server;
     public State state = State.GAMEPLAY;
@@ -24,10 +22,6 @@ public class GameplayClient implements Client {
     }
 
     public String evaluate(String line, State state) {
-//        var commands = line.toLowerCase().split(" ");
-//        var command = (commands.length > 0) ? commands[0] : "help";
-//        var parameters = Arrays.copyOfRange(commands, 1, command.length());
-
         return line;
     }
 }

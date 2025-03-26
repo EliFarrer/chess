@@ -3,7 +3,6 @@ import chess.ChessGame;
 import dataaccess.MemoryDAO;
 import model.AuthData;
 import model.GameData;
-import model.GameMetaData;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 import request.CreateGameRequest;
@@ -64,7 +63,7 @@ public class GameServiceTests {
 
         // gameMap
         HashMap<Integer, GameData> gameMap = new HashMap<>();
-        GameData gameData = new GameData(1234,null, "johnny","mychessgame", new ChessGame());
+        GameData gameData = new GameData(1234,null, "johnny","myChessGame", new ChessGame());
         gameMap.put(gameData.gameID(), gameData);
 
         MemoryDAO dao = new MemoryDAO(null, authMap, gameMap);
@@ -87,7 +86,7 @@ public class GameServiceTests {
 
         // gameMap
         HashMap<Integer, GameData> gameMap = new HashMap<>();
-        GameData gameData = new GameData(1234,null, "johnny","mychessgame", new ChessGame());
+        GameData gameData = new GameData(1234,null, "johnny","myChessGame", new ChessGame());
         gameMap.put(gameData.gameID(), gameData);
 
         MemoryDAO dao = new MemoryDAO(null, authMap, gameMap);
@@ -110,7 +109,7 @@ public class GameServiceTests {
 
         // gameMap
         HashMap<Integer, GameData> gameMap = new HashMap<>();
-        GameData gameData = new GameData(gameID,null, "johnny","mychessgame", new ChessGame());
+        GameData gameData = new GameData(gameID,null, "johnny","myChessGame", new ChessGame());
         gameMap.put(gameID, gameData);
         MemoryDAO dao = new MemoryDAO(null, authMap, gameMap);
         GameService service = new GameService(dao);
@@ -131,7 +130,7 @@ public class GameServiceTests {
 
         // gameMap
         HashMap<Integer, GameData> gameMap = new HashMap<>();
-        GameData gameData = new GameData(expectedGameID,null, "johnny","mychessgame", new ChessGame());
+        GameData gameData = new GameData(expectedGameID,null, "johnny","myChessGame", new ChessGame());
         gameMap.put(expectedGameID, gameData);
         MemoryDAO dao = new MemoryDAO(null, authMap, gameMap);
         GameService service = new GameService(dao);
@@ -151,7 +150,7 @@ public class GameServiceTests {
 
         // gameMap
         HashMap<Integer, GameData> gameMap = new HashMap<>();
-        GameData gameData = new GameData(gameID,"eli", null,"mychessgame", new ChessGame());
+        GameData gameData = new GameData(gameID,"eli", null,"myChessGame", new ChessGame());
         gameMap.put(gameData.gameID(), gameData);
         MemoryDAO dao = new MemoryDAO(null, authMap, gameMap);
         GameService service = new GameService(dao);
@@ -174,8 +173,8 @@ public class GameServiceTests {
 
         // gameMap
         HashMap<Integer, GameData> gameMap = new HashMap<>();
-        GameData gameData1 = new GameData(gameID1, "eli", "johnny", "mychessgame", new ChessGame());
-        GameData gameData2 = new GameData(gameID2, "johnny", "eli", "mychessgame13", new ChessGame());
+        GameData gameData1 = new GameData(gameID1, "eli", "johnny", "myChessGame", new ChessGame());
+        GameData gameData2 = new GameData(gameID2, "johnny", "eli", "myChessGame13", new ChessGame());
 
         ArrayList<GameData> expectedGames = new ArrayList<>();
         expectedGames.add(gameData1);
@@ -206,8 +205,8 @@ public class GameServiceTests {
 
         // gameMap
         HashMap<Integer, GameData> gameMap = new HashMap<>();
-        GameData gameData1 = new GameData(gameID1, "eli", "johnny", "mychessgame", new ChessGame());
-        GameData gameData2 = new GameData(gameID2, "johnny", "eli", "mychessgame13", new ChessGame());
+        GameData gameData1 = new GameData(gameID1, "eli", "johnny", "myChessGame", new ChessGame());
+        GameData gameData2 = new GameData(gameID2, "johnny", "eli", "myChessGame13", new ChessGame());
 
         gameMap.put(gameID1, gameData1);
         gameMap.put(gameID2, gameData2);

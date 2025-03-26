@@ -4,9 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
-import dataaccess.MemoryDAO;
 import model.GameData;
-import model.GameMetaData;
 import result.ErrorResult;
 import service.GameService;
 import service.UnauthorizedException;
@@ -23,9 +21,6 @@ public class ListGamesHandler {
         serializer = new Gson();
     }
 
-    // var jsonObject = new JsonObject();
-    // jsonObject.add("games", gson.toJsonTree(games));
-    // res.type too?
     public Object handle(Request req, Response res) {
         try {
             String authToken = req.headers("Authorization");

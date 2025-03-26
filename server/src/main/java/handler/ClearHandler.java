@@ -2,7 +2,6 @@ package handler;
 import com.google.gson.Gson;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
-import dataaccess.MemoryDAO;
 import result.ErrorResult;
 import service.ClearService;
 import spark.*;
