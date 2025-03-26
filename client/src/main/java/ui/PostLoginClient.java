@@ -1,13 +1,17 @@
 package ui;
 
+import chess.ChessBoard;
 import chess.ChessGame;
-import com.google.gson.Gson;
+import model.GameData;
 import request.CreateGameRequest;
 import request.JoinGameRequest;
+import result.ListGamesResult;
 import server.ResponseException;
 import server.ServerFacade;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 
 public class PostLoginClient implements Client {
     public State state = State.POST_LOGIN;
@@ -57,7 +61,7 @@ public class PostLoginClient implements Client {
         }
         state = State.POST_LOGIN;
 
-        return "observing game " + parameters[0];
+        return printBoard(Integer.parseInt(parameters[0]), ChessGame.TeamColor.WHITE);
     }
 
     private String joinGame(String[] parameters) {
@@ -67,8 +71,9 @@ public class PostLoginClient implements Client {
         var color = parameters[0].equalsIgnoreCase("white") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
 
         server.joinGame(new JoinGameRequest(color, Integer.parseInt(parameters[1])));
+
         state = State.GAMEPLAY;
-        return "joined game " + parameters[1] + " for color " + parameters[0];
+        return printBoard(Integer.parseInt(parameters[0]), color);
     }
 
     private String listGames() {
@@ -97,5 +102,29 @@ public class PostLoginClient implements Client {
         server.logout();
         state = State.PRE_LOGIN;
         return "logged out, thank you!";
+    }
+
+    private GameData getGame(int gameID) {
+        ArrayList<GameData> games = server.listGames().games();
+        for (var game : games) {
+            if (game.gameID() == gameID) {
+                return game;
+            }
+        }
+        return null;
+    }
+
+    public String printBoard(Integer gameID, ChessGame.TeamColor perspective) {
+        var game = Objects.requireNonNull(getGame(gameID)).game();
+        if (game == null) {
+            throw new ResponseException(400, "Error: game doesn't exist");
+        }
+
+        var board = game.getBoard().board;
+
+
+
+
+        return "this is the printed board";
     }
 }
