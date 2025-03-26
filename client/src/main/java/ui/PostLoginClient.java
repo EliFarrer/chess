@@ -1,13 +1,22 @@
 package ui;
 
+import chess.ChessGame;
+import com.google.gson.Gson;
+import request.CreateGameRequest;
+import request.JoinGameRequest;
+import server.ResponseException;
+import server.ServerFacade;
+
 import java.util.Arrays;
 
 public class PostLoginClient implements Client {
     public final int port;
     public State state = State.POST_LOGIN;
+    ServerFacade server;
 
     public PostLoginClient(int port) {
         this.port = port;
+        this.server = new ServerFacade(port);
     }
 
     public String help() {
@@ -15,7 +24,7 @@ public class PostLoginClient implements Client {
                 "logout" to logout
                 "create <game name>" to create a new game
                 "list" to list all the games
-                "play <game id> <color>" to join a game with a specific color
+                "play <color> <game id>" to join a game with a specific color
                 "observe <game id>" to observe a game being played
                 """;    }
 
@@ -29,9 +38,10 @@ public class PostLoginClient implements Client {
         var parameters = Arrays.copyOfRange(commands, 1, command.length());
 
         return switch (command) {
-            case "logout" -> logout(parameters);
+            case "quit" -> "Bye!";
+            case "logout" -> logout();
             case "create" -> createGame(parameters);
-            case "list" -> listGames(parameters);
+            case "list" -> listGames();
             case "play" -> joinGame(parameters);
             case "observe" -> observeGame(parameters);
             default -> help();
@@ -39,27 +49,47 @@ public class PostLoginClient implements Client {
     }
 
     private String observeGame(String[] parameters) {
+        if (parameters.length != 1) {
+            throw new ResponseException(400, "Error: Expected observe <game id>");
+        }
         state = State.GAMEPLAY;
-        return "observing";
+        return "observing game " + parameters[0];
     }
 
     private String joinGame(String[] parameters) {
+        if (parameters.length != 2) {
+            throw new ResponseException(400, "Error: Expected play <color> <game id>");
+        }
+        var color = parameters[0].equalsIgnoreCase("white") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
+
+        server.joinGame(new JoinGameRequest(color, Integer.parseInt(parameters[1])));
         state = State.GAMEPLAY;
-        return "join game";
+        return "joined game " + parameters[1] + " for color " + parameters[0];
     }
 
-    private String listGames(String[] parameters) {
-        state = State.GAMEPLAY;
-        return "list games";
+    private String listGames() {
+        var games = server.listGames().games();
+        var gson = new Gson();
+        var res = new StringBuilder();
+        for (var game : games) {
+            res.append(gson.toJson(game)).append('\n');
+        }
+        state = State.POST_LOGIN;
+        return res.toString();
     }
 
     private String createGame(String[] parameters) {
-        state = State.GAMEPLAY;
-        return "create game";
+        if (parameters.length != 1) {
+            throw new ResponseException(400, "Error: Expected create <game name>");
+        }
+        var res = server.createGame(new CreateGameRequest(parameters[0]));
+        state = State.POST_LOGIN;
+        return "Created game: " + res.gameID();
     }
 
-    private String logout(String[] parameters) {
+    private String logout() {
+        server.logout();
         state = State.PRE_LOGIN;
-        return "logout";
+        return "logged out, thank you!";
     }
 }
