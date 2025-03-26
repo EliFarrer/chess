@@ -1,5 +1,7 @@
 package ui;
 
+import chess.ChessBoard;
+import chess.ChessGame;
 import server.ResponseException;
 import server.ServerFacade;
 
@@ -32,8 +34,12 @@ public class Repl {
         var result = "";
         State newState;
 
+        ChessGame game = new ChessGame();
+        BoardPrinter bp = new BoardPrinter(game.getBoard());
+
         while (!result.equals("quit")) {
             try {
+                System.out.println(bp.getBoardString());
                 System.out.print(printInput());
                 String line = scanner.nextLine();
                 if (state == State.PRE_LOGIN) {
