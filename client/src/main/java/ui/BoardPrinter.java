@@ -13,21 +13,28 @@ public class BoardPrinter {
         this.board = board.board;
     }
 
-    public String getBoardString() {
+    public String getBoardString(boolean whitePerspective) {
         var out = new StringBuilder();
 
-        out.append(getHorizontalBorder(true));
-        for (int i = 0; i < 8; i++) {
-            ChessPiece[] row = board[i];
-            out.append(getRowString(row, i)).append('\n');
+        out.append(getHorizontalBorder(!whitePerspective));
+        if (whitePerspective) {
+            for (int i = 7; i >= 0; i--) {
+                ChessPiece[] row = board[i];
+                out.append(getRowString(row, 7 - i, whitePerspective)).append('\n');
+            }
+        } else {
+            for (int i = 0; i < 8; i++) {
+                ChessPiece[] row = board[i];
+                out.append(getRowString(row, i, whitePerspective)).append('\n');
+            }
         }
-        out.append(getHorizontalBorder(true));
+        out.append(getHorizontalBorder(!whitePerspective));
         return out.toString();
     }
 
-    private String getRowString(chess.ChessPiece[] row, int rowIndex) {
+    private String getRowString(chess.ChessPiece[] row, int rowIndex, boolean flip) {
         var out = new StringBuilder();
-        out.append(getVerticalBorder(rowIndex));
+        out.append(getVerticalBorder(rowIndex, flip));
         for (int j = 0; j < 8; j++) {
             ChessPiece piece = row[j];
             if (piece == null) {
@@ -36,7 +43,7 @@ public class BoardPrinter {
                 out.append(getBackgroundColor(getPieceType(piece), rowIndex, j));
             }
         }
-        out.append(getVerticalBorder(rowIndex));
+        out.append(getVerticalBorder(rowIndex, flip));
         return out.toString();
     }
 
@@ -90,7 +97,12 @@ public class BoardPrinter {
         return out.toString();
     }
 
-    private String getVerticalBorder(int rowIndex) {
+    private String getVerticalBorder(int rowIndex, boolean flip) {
+        if (flip) {
+            rowIndex = 8 - rowIndex;
+        } else {
+            rowIndex++;
+        }
         return SET_BG_COLOR_LIGHT_GREY + SET_TEXT_COLOR_WHITE+ " " + rowIndex + " " + RESET_BG_COLOR + RESET_TEXT_COLOR;
     }
 }
