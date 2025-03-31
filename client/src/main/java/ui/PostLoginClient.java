@@ -152,8 +152,8 @@ public class PostLoginClient implements Client {
     private void updateGameCount() {
         var games = server.listGames().games();
         gameCount = games.size();
-        for (var game : games) {
-            gameNumberToGameID.put(gameCount, game.gameID());
+        for (int i = 1; i <= gameCount; i++) {
+            gameNumberToGameID.put(i, games.get(i-1).gameID());
         }
     }
 }

@@ -7,16 +7,18 @@ import static ui.EscapeSequences.*;
 
 public class BoardPrinter {
     chess.ChessPiece[][] board;
-    String[] horizontalLabels = {"a", "b", "c", "d", "e", "f", "g", "h"};
+    // if you are black, everything is in order (except for the queen/king, but that is handled)
+    String[] horizontalLabels = {"h", "g", "f", "e", "d", "c", "b", "a"};
 
     public BoardPrinter(ChessBoard board) {
         this.board = board.board;
     }
 
     public String getBoardString(boolean whitePerspective) {
+        // if whitePerspective == true, then it will flip everything
         var out = new StringBuilder();
 
-        out.append(getHorizontalBorder(!whitePerspective));
+        out.append(getHorizontalBorder(whitePerspective));
         if (whitePerspective) {
             for (int i = 7; i >= 0; i--) {
                 ChessPiece[] row = board[i];
@@ -28,32 +30,43 @@ public class BoardPrinter {
                 out.append(getRowString(row, i, whitePerspective)).append('\n');
             }
         }
-        out.append(getHorizontalBorder(!whitePerspective));
+        out.append(getHorizontalBorder(whitePerspective));
         return out.toString();
     }
 
     private String getRowString(chess.ChessPiece[] row, int rowIndex, boolean flip) {
         var out = new StringBuilder();
         out.append(getVerticalBorder(rowIndex, flip));
-        for (int j = 0; j < 8; j++) {
-            ChessPiece piece = row[j];
-            if (piece == null) {
-                out.append(getBackgroundColor(EMPTY, rowIndex, j));
-            } else {
-                out.append(getBackgroundColor(getPieceType(piece), rowIndex, j));
+
+        if (!flip) {
+            for (int j = 7; j >= 0; j--) {
+                out.append(setSquare(row[j], rowIndex, j + 1)); // the +1 fixes the weird error we were getting
+            }
+        } else {
+            for (int j = 0; j < 8; j++) {
+                out.append(setSquare(row[j], rowIndex, j));
             }
         }
         out.append(getVerticalBorder(rowIndex, flip));
         return out.toString();
     }
 
+    private String setSquare(ChessPiece piece, Integer rowIndex, Integer colIndex) {
+        if (piece == null) {
+            return getBackgroundColor(EMPTY, rowIndex, colIndex);
+        } else {
+            return getBackgroundColor(getPieceType(piece), rowIndex, colIndex);
+        }
+    }
+
+
     private String getBackgroundColor(String pieceType, int rowIndex, int colIndex) {
         var out = new StringBuilder();
         // if it is even, we start with the darker color
         if (rowIndex % 2 == colIndex % 2) {
-            out.append(SET_BG_COLOR_DARK_TAN);
-        } else {
             out.append(SET_BG_COLOR_LIGHT_TAN);
+        } else {
+            out.append(SET_BG_COLOR_DARK_TAN);
         }
         out.append(pieceType).append(RESET_BG_COLOR);
         return out.toString();
