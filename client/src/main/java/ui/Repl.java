@@ -28,7 +28,9 @@ public class Repl {
         Scanner scanner = new Scanner(System.in);
         var result = "";
         State newState;
-
+    // join game by index not id
+        // add a help method
+        // queen and kings sides are wrong
         while (!result.equals("quit")) {
             try {
                 System.out.print(printInput());

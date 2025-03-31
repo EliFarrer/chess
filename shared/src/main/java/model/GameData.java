@@ -9,10 +9,9 @@ public record GameData(int gameID, String whiteUsername, String blackUsername, S
     public String toString() {
         String white = whiteUsername == null ? "?" : whiteUsername;
         String black = blackUsername == null ? "?" : blackUsername;
-        return "Game " + gameName +
+        return gameName +
                 ", white=" + white +
-                ", black=" + black  +
-                ", id=" + gameID;
+                ", black=" + black;
     }
 
     @Override

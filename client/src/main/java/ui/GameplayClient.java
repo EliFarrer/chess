@@ -13,6 +13,7 @@ public class GameplayClient implements Client {
                 "quit" to exit the game
                 "login <username> <password>" to login
                 "register <username> <password> <email>" to register
+                "help" for this menu
                 """;    }
 
     public State getNewState() {

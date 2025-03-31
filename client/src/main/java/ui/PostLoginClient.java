@@ -8,11 +8,14 @@ import server.ResponseException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Objects;
 
 public class PostLoginClient implements Client {
     public State state = State.POST_LOGIN;
     ServerFacade server;
+    HashMap<Integer, Integer> gameNumberToGameID = new HashMap<>();
+    Integer gameCount = 0;
 
     public PostLoginClient(ServerFacade server) {
         this.server = server;
@@ -24,8 +27,9 @@ public class PostLoginClient implements Client {
                 "logout" to logout
                 "create <game name>" to create a new game
                 "list" to list all the games
-                "play <color> <game id>" to join a game with a specific color
+                "play <BLACK|WHITE> <game id>" to join a game with a specific color
                 "observe <game id>" to observe a game being played
+                "help" for this menu
                 """;    }
 
     public State getNewState() {
@@ -44,7 +48,7 @@ public class PostLoginClient implements Client {
                 case "logout" -> logout();
                 case "create" -> createGame(parameters);
                 case "list" -> listGames();
-                case "join" -> joinGame(parameters);
+                case "play" -> joinGame(parameters);
                 case "observe" -> observeGame(parameters);
                 default -> help();
             };
@@ -58,21 +62,37 @@ public class PostLoginClient implements Client {
         if (parameters.length != 1) {
             throw new ResponseException(400, "Error: Expected observe <game id>");
         }
+        Integer gameNumber = Integer.parseInt(parameters[0]);
+
         state = State.POST_LOGIN;
 
-        return gatBoardString(Integer.parseInt(parameters[0]), ChessGame.TeamColor.WHITE);
+        updateGameCount();
+        return getBoardString(gameNumberToGameID.get(gameNumber), ChessGame.TeamColor.WHITE);
     }
 
     private String joinGame(String[] parameters) {
         if (parameters.length != 2) {
             throw new ResponseException(400, "Error: Expected join <color> <game id>");
         }
-        var color = parameters[0].equalsIgnoreCase("white") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
 
-        server.joinGame(new JoinGameRequest(color, Integer.parseInt(parameters[1])));
+        String gameName = parameters[0];
+        Integer gameNumber = Integer.parseInt(parameters[1]);
+
+        ChessGame.TeamColor color;
+        if (gameName.equalsIgnoreCase("white")) {
+            color = ChessGame.TeamColor.WHITE;
+        } else if (gameName.equalsIgnoreCase("black")) {
+            color = ChessGame.TeamColor.BLACK;
+        } else {
+            throw new ResponseException(400, "Error: Expected join <BLACK|WHITE> <game id>");
+        }
+
+        updateGameCount();
+        Integer gameID = gameNumberToGameID.get(gameNumber);
+        server.joinGame(new JoinGameRequest(color, gameID));
 
         state = State.GAMEPLAY;
-        return gatBoardString(Integer.parseInt(parameters[1]), color);
+        return getBoardString(gameID, color);
     }
 
     private String listGames() {
@@ -92,9 +112,14 @@ public class PostLoginClient implements Client {
         if (parameters.length != 1) {
             throw new ResponseException(400, "Error: Expected create <game name>");
         }
-        var res = server.createGame(new CreateGameRequest(parameters[0]));
+        String gameName = parameters[0];
+
+        var res = server.createGame(new CreateGameRequest(gameName));
+
+        gameNumberToGameID.put(++gameCount, res.gameID());
+
         state = State.POST_LOGIN;
-        return "Created game: " + res.gameID();
+        return "Created game: " + gameName;
     }
 
     private String logout() {
@@ -113,7 +138,7 @@ public class PostLoginClient implements Client {
         return null;
     }
 
-    public String gatBoardString(Integer gameID, ChessGame.TeamColor perspective) {
+    public String getBoardString(Integer gameID, ChessGame.TeamColor perspective) {
         var game = Objects.requireNonNull(getGame(gameID)).game();
         if (game == null) {
             throw new ResponseException(400, "Error: game doesn't exist");
@@ -122,5 +147,13 @@ public class PostLoginClient implements Client {
         boolean whitePerspective = perspective == ChessGame.TeamColor.WHITE;
 
         return new BoardPrinter(game.getBoard()).getBoardString(whitePerspective);
+    }
+
+    private void updateGameCount() {
+        var games = server.listGames().games();
+        gameCount = games.size();
+        for (var game : games) {
+            gameNumberToGameID.put(gameCount, game.gameID());
+        }
     }
 }
