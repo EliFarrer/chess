@@ -13,6 +13,7 @@ import result.CreateGameResult;
 
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.UUID;
 
 public class GameService {
     private final DataAccess dataAccess;
@@ -29,7 +30,8 @@ public class GameService {
             if (dataAccess.isNotAuthorized(authToken)) {
                 throw new UnauthorizedException("Error: unauthorized auth data");
             }
-            int gameID = Math.abs(req.gameName().hashCode());
+            UUID uuid = UUID.randomUUID();
+            int gameID = Math.abs((int) uuid.getMostSignificantBits());
             dataAccess.createGame(gameID, req.gameName());
             return new CreateGameResult(gameID);
         } catch(DataAccessException e) {
