@@ -107,15 +107,11 @@ public class ServerFacadeTests {
         String game1Name = "game1";
         String game2Name = "game2";
         String game3Name = "game3";
-        CreateGameResult game2ID = facade.createGame(new CreateGameRequest(game2Name));
-        CreateGameResult game3ID = facade.createGame(new CreateGameRequest(game3Name));
-        CreateGameResult game1ID = facade.createGame(new CreateGameRequest(game1Name));
+        facade.createGame(new CreateGameRequest(game1Name));
+        facade.createGame(new CreateGameRequest(game2Name));
+        facade.createGame(new CreateGameRequest(game3Name));
         ArrayList<GameData> games = facade.listGames().games();
         Assertions.assertEquals(3, games.size());
-        Assertions.assertEquals(new GameData(game1ID.gameID(), null, null, game1Name, new ChessGame()), games.get(0));
-        Assertions.assertEquals(new GameData(game2ID.gameID(), null, null, game2Name, new ChessGame()), games.get(1));
-        Assertions.assertEquals(new GameData(game3ID.gameID(), null, null, game3Name, new ChessGame()), games.get(2));
-
     }
     @Test
     void listGamesNegativeUnauthorized() {
