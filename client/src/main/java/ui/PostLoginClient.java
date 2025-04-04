@@ -1,20 +1,16 @@
 package ui;
 
 import chess.ChessGame;
-import model.GameData;
 import request.CreateGameRequest;
 import request.JoinGameRequest;
 import server.ResponseException;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Objects;
+import java.util.*;
 
-public class PostLoginClient implements Client {
+public class PostLoginClient extends PrintingClient {
     public State state = State.POST_LOGIN;
     ServerFacade server;
-    HashMap<Integer, Integer> gameNumberToGameID = new HashMap<>();
+    LinkedHashMap<Integer, Integer> gameNumberToGameID = new LinkedHashMap<>();
     Integer gameCount = 0;
 
     public PostLoginClient(ServerFacade server) {
@@ -64,10 +60,12 @@ public class PostLoginClient implements Client {
         }
         Integer gameNumber = Integer.parseInt(parameters[0]);
 
-        state = State.POST_LOGIN;
-
         updateGameCount();
-        return getBoardString(gameNumberToGameID.get(gameNumber), ChessGame.TeamColor.WHITE);
+        if (gameNumber > gameCount | gameNumber <= 0) {
+            throw new ResponseException(400, String.format("Error: Game %d does not exist", gameNumber));
+        }
+        state = State.POST_LOGIN;
+        return getBoardString(server, gameNumberToGameID.get(gameNumber), ChessGame.TeamColor.WHITE);
     }
 
     private String joinGame(String[] parameters) {
@@ -87,12 +85,16 @@ public class PostLoginClient implements Client {
             throw new ResponseException(400, "Error: Expected join <BLACK|WHITE> <game id>");
         }
 
-        updateGameCount();
         Integer gameID = gameNumberToGameID.get(gameNumber);
-        server.joinGame(new JoinGameRequest(color, gameID));
 
-        state = State.GAMEPLAY;
-        return getBoardString(gameID, color);
+        updateGameCount();
+        if (gameNumber > gameCount | gameNumber <= 0) {
+            throw new ResponseException(400, String.format("Error: Game %d does not exist", gameNumber));
+        }
+
+        server.joinGame(new JoinGameRequest(color, gameID));
+        state = State.POST_LOGIN;
+        return this.getBoardString(server, gameID, color);
     }
 
     private String listGames() {
@@ -126,27 +128,6 @@ public class PostLoginClient implements Client {
         server.logout();
         state = State.PRE_LOGIN;
         return "logged out, thank you!";
-    }
-
-    private GameData getGame(int gameID) {
-        ArrayList<GameData> games = server.listGames().games();
-        for (var game : games) {
-            if (game.gameID() == gameID) {
-                return game;
-            }
-        }
-        return null;
-    }
-
-    public String getBoardString(Integer gameID, ChessGame.TeamColor perspective) {
-        var game = Objects.requireNonNull(getGame(gameID)).game();
-        if (game == null) {
-            throw new ResponseException(400, "Error: game doesn't exist");
-        }
-
-        boolean whitePerspective = perspective == ChessGame.TeamColor.WHITE;
-
-        return new BoardPrinter(game.getBoard()).getBoardString(whitePerspective);
     }
 
     private void updateGameCount() {
