@@ -7,7 +7,7 @@ import server.ResponseException;
 
 import java.util.Arrays;
 
-public class PreLoginClient implements Client {
+public class PreLoginClient {
     ServerFacade server;
     State state = State.PRE_LOGIN;
 
@@ -29,7 +29,7 @@ public class PreLoginClient implements Client {
         return state;
     }
 // every time we call one of these methods, we need to update the state
-    public String evaluate(String line, State state) {
+    public String evaluate(String line) {
         try {
             var commands = line.toLowerCase().split(" ");
             var command = (commands.length > 0) ? commands[0] : "help";

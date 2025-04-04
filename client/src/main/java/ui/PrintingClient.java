@@ -11,7 +11,7 @@ public abstract class PrintingClient {
 
     abstract String help();
 
-    abstract String evaluate(String line, State state);
+//    abstract String evaluate(String line, State state);
 
     private GameData getGame(ServerFacade server, int gameID) {
         ArrayList<GameData> games = server.listGames().games();

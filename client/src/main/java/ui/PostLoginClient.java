@@ -8,10 +8,11 @@ import server.ResponseException;
 import java.util.*;
 
 public class PostLoginClient extends PrintingClient {
-    public State state = State.POST_LOGIN;
+    private State state = State.POST_LOGIN;
     ServerFacade server;
     LinkedHashMap<Integer, Integer> gameNumberToGameID = new LinkedHashMap<>();
     Integer gameCount = 0;
+    Integer currentGameID = null;
 
     public PostLoginClient(ServerFacade server) {
         this.server = server;
@@ -28,11 +29,7 @@ public class PostLoginClient extends PrintingClient {
                 "help" for this menu
                 """;    }
 
-    public State getNewState() {
-        return state;
-    }
-
-    public String evaluate(String line, State state) {
+    public String evaluate(String line) {
         try {
             var commands = line.toLowerCase().split(" ");
             var command = (commands.length > 0) ? commands[0] : "help";
@@ -64,8 +61,10 @@ public class PostLoginClient extends PrintingClient {
         if (gameNumber > gameCount | gameNumber <= 0) {
             throw new ResponseException(400, String.format("Error: Game %d does not exist", gameNumber));
         }
-        state = State.POST_LOGIN;
-        return getBoardString(server, gameNumberToGameID.get(gameNumber), ChessGame.TeamColor.WHITE);
+        Integer gameID = gameNumberToGameID.get(gameNumber);
+        this.state = State.POST_LOGIN;
+        this.currentGameID = gameID;
+        return getBoardString(server, gameID, ChessGame.TeamColor.WHITE);
     }
 
     private String joinGame(String[] parameters) {
@@ -85,15 +84,15 @@ public class PostLoginClient extends PrintingClient {
             throw new ResponseException(400, "Error: Expected join <BLACK|WHITE> <game id>");
         }
 
-        Integer gameID = gameNumberToGameID.get(gameNumber);
-
         updateGameCount();
+        Integer gameID = gameNumberToGameID.get(gameNumber);
         if (gameNumber > gameCount | gameNumber <= 0) {
             throw new ResponseException(400, String.format("Error: Game %d does not exist", gameNumber));
         }
 
         server.joinGame(new JoinGameRequest(color, gameID));
-        state = State.POST_LOGIN;
+        this.state = State.GAMEPLAY;
+        this.currentGameID = gameID;
         return this.getBoardString(server, gameID, color);
     }
 
@@ -103,7 +102,7 @@ public class PostLoginClient extends PrintingClient {
         for (int i = 0; i < games.size(); i++) {
             res.append(i + 1).append(") ").append(games.get(i).toString()).append('\n');
         }
-        state = State.POST_LOGIN;
+        this.state = State.POST_LOGIN;
         if (res.toString().isEmpty()) {
             return "No games...";
         }
@@ -120,13 +119,13 @@ public class PostLoginClient extends PrintingClient {
 
         gameNumberToGameID.put(++gameCount, res.gameID());
 
-        state = State.POST_LOGIN;
+        this.state = State.POST_LOGIN;
         return "Created game: " + gameName;
     }
 
     private String logout() {
         server.logout();
-        state = State.PRE_LOGIN;
+        this.state = State.PRE_LOGIN;
         return "logged out, thank you!";
     }
 
@@ -136,5 +135,13 @@ public class PostLoginClient extends PrintingClient {
         for (int i = 1; i <= gameCount; i++) {
             gameNumberToGameID.put(i, games.get(i-1).gameID());
         }
+    }
+
+    public State getNewState() {
+        return state;
+    }
+
+    public Integer getCurrentGameID() {
+        return this.currentGameID;
     }
 }

@@ -11,6 +11,7 @@ public class Repl {
     PostLoginClient postLogin;
     GameplayClient gameplay;
     ServerFacade server;
+    Integer currentGameID = null;
 
     public Repl(int port) {
         this.port = port;
@@ -28,21 +29,20 @@ public class Repl {
         Scanner scanner = new Scanner(System.in);
         var result = "";
         State newState;
-    // join game by index not id
-        // add a help method
-        // queen and kings sides are wrong
         while (!result.equals("quit")) {
             try {
                 System.out.print(printInput());
                 String line = scanner.nextLine();
                 if (state == State.PRE_LOGIN) {
-                    result = preLogin.evaluate(line, state);
+                    result = preLogin.evaluate(line);
                     newState = preLogin.getNewState();
                 } else if (state == State.POST_LOGIN) {
-                    result = postLogin.evaluate(line, state);
+                    currentGameID = null;
+                    result = postLogin.evaluate(line);
                     newState = postLogin.getNewState();
+                    currentGameID = postLogin.getCurrentGameID();
                 } else {
-                    result = gameplay.evaluate(line, state);
+                    result = gameplay.evaluate(line, currentGameID);
                     newState = gameplay.getNewState();
                 }
                 System.out.println(result);
