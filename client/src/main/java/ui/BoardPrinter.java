@@ -1,20 +1,14 @@
 package ui;
 
-import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
 import static ui.EscapeSequences.*;
 
 public class BoardPrinter {
-    chess.ChessPiece[][] board;
     // if you are black, everything is in order (except for the queen/king, but that is handled)
     String[] horizontalLabels = {"h", "g", "f", "e", "d", "c", "b", "a"};
 
-    public BoardPrinter(ChessBoard board) {
-        this.board = board.board;
-    }
-
-    public String getBoardString(boolean whitePerspective) {
+    public String getBoardString(chess.ChessPiece[][] board, boolean whitePerspective) {
         // if whitePerspective == true, then it will flip everything
         var out = new StringBuilder();
 
