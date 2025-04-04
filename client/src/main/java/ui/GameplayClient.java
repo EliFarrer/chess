@@ -73,12 +73,19 @@ public class GameplayClient extends PrintingClient {
 
     private String resign() {
         System.out.print("Are you sure? (y|n): ");
-        String line = new Scanner(System.in).nextLine().toLowerCase();
-        if (line.equals("y")) {
-            // end the game
-        } else if (!line.equals("n")) {
-            throw new ResponseException(400, "Error: Expected y|n");
-        }   // else if it is n, then just continue and don't do anything
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            String line = scanner.nextLine();
+            if (line.equals("y")) {
+                // end the game
+                break;
+            } else if (!line.equals("n")) {
+                System.out.println("Error: Expected y|n");
+            } else {
+                // else if it is n, then just continue and don't do anything
+                System.out.println("You are still in the game.");
+            }
+        }
         this.state = State.GAMEPLAY;
 
         return "resign";

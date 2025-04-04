@@ -23,7 +23,7 @@ public class Repl {
 
     public void run() {
         System.out.print(reset());
-        System.out.println("Welcome to the 240 Chess Client ♕");
+        System.out.println(SET_TEXT_COLOR_MAGENTA + "Welcome to the 240 Chess Client ♕");
         System.out.println(preLogin.help());
 
         Scanner scanner = new Scanner(System.in);
