@@ -14,6 +14,7 @@ public class GameplayClient extends PrintingClient {
     WebSocketFacade ws;
     public State state = State.GAMEPLAY;
     Integer gameID;
+    String authToken;
 
     public GameplayClient(ServerFacade server, WebSocketFacade ws) {
         this.server = server;
@@ -39,7 +40,10 @@ public class GameplayClient extends PrintingClient {
         return state;
     }
 
-    public String evaluate(String line, Integer currentGameID) {
+    public String getAuthToken() { return this.authToken; }
+
+    public String evaluate(String line, Integer currentGameID, String authToken) {
+        this.authToken = authToken;
         try {
             var commands = line.toLowerCase().split(" ");
             var command = (commands.length > 0) ? commands[0] : "help";

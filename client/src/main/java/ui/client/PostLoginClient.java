@@ -17,9 +17,11 @@ public class PostLoginClient extends PrintingClient {
     LinkedHashMap<Integer, Integer> gameNumberToGameID = new LinkedHashMap<>();
     Integer gameCount = 0;
     Integer currentGameID = null;
+    String authToken = null;
 
     public PostLoginClient(ServerFacade server, WebSocketFacade ws) {
         this.server = server;
+        this.ws = ws;
     }
 
     public String help() {
@@ -33,7 +35,8 @@ public class PostLoginClient extends PrintingClient {
                 "help" for this menu
                 """;    }
 
-    public String evaluate(String line) {
+    public String evaluate(String line, String authToken) {
+        this.authToken = authToken;
         try {
             var commands = line.toLowerCase().split(" ");
             var command = (commands.length > 0) ? commands[0] : "help";
@@ -94,8 +97,8 @@ public class PostLoginClient extends PrintingClient {
             throw new ResponseException(400, String.format("Error: Game %d does not exist", gameNumber));
         }
 
-        ws.
         server.joinGame(new JoinGameRequest(color, gameID));
+        ws.connect(authToken, gameID);
         this.state = State.GAMEPLAY;
         this.currentGameID = gameID;
         return this.getBoardString(server, gameID, color);
@@ -131,6 +134,7 @@ public class PostLoginClient extends PrintingClient {
     private String logout() {
         server.logout();
         this.state = State.PRE_LOGIN;
+        this.authToken = null;
         return "logged out, thank you!";
     }
 
@@ -145,6 +149,8 @@ public class PostLoginClient extends PrintingClient {
     public State getNewState() {
         return state;
     }
+
+    public String getAuthToken() { return this.authToken; }
 
     public Integer getCurrentGameID() {
         return this.currentGameID;

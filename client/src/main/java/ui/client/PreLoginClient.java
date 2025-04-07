@@ -13,6 +13,7 @@ import java.util.Arrays;
 public class PreLoginClient {
     ServerFacade server;
     State state = State.PRE_LOGIN;
+    String authToken;
 
     public PreLoginClient(ServerFacade server) {
         this.server = server;
@@ -31,6 +32,7 @@ public class PreLoginClient {
     public State getNewState() {
         return state;
     }
+    public String getAuthToken() {return authToken; }
 // every time we call one of these methods, we need to update the state
     public String evaluate(String line) {
         try {
@@ -62,7 +64,8 @@ public class PreLoginClient {
         if (res == null) {
             throw new ResponseException(400, "Error: Did not get a result");
         }
-        state = State.POST_LOGIN;
+        this.authToken = res.authToken();
+        this.state = State.POST_LOGIN;
         return "logged in as " + res.username();
     }
 
