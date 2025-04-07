@@ -1,16 +1,21 @@
-package ui;
+package ui.client;
 
 import chess.ChessGame;
 import server.ResponseException;
+import ui.ServerFacade;
+import ui.State;
+import ui.websocket.WebSocketFacade;
+
 import java.util.Arrays;
 import java.util.Scanner;
 
 public class GameplayClient extends PrintingClient {
     public ServerFacade server;
+    WebSocketFacade ws;
     public State state = State.GAMEPLAY;
     Integer gameID;
 
-    public GameplayClient(ServerFacade server) {
+    public GameplayClient(ServerFacade server, WebSocketFacade ws) {
         this.server = server;
     }
 

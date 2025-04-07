@@ -1,9 +1,12 @@
-package ui;
+package ui.client;
 
 import request.LoginRequest;
 import request.RegisterRequest;
 import result.LoginResult;
 import server.ResponseException;
+import ui.ServerFacade;
+import ui.State;
+import ui.websocket.WebSocketFacade;
 
 import java.util.Arrays;
 

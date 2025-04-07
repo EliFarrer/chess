@@ -1,20 +1,24 @@
-package ui;
+package ui.client;
 
 import chess.ChessGame;
 import request.CreateGameRequest;
 import request.JoinGameRequest;
 import server.ResponseException;
+import ui.ServerFacade;
+import ui.State;
+import ui.websocket.WebSocketFacade;
 
 import java.util.*;
 
 public class PostLoginClient extends PrintingClient {
     private State state = State.POST_LOGIN;
     ServerFacade server;
+    WebSocketFacade ws;
     LinkedHashMap<Integer, Integer> gameNumberToGameID = new LinkedHashMap<>();
     Integer gameCount = 0;
     Integer currentGameID = null;
 
-    public PostLoginClient(ServerFacade server) {
+    public PostLoginClient(ServerFacade server, WebSocketFacade ws) {
         this.server = server;
     }
 
@@ -90,6 +94,7 @@ public class PostLoginClient extends PrintingClient {
             throw new ResponseException(400, String.format("Error: Game %d does not exist", gameNumber));
         }
 
+        ws.
         server.joinGame(new JoinGameRequest(color, gameID));
         this.state = State.GAMEPLAY;
         this.currentGameID = gameID;

@@ -1,8 +1,11 @@
-package ui;
+package ui.client;
 
 import chess.ChessGame;
 import model.GameData;
 import server.ResponseException;
+import ui.BoardPrinter;
+import ui.ServerFacade;
+
 import java.util.ArrayList;
 import java.util.Objects;
 
