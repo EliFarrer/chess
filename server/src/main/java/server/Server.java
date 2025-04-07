@@ -2,21 +2,25 @@ package server;
 import dataaccess.DataAccess;
 import dataaccess.DatabaseDAO;
 import handler.*;
+import server.websocket.WebSocketHandler;
 import spark.*;
 
 
 public class Server {
     // not sure what to do with service here. I wma going to have multiple of them...
     private final DataAccess dao;
+    private final WebSocketHandler webSocketHandler;
 
     public Server() {
         this.dao = new DatabaseDAO();
+        this.webSocketHandler = new WebSocketHandler(dao);
     }
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
         Spark.staticFiles.location("/web");
 
+        Spark.webSocket("/ws", webSocketHandler);
         // Register your endpoints and handle exceptions here.
         registerEndpoints();
         //This line initializes the server and can be removed once you have a functioning endpoint 
