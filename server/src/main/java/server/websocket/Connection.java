@@ -1,15 +1,15 @@
-package websocket;
+package server.websocket;
 
 import org.eclipse.jetty.websocket.api.Session;
 
 import java.io.IOException;
 
 public class Connection {
-    public String visitorName;
+    public String visitorAuthToken;
     public Session session;
 
-    public Connection(String name, Session session) {
-        this.visitorName = name;
+    public Connection(String authToken, Session session) {
+        this.visitorAuthToken = authToken;
         this.session = session;
     }
 

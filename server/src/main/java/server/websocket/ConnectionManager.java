@@ -1,4 +1,4 @@
-package websocket;
+package server.websocket;
 
 import org.eclipse.jetty.websocket.api.Session;
 import websocket.messages.ServerMessage;
@@ -11,22 +11,22 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ConnectionManager {
     public final ConcurrentHashMap<String, Connection> connections = new ConcurrentHashMap<>();
 
-    public void add(String visitorName, Session session) {
-        Connection connection = new Connection(visitorName, session);
-        connections.put(visitorName, connection);
+    public void add(Session session, String visitorAuthToken) {
+        Connection connection = new Connection(visitorAuthToken, session);
+        connections.put(visitorAuthToken, connection);
     }
 
-    public void remove(String visitorName) {
-        connections.remove(visitorName);
+    public void remove(String visitorAuthToken) {
+        connections.remove(visitorAuthToken);
     }
 
     // the server sends ServerMessages to the clients.
-    public void broadcast(String excludeVisitorName, ServerMessage message) throws IOException {
+    public void broadcast(String excludeVisitorAuthToken, ServerMessage message) throws IOException {
         var removeList = new ArrayList<Connection>();
 
         for (var conn : connections.values()) {
             if (conn.session.isOpen()) {
-                if (!conn.visitorName.equals(excludeVisitorName)) {
+                if (!conn.visitorAuthToken.equals(excludeVisitorAuthToken)) {
                     conn.send(message.toString());
                 }
             } else {
@@ -35,7 +35,7 @@ public class ConnectionManager {
         }
 
         for (var remove : removeList) {
-            connections.remove(remove.visitorName);
+            connections.remove(remove.visitorAuthToken);
         }
     }
 
