@@ -1,5 +1,6 @@
 package ui;
 
+import com.google.gson.Gson;
 import server.ResponseException;
 import ui.client.GameplayClient;
 import ui.client.PostLoginClient;
@@ -73,7 +74,7 @@ public class Repl implements ServerMessageHandler {
     }
 
     public void notify(ServerMessage notification) {
-        System.out.println(SET_TEXT_COLOR_RED + notification.toString() + reset());
+        System.out.print('\n' + SET_TEXT_COLOR_RED + notification.message + '\n' + printInput());
     }
     public String printInput() { return SET_TEXT_COLOR_MAGENTA + ">>> "; }
 

@@ -69,8 +69,9 @@ public class PostLoginClient extends PrintingClient {
             throw new ResponseException(400, String.format("Error: Game %d does not exist", gameNumber));
         }
         Integer gameID = gameNumberToGameID.get(gameNumber);
-        this.state = State.POST_LOGIN;
+        this.state = State.GAMEPLAY;
         this.currentGameID = gameID;
+        ws.connect(authToken, gameID);
         return getBoardString(server, gameID, ChessGame.TeamColor.WHITE);
     }
 

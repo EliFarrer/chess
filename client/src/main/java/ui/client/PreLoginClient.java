@@ -76,6 +76,7 @@ public class PreLoginClient {
         RegisterRequest req = new RegisterRequest(params[0], params[1], params[2]);
         LoginResult res = server.register(req);
         state = State.POST_LOGIN;
+        this.authToken = res.authToken();
         return "registered as " + res.username();
     }
 

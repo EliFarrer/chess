@@ -52,9 +52,11 @@ public class WebSocketHandler {
 
         var message = String.format("%s joined the game as %s", user, status);
         var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
+        // notify the user joined for everyone currently in the game.
         connections.broadcast(visitorAuthToken, notification);
         var updateGame = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, "printed the game");
-        connections.broadcast("", updateGame);
+        // don't update the game for the user that just joins
+        connections.broadcast(visitorAuthToken, updateGame);
     }
 
     private void makeMove() {
