@@ -1,15 +1,19 @@
 package server.websocket;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
+import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
+import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.util.Objects;
 
@@ -25,11 +29,20 @@ public class WebSocketHandler {
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException, DataAccessException {
-        UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
+        Gson gson = new Gson();
+        JsonObject json = gson.fromJson(message, JsonElement.class).getAsJsonObject();
+        String type = json.get("commandType").getAsString();
+
+        UserGameCommand command;
+        if (type.equalsIgnoreCase("make_move")) {
+            command = gson.fromJson(message, MakeMoveCommand.class);
+        } else {
+            command = gson.fromJson(message, UserGameCommand.class);
+        }
         switch (command.getCommandType()) {
             case CONNECT -> connect(session, command.getAuthToken(), command.getGameID());
             case MAKE_MOVE -> makeMove();
-            case LEAVE -> leave();
+            case LEAVE -> leave(command.getAuthToken());
             case RESIGN -> resign();
         }
     }
@@ -42,12 +55,14 @@ public class WebSocketHandler {
         GameData game = dataAccess.getGame(gameID);
 
         String status;
+        boolean isObserver = false;
         if (Objects.equals(user, game.whiteUsername())) {
             status = "white";
         } else if (Objects.equals(user, game.blackUsername())) {
             status = "black";
         } else {
             status = "an observer";
+            isObserver = true;
         }
 
         var message = String.format("%s joined the game as %s", user, status);
@@ -55,15 +70,26 @@ public class WebSocketHandler {
         // notify the user joined for everyone currently in the game.
         connections.broadcast(visitorAuthToken, notification);
         var updateGame = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, "printed the game");
-        // don't update the game for the user that just joins
-        connections.broadcast(visitorAuthToken, updateGame);
+
+        // if it is an observer joining, the game will broadcast to them
+        // if it is someone joining the game, it will broadcast to everyone but them.
+//        if (isObserver) {
+//            connections.broadcastTo(visitorAuthToken, updateGame);
+//        } else {
+//            connections.broadcast(visitorAuthToken, updateGame);
+//        }
     }
 
     private void makeMove() {
 
     }
 
-    private void leave() {}
+    private void leave(String authToken) throws IOException, DataAccessException {
+        connections.remove(authToken);
+        String user = dataAccess.getUsername(authToken);
+        ServerMessage message = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION, String.format("%s left the game", user));
+        connections.broadcast(authToken, message);
+    }
 
     private void resign() {}
 }

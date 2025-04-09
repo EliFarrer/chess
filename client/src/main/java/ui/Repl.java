@@ -60,8 +60,10 @@ public class Repl implements ServerMessageHandler {
                     currentGameID = postLogin.getCurrentGameID();
                     authToken = postLogin.getAuthToken();
                 } else {
+                    gameplay.setGameID(currentGameID);
                     result = gameplay.evaluate(line, currentGameID, authToken);
                     newState = gameplay.getNewState();
+                    currentGameID = gameplay.getCurrentGameID();
                 }
                 System.out.println(result);
                 if (state != newState) {

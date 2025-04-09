@@ -81,7 +81,13 @@ public class PostLoginClient extends PrintingClient {
         }
 
         String gameName = parameters[0];
-        Integer gameNumber = Integer.parseInt(parameters[1]);
+        int gameNumber;
+        try {
+            gameNumber = Integer.parseInt(parameters[1]);
+
+        } catch (NumberFormatException e) {
+            throw new ResponseException(400, "Error: Expected a number");
+        }
 
         ChessGame.TeamColor color;
         if (gameName.equalsIgnoreCase("white")) {
@@ -147,13 +153,9 @@ public class PostLoginClient extends PrintingClient {
         }
     }
 
-    public State getNewState() {
-        return state;
-    }
+    public State getNewState() { return state; }
 
     public String getAuthToken() { return this.authToken; }
 
-    public Integer getCurrentGameID() {
-        return this.currentGameID;
-    }
+    public Integer getCurrentGameID() { return this.currentGameID; }
 }

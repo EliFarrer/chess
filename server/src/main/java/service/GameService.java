@@ -41,7 +41,7 @@ public class GameService {
 
     public void joinGame(String authToken, JoinGameRequest req) throws DataAccessException, BadRequestException {
         try {
-            if (req.gameID() == null || req.playerColor() == null) {
+            if (req.gameID() == null) {
                 throw new BadRequestException("Error: bad request");
             }
             if (dataAccess.isNotAuthorized(authToken)) {
@@ -59,11 +59,18 @@ public class GameService {
                     throw new AlreadyTakenException("Error: color already taken");
                 }
                 newGameData = new GameData(req.gameID(), username, gameData.blackUsername(), gameData.gameName(), gameData.game());
-            } else {
+            } else if (req.playerColor() == ChessGame.TeamColor.BLACK){
                 if (dataAccess.colorNotAvailable(req.gameID(), ChessGame.TeamColor.BLACK)) {
                     throw new AlreadyTakenException("Error: color already taken");
                 }
                 newGameData = new GameData(req.gameID(), gameData.whiteUsername(), username, gameData.gameName(), gameData.game());
+            } else {
+                GameData game = dataAccess.getGame(req.gameID());
+                if (game.whiteUsername() == null) {
+                    newGameData = new GameData(req.gameID(), null, username, gameData.gameName(), gameData.game());
+                } else {
+                    newGameData = new GameData(req.gameID(), username, null, gameData.gameName(), gameData.game());
+                }
             }
             dataAccess.updateGame(req.gameID(), newGameData);
 

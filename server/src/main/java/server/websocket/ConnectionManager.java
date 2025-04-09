@@ -39,5 +39,23 @@ public class ConnectionManager {
         }
     }
 
+    public void broadcastTo(String userAuthToken, ServerMessage message) throws IOException {
+        var removeList = new ArrayList<Connection>();
+
+        for (var conn : connections.values()) {
+            if (conn.session.isOpen()) {
+                if (conn.visitorAuthToken.equals(userAuthToken)) {
+                    conn.send(message.toString());
+                }
+            } else {
+                removeList.add(conn);
+            }
+        }
+
+        for (var remove : removeList) {
+            connections.remove(remove.visitorAuthToken);
+        }
+    }
+
 
 }

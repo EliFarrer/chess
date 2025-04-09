@@ -1,6 +1,7 @@
 package ui.client;
 
 import chess.ChessGame;
+import request.JoinGameRequest;
 import server.ResponseException;
 import ui.ServerFacade;
 import ui.State;
@@ -18,6 +19,7 @@ public class GameplayClient extends PrintingClient {
 
     public GameplayClient(ServerFacade server, WebSocketFacade ws) {
         this.server = server;
+        this.ws = ws;
     }
 
     public void setGameID(int gameID) {
@@ -52,7 +54,7 @@ public class GameplayClient extends PrintingClient {
 
             return switch (command) {
                 case "redraw" -> redrawBoard(currentGameID);
-                case "leave" -> leave();
+                case "leave" -> leave(currentGameID);
                 case "move" -> move(parameters);
                 case "resign" -> resign();
                 case "highlight" -> highlight(parameters);
@@ -66,12 +68,15 @@ public class GameplayClient extends PrintingClient {
 
     private String redrawBoard(Integer currentGameID) {
         this.state = State.GAMEPLAY;
+        this.gameID = currentGameID;
         return this.getBoardString(this.server, currentGameID, ChessGame.TeamColor.WHITE);
     }
 
-    private String leave() {
-        // I need to check if it is the same user so they can hop in if it is them
+    private String leave(Integer gameID) {
+        server.leaveGame(gameID);
+        ws.leave(authToken);
         this.state = State.POST_LOGIN;
+        this.gameID = null;
         // note that the REPL handles resetting the gameID and this one is reset every time
         return "left game";
     }
@@ -104,4 +109,7 @@ public class GameplayClient extends PrintingClient {
         // print everything
         return "highlight";
     }
+
+    public Integer getCurrentGameID() { return this.gameID; }
+
 }
