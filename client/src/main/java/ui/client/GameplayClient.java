@@ -10,7 +10,7 @@ import ui.websocket.WebSocketFacade;
 import java.util.Arrays;
 import java.util.Scanner;
 
-public class GameplayClient extends PrintingClient {
+public class GameplayClient extends Client {
     public ServerFacade server;
     WebSocketFacade ws;
     public State state = State.GAMEPLAY;
@@ -82,6 +82,10 @@ public class GameplayClient extends PrintingClient {
     }
 
     private String move(String[] parameters) {
+        // verify valid move
+        // update game for server
+        // call ws move method
+
         return "move";
     }
 

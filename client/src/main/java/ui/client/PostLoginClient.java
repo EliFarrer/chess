@@ -10,7 +10,7 @@ import ui.websocket.WebSocketFacade;
 
 import java.util.*;
 
-public class PostLoginClient extends PrintingClient {
+public class PostLoginClient extends Client {
     private State state = State.POST_LOGIN;
     ServerFacade server;
     WebSocketFacade ws;
@@ -72,7 +72,7 @@ public class PostLoginClient extends PrintingClient {
         this.state = State.GAMEPLAY;
         this.currentGameID = gameID;
         ws.connect(authToken, gameID);
-        return getBoardString(server, gameID, ChessGame.TeamColor.WHITE);
+        return "";//getBoardString(server, gameID, ChessGame.TeamColor.WHITE);
     }
 
     private String joinGame(String[] parameters) {
@@ -108,7 +108,7 @@ public class PostLoginClient extends PrintingClient {
         ws.connect(authToken, gameID);
         this.state = State.GAMEPLAY;
         this.currentGameID = gameID;
-        return this.getBoardString(server, gameID, color);
+        return "";// this.getBoardString(server, gameID, color);
     }
 
     private String listGames() {

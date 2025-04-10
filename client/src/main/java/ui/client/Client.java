@@ -5,13 +5,16 @@ import model.GameData;
 import server.ResponseException;
 import ui.BoardPrinter;
 import ui.ServerFacade;
+import ui.State;
 
 import java.util.ArrayList;
 import java.util.Objects;
 
-public abstract class PrintingClient {
+public abstract class Client {
     BoardPrinter boardPrinter = new BoardPrinter();
-
+    public String authToken;
+    public Integer gameID;
+    public State state;
     abstract String help();
 
 //    abstract String evaluate(String line, State state);

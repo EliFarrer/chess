@@ -10,7 +10,7 @@ import ui.websocket.WebSocketFacade;
 
 import java.util.Arrays;
 
-public class PreLoginClient {
+public class PreLoginClient extends Client {
     ServerFacade server;
     State state = State.PRE_LOGIN;
     String authToken;
