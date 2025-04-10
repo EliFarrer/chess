@@ -1,8 +1,12 @@
 package ui.websocket;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import server.ResponseException;
-import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import javax.websocket.*;
@@ -27,7 +31,16 @@ public class WebSocketFacade extends Endpoint {
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-                    ServerMessage notification = new Gson().fromJson(message, ServerMessage.class);
+                    Gson gson = new Gson();
+                    JsonObject json = gson.fromJson(message, JsonElement.class).getAsJsonObject();
+                    String type = json.get("type").getAsString();
+                    ServerMessage notification;
+                    notification = switch (type) {
+                        case "load_game" -> gson.fromJson(message, LoadGameMessage.class);
+                        case "error" -> gson.fromJson(message, ErrorMessage.class);
+                        case "notification" -> gson.fromJson(message, NotificationMessage.class);
+                        default -> throw new IllegalStateException("Unexpected value: " + type);
+                    };
                     messageHandler.notify(notification);
                 }
             });
@@ -35,9 +48,6 @@ public class WebSocketFacade extends Endpoint {
             throw new ResponseException(500, ex.getMessage());
         }
     }
-
-    @Override
-    public void onOpen(Session session, EndpointConfig endpointConfig) {}
 
     public void connect(String authToken, Integer gameID) {
         try {
@@ -56,4 +66,25 @@ public class WebSocketFacade extends Endpoint {
             throw new ResponseException(500, e.getMessage());
         }
     }
+
+    public void makeMove(String authToken, Integer gameID) {
+        try {
+            UserGameCommand message = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(message));
+        } catch (IOException e) {
+            throw new ResponseException(500, e.getMessage());
+        }
+    }
+
+    public void resign(String authToken, Integer gameID) {
+        try {
+            UserGameCommand message = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(message));
+        } catch (IOException e) {
+            throw new ResponseException(500, e.getMessage());
+        }
+    }
+
+    @Override
+    public void onOpen(Session session, EndpointConfig endpointConfig) {}
 }
