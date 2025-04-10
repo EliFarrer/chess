@@ -9,6 +9,7 @@ import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
+import server.ResponseException;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
@@ -48,12 +49,22 @@ public class WebSocketHandler {
     }
 
     private void connect(Session session, String visitorAuthToken, Integer gameID) throws IOException, DataAccessException {
-        // add a new connection to our connection manager
-        connections.add(session, visitorAuthToken);
+        if (visitorAuthToken == null || visitorAuthToken.isEmpty()) {
+            ServerMessage message = new ServerMessage(ServerMessage.ServerMessageType.ERROR, "Error: Not authenticated");
+            session.getRemote().sendString(message.toString());
+            return;
+        }
         // handle if they joined as a player or observer
         String user = dataAccess.getUsername(visitorAuthToken);
         GameData game = dataAccess.getGame(gameID);
+        if (game == null) {
+            ServerMessage message = new ServerMessage(ServerMessage.ServerMessageType.ERROR, "Error: Bad gameID");
+            session.getRemote().sendString(message.toString());
+            return;
+        }
 
+        // add a new connection to our connection manager
+        connections.add(session, visitorAuthToken);
         String status;
         boolean isObserver = false;
         if (Objects.equals(user, game.whiteUsername())) {
@@ -73,11 +84,11 @@ public class WebSocketHandler {
 
         // if it is an observer joining, the game will broadcast to them
         // if it is someone joining the game, it will broadcast to everyone but them.
-//        if (isObserver) {
-//            connections.broadcastTo(visitorAuthToken, updateGame);
-//        } else {
-//            connections.broadcast(visitorAuthToken, updateGame);
-//        }
+        if (isObserver) {
+            connections.broadcastTo(visitorAuthToken, updateGame);
+        } else {
+            connections.broadcast(visitorAuthToken, updateGame);
+        }
     }
 
     private void makeMove() {

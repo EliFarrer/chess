@@ -1,6 +1,5 @@
 package ui;
 
-import com.google.gson.Gson;
 import server.ResponseException;
 import ui.client.GameplayClient;
 import ui.client.PostLoginClient;
