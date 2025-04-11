@@ -173,7 +173,7 @@ public class GameplayClient extends Client {
             String line = scanner.nextLine();
             ChessPiece.PieceType ret = getChessPiece(line);
             if (ret == null) {
-                System.out.println("Error: Expected pawn|queen|rook|knight|bishop");
+                System.out.print("Error: Expected pawn|queen|rook|knight|bishop" + '\n' + ">>> ");
             } else {
                 return ret;
             }

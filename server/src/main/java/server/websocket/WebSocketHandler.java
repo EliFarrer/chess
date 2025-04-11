@@ -21,8 +21,7 @@ import java.util.Objects;
 
 @WebSocket
 public class WebSocketHandler {
-    String[] letterArray = {"a", "b", "c", "d", "e", "f", "g", "h"};
-//    Map<String, Integer> letterArray = Map.of("a", 1, "b", 2, "c", 3, "d", 4, "e", 5, "f", 6, "g", 7, "h", 8);
+    String[] letterArray = {"", "a", "b", "c", "d", "e", "f", "g", "h"};
     GameConnectionManager connections = new GameConnectionManager();
     DataAccess dataAccess;
 
@@ -78,12 +77,10 @@ public class WebSocketHandler {
 
         // handle if they joined as a player or observer
         String status;
-        boolean whitePerspective = true;
         if (Objects.equals(user, game.whiteUsername())) {
             status = "white";
         } else if (Objects.equals(user, game.blackUsername())) {
             status = "black";
-            whitePerspective = false;
         } else {
             status = "an observer";
         }
@@ -161,6 +158,11 @@ public class WebSocketHandler {
         }
 
         try {
+            if (game.getBoard().spotEmpty(move.getStartPosition())) {
+                ErrorMessage message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: no piece is there");
+                session.getRemote().sendString(message.toString());
+                return;
+            }
             game.makeMove(move);
             dataAccess.updateGame(gameID, gameData);
         } catch (InvalidMoveException e) {
@@ -172,9 +174,9 @@ public class WebSocketHandler {
         MoveResponse moveData = new MoveResponse(game, move);
         LoadGameMessage newGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, new Gson().toJson(moveData));
 
-        String startString = letterArray[move.getStartPosition().getColumn()] + String.valueOf(move.getStartPosition().getRow() + 1);
-        String endString = letterArray[move.getEndPosition().getColumn()] + String.valueOf(move.getEndPosition().getRow() + 1);
-        String moveString = String.format("moved from %s to %s", startString, endString);
+        String startString = letterArray[move.getStartPosition().getColumn()] + move.getStartPosition().getRow();
+        String endString = letterArray[move.getEndPosition().getColumn()] + move.getEndPosition().getRow();
+        String moveString = String.format("%s moved from %s to %s", user, startString, endString);
         NotificationMessage moveMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, moveString);
         // broadcast the game to everyone
         connections.broadcast(gameID, "", newGameMessage);
@@ -183,16 +185,17 @@ public class WebSocketHandler {
 
 
         // check if the new team is in check, checkmate, or stalemate
-        if (game.isInCheckmate(playerColor)) {
-            NotificationMessage message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, String.format("%s is in checkmate", playerColor));
+        ChessGame.TeamColor opponentColor = playerColor == ChessGame.TeamColor.WHITE ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
+        if (game.isInCheckmate(opponentColor)) {
+            NotificationMessage message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, String.format("%s is in checkmate", opponentColor));
             connections.broadcast(gameID, "", message);
         } else {
-            if (game.isInCheck(playerColor)) {
-                NotificationMessage message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, String.format("%s is in check", playerColor));
+            if (game.isInCheck(opponentColor)) {
+                NotificationMessage message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, String.format("%s is in check", opponentColor));
                 connections.broadcast(gameID, "", message);
             }
-            if (game.isInStalemate(playerColor)) {
-                NotificationMessage message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, String.format("%s is in stalemate \n game ended", playerColor));
+            if (game.isInStalemate(opponentColor)) {
+                NotificationMessage message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, String.format("%s is in stalemate \n game ended", opponentColor));
                 connections.broadcast(gameID, "", message);
 
                 game.setGameInPlay(false);
