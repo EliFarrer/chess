@@ -1,13 +1,15 @@
 package ui.client;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
 import model.GameData;
 import server.ResponseException;
 import ui.BoardPrinter;
 import ui.ServerFacade;
 import ui.State;
-
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Objects;
 
 public abstract class Client {
@@ -19,7 +21,7 @@ public abstract class Client {
 
 //    abstract String evaluate(String line, State state);
 
-    private GameData getGame(ServerFacade server, int gameID) {
+    protected GameData getGame(ServerFacade server, int gameID) {
         ArrayList<GameData> games = server.listGames().games();
         for (var game : games) {
             if (game.gameID() == gameID) {
@@ -29,7 +31,7 @@ public abstract class Client {
         return null;
     }
 
-    protected String getBoardString(ServerFacade server, Integer gameID, ChessGame.TeamColor perspective) {
+    protected String getBoardString(ServerFacade server, Integer gameID, ChessGame.TeamColor perspective, Collection<ChessMove> potentialPositions, ChessPosition position) {
         var game = Objects.requireNonNull(getGame(server, gameID)).game();
         if (game == null) {
             throw new ResponseException(400, "Error: game doesn't exist");
@@ -37,6 +39,6 @@ public abstract class Client {
 
         boolean whitePerspective = perspective == ChessGame.TeamColor.WHITE;
 
-        return boardPrinter.getBoardString(game.getBoard().board, whitePerspective);
+        return boardPrinter.getBoardString(game.getBoard().board, whitePerspective, potentialPositions, position);
     }
 }

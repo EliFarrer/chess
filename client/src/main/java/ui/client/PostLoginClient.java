@@ -8,9 +8,11 @@ import ui.ServerFacade;
 import ui.State;
 import ui.websocket.WebSocketFacade;
 
+import java.awt.*;
 import java.util.*;
 
 public class PostLoginClient extends Client {
+    ChessGame.TeamColor perspective;
     private State state = State.POST_LOGIN;
     ServerFacade server;
     WebSocketFacade ws;
@@ -71,6 +73,7 @@ public class PostLoginClient extends Client {
         Integer gameID = gameNumberToGameID.get(gameNumber);
         this.state = State.GAMEPLAY;
         this.currentGameID = gameID;
+        this.perspective = ChessGame.TeamColor.WHITE;
         ws.connect(authToken, gameID);
         return "";//getBoardString(server, gameID, ChessGame.TeamColor.WHITE);
     }
@@ -92,8 +95,10 @@ public class PostLoginClient extends Client {
         ChessGame.TeamColor color;
         if (gameName.equalsIgnoreCase("white")) {
             color = ChessGame.TeamColor.WHITE;
+            this.perspective = ChessGame.TeamColor.WHITE;
         } else if (gameName.equalsIgnoreCase("black")) {
             color = ChessGame.TeamColor.BLACK;
+            this.perspective = ChessGame.TeamColor.BLACK;
         } else {
             throw new ResponseException(400, "Error: Expected join <BLACK|WHITE> <game id>");
         }
@@ -158,4 +163,6 @@ public class PostLoginClient extends Client {
     public String getAuthToken() { return this.authToken; }
 
     public Integer getCurrentGameID() { return this.currentGameID; }
+
+    public ChessGame.TeamColor getPerspective() { return this.perspective; }
 }

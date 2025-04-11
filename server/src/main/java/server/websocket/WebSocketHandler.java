@@ -116,6 +116,7 @@ public class WebSocketHandler {
             return;
         }
 
+        // weakness here: if one user is registered for the same game, then it will leave the white one from the black one
         GameData newGameData;
         ChessGame.TeamColor playerColor = user.equals(gameData.whiteUsername()) ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
         if (playerColor == ChessGame.TeamColor.WHITE) {

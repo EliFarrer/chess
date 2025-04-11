@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessGame;
 import server.ResponseException;
 import ui.client.GameplayClient;
 import ui.client.PostLoginClient;
@@ -13,6 +14,7 @@ import java.util.Scanner;
 import static ui.EscapeSequences.*;
 
 public class Repl implements ServerMessageHandler {
+    ChessGame.TeamColor perspective;
     State state = State.PRE_LOGIN;
     final int port;
     PreLoginClient preLogin;
@@ -51,15 +53,18 @@ public class Repl implements ServerMessageHandler {
                 } else if (state == State.POST_LOGIN) {
                     // should I assert we have an auth token?
                     if (authToken == null) {
-                        throw new ResponseException(401, "Error, you do not have an auth token");
+                        throw new ResponseException(401, "Error: not authorized");
                     }
                     currentGameID = null;
+                    this.perspective = null;
                     result = postLogin.evaluate(line, authToken);
                     newState = postLogin.getNewState();
                     currentGameID = postLogin.getCurrentGameID();
                     authToken = postLogin.getAuthToken();
+                    this.perspective = postLogin.getPerspective();
                 } else {
                     gameplay.setGameID(currentGameID);
+                    gameplay.setPerspective(this.perspective);
                     result = gameplay.evaluate(line, currentGameID, authToken);
                     newState = gameplay.getNewState();
                     currentGameID = gameplay.getCurrentGameID();
@@ -75,6 +80,9 @@ public class Repl implements ServerMessageHandler {
     }
 
     public void notify(ServerMessage notification) {
+//        if (notification.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
+//            this.lastBoard = notification.getData();
+//        }
         String message = notification.getData();
         System.out.print('\n' + SET_TEXT_COLOR_RED + message + '\n' + printInput());
     }

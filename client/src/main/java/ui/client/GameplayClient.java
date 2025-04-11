@@ -3,7 +3,7 @@ package ui.client;
 import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPosition;
-import request.JoinGameRequest;
+import model.GameData;
 import server.ResponseException;
 import ui.ServerFacade;
 import ui.State;
@@ -20,15 +20,16 @@ public class GameplayClient extends Client {
     public State state = State.GAMEPLAY;
     Integer gameID;
     String authToken;
+    ChessGame.TeamColor perspective;
 
     public GameplayClient(ServerFacade server, WebSocketFacade ws) {
         this.server = server;
         this.ws = ws;
     }
 
-    public void setGameID(int gameID) {
-        this.gameID = gameID;
-    }
+    public void setGameID(int gameID) { this.gameID = gameID; }
+    public State getNewState() { return state; }
+    public void setPerspective(ChessGame.TeamColor perspective) { this.perspective = perspective; }
 
     public String help() {
         // should leave remove the player from the game?
@@ -41,12 +42,6 @@ public class GameplayClient extends Client {
                 "highlight <position>" to show the legal moves for a position
                 "help" for this menu
                 """;    }
-
-    public State getNewState() {
-        return state;
-    }
-
-    public String getAuthToken() { return this.authToken; }
 
     public String evaluate(String line, Integer currentGameID, String authToken) {
         this.authToken = authToken;
@@ -73,7 +68,7 @@ public class GameplayClient extends Client {
     private String redrawBoard(Integer currentGameID) {
         this.state = State.GAMEPLAY;
         this.gameID = currentGameID;
-        return this.getBoardString(this.server, currentGameID, ChessGame.TeamColor.WHITE);
+        return getBoardString(server, currentGameID, this.perspective, null, null);
     }
 
     private String leave(Integer gameID) {
@@ -86,21 +81,27 @@ public class GameplayClient extends Client {
     private String move(Integer currentGameID, String[] parameters) {
         String fromString = parameters[0].toLowerCase();
         String toString = parameters[1].toLowerCase();
+        String fromFirstCharacter = String.valueOf(fromString.charAt(0));
+        String toFirstCharacter = String.valueOf(toString.charAt(0));
+        String fromSecondCharacter = String.valueOf(fromString.charAt(1));
+        String toSecondCharacter = String.valueOf(toString.charAt(1));
         ChessPosition start;
         ChessPosition end;
         try {
-            start = new ChessPosition(Integer.parseInt(letterArray.get(fromString.charAt(0))), Integer.parseInt(String.valueOf(fromString.charAt(1))));
-            end = new ChessPosition(Integer.parseInt(letterArray.get(toString.charAt(0))), Integer.parseInt(String.valueOf(toString.charAt(1))));
+            start = new ChessPosition(Integer.parseInt(letterArray.get(fromFirstCharacter)), Integer.parseInt(fromSecondCharacter));
+            end = new ChessPosition(Integer.parseInt(letterArray.get(toFirstCharacter)), Integer.parseInt(toSecondCharacter));
         } catch (Exception e) {
             throw new ResponseException(400, "Error, expected <a-h><1-8> <a-h><1-8>");
         }
+
+        GameData gameData = getGame(server, gameID);
 
         ChessMove move = new ChessMove(start, end, null);   // do we need to do promotion stuff?
 
         ws.makeMove(this.authToken, currentGameID, move);
         this.state = State.GAMEPLAY;
         this.gameID = currentGameID;
-        return "move";
+        return "";
     }
 
     private String resign() {
@@ -124,8 +125,13 @@ public class GameplayClient extends Client {
     }
 
     private String highlight(String[] parameters) {
-        // print everything
-        return "highlight";
+        String positionString = parameters[0];
+        String firstCharacter = String.valueOf(positionString.charAt(0));
+        String secondCharacter = String.valueOf(positionString.charAt(1));
+        ChessPosition position = new ChessPosition(Integer.parseInt(letterArray.get(firstCharacter)), Integer.parseInt(secondCharacter));
+
+        ChessGame game = getGame(server, gameID).game();
+        return this.getBoardString(server, gameID, perspective, game.validMoves(position), position);
     }
 
     public Integer getCurrentGameID() { return this.gameID; }
