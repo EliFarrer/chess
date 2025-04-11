@@ -25,7 +25,7 @@ import java.util.Objects;
 
 @WebSocket
 public class WebSocketHandler {
-    ConnectionManager connections = new ConnectionManager();
+    GameConnectionManager connections = new GameConnectionManager();
     DataAccess dataAccess;
 
     public WebSocketHandler(DataAccess dataAccess) {
@@ -76,7 +76,7 @@ public class WebSocketHandler {
         }
 
         // add a new connection to our connection manager
-        connections.add(session, rootClientAuth);
+        connections.add(gameID, session, rootClientAuth);
 
         // handle if they joined as a player or observer
         String status;
@@ -92,13 +92,13 @@ public class WebSocketHandler {
         var message = String.format("%s joined the game as %s", user, status);
         var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         // broadcast the game to the user who just joined
-        connections.broadcastTo(rootClientAuth, updateGame);
+        connections.broadcastTo(gameID, rootClientAuth, updateGame);
         // notify the user joined for everyone currently in the game.
-        connections.broadcast(rootClientAuth, notification);
+        connections.broadcast(gameID, rootClientAuth, notification);
     }
 
     private void leave(Session session, String rootClientAuth, Integer gameID) throws IOException, DataAccessException {
-        connections.remove(rootClientAuth);
+        connections.remove(gameID, rootClientAuth);
         String user;
         try {
             user = dataAccess.getUsername(rootClientAuth);
@@ -126,7 +126,7 @@ public class WebSocketHandler {
         dataAccess.updateGame(gameID, newGameData);
 
         NotificationMessage message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, String.format("%s left the game", user));
-        connections.broadcast(rootClientAuth, message);
+        connections.broadcast(gameID, rootClientAuth, message);
 
     }
 
@@ -170,23 +170,23 @@ public class WebSocketHandler {
         LoadGameMessage newGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, "new game");
         NotificationMessage moveMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "moved from here to there");
         // broadcast the game to everyone
-        connections.broadcast("", newGameMessage);
+        connections.broadcast(gameID, "", newGameMessage);
         // broadcast the notification to everyone but the user
-        connections.broadcast(rootClientAuth, moveMessage);
+        connections.broadcast(gameID, rootClientAuth, moveMessage);
 
 
         // check if the new team is in check, checkmate, or stalemate
         if (game.isInCheckmate(playerColor)) {
             NotificationMessage message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, String.format("%s is in checkmate", playerColor));
-            connections.broadcast("", message);
+            connections.broadcast(gameID, "", message);
         } else {
             if (game.isInCheck(playerColor)) {
                 NotificationMessage message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, String.format("%s is in check", playerColor));
-                connections.broadcast("", message);
+                connections.broadcast(gameID, "", message);
             }
             if (game.isInStalemate(playerColor)) {
                 NotificationMessage message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, String.format("%s is in stalemate \n game ended", playerColor));
-                connections.broadcast("", message);
+                connections.broadcast(gameID, "", message);
 
                 game.setGameInPlay(false);
             }
@@ -242,6 +242,6 @@ public class WebSocketHandler {
         dataAccess.updateGame(gameID, gameData);
 
         String message = String.format("%s resigned from the game", user);
-        connections.broadcast("", new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message));
+        connections.broadcast(gameID, "", new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message));
     }
 }
