@@ -1,6 +1,8 @@
 package ui.client;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
 import request.JoinGameRequest;
 import server.ResponseException;
 import ui.ServerFacade;
@@ -8,9 +10,11 @@ import ui.State;
 import ui.websocket.WebSocketFacade;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Scanner;
 
 public class GameplayClient extends Client {
+    Map<Integer, String> letterArray = Map.of(1, "a", 2, "b", 3, "c", 4, "d", 5, "e", 6, "f", 7, "g", 8, "h");
     public ServerFacade server;
     WebSocketFacade ws;
     public State state = State.GAMEPLAY;
@@ -55,7 +59,7 @@ public class GameplayClient extends Client {
             return switch (command) {
                 case "redraw" -> redrawBoard(currentGameID);
                 case "leave" -> leave(currentGameID);
-                case "move" -> move(parameters);
+                case "move" -> move(currentGameID, parameters);
                 case "resign" -> resign();
                 case "highlight" -> highlight(parameters);
                 default -> help();
@@ -73,19 +77,29 @@ public class GameplayClient extends Client {
     }
 
     private String leave(Integer gameID) {
-        server.leaveGame(gameID);
-        ws.leave(authToken);
+        ws.leave(authToken, gameID);
         this.state = State.POST_LOGIN;
         this.gameID = null;
-        // note that the REPL handles resetting the gameID and this one is reset every time
         return "left game";
     }
 
-    private String move(String[] parameters) {
-        // verify valid move
-        // update game for server
-        // call ws move method
+    private String move(Integer currentGameID, String[] parameters) {
+        String fromString = parameters[0].toLowerCase();
+        String toString = parameters[1].toLowerCase();
+        ChessPosition start;
+        ChessPosition end;
+        try {
+            start = new ChessPosition(Integer.parseInt(letterArray.get(fromString.charAt(0))), Integer.parseInt(String.valueOf(fromString.charAt(1))));
+            end = new ChessPosition(Integer.parseInt(letterArray.get(toString.charAt(0))), Integer.parseInt(String.valueOf(toString.charAt(1))));
+        } catch (Exception e) {
+            throw new ResponseException(400, "Error, expected <a-h><1-8> <a-h><1-8>");
+        }
 
+        ChessMove move = new ChessMove(start, end, null);   // do we need to do promotion stuff?
+
+        ws.makeMove(this.authToken, currentGameID, move);
+        this.state = State.GAMEPLAY;
+        this.gameID = currentGameID;
         return "move";
     }
 
@@ -104,9 +118,9 @@ public class GameplayClient extends Client {
                 System.out.println("You are still in the game.");
             }
         }
+        ws.resign(authToken, gameID);
         this.state = State.GAMEPLAY;
-
-        return "resign";
+        return "";//""resign";
     }
 
     private String highlight(String[] parameters) {

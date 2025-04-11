@@ -1,8 +1,10 @@
 package ui.websocket;
+import chess.ChessMove;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import server.ResponseException;
+import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
@@ -58,18 +60,18 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    public void leave(String authToken) {
+    public void leave(String authToken, Integer gameID) {
         try {
-            UserGameCommand message = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, null);
+            UserGameCommand message = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID);
             this.session.getBasicRemote().sendText(new Gson().toJson(message));
         } catch (IOException e) {
             throw new ResponseException(500, e.getMessage());
         }
     }
 
-    public void makeMove(String authToken, Integer gameID) {
+    public void makeMove(String authToken, Integer gameID, ChessMove move) {
         try {
-            UserGameCommand message = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID);
+            MakeMoveCommand message = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID, move);
             this.session.getBasicRemote().sendText(new Gson().toJson(message));
         } catch (IOException e) {
             throw new ResponseException(500, e.getMessage());
@@ -78,7 +80,7 @@ public class WebSocketFacade extends Endpoint {
 
     public void resign(String authToken, Integer gameID) {
         try {
-            UserGameCommand message = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID);
+            UserGameCommand message = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID);
             this.session.getBasicRemote().sendText(new Gson().toJson(message));
         } catch (IOException e) {
             throw new ResponseException(500, e.getMessage());

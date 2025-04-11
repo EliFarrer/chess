@@ -6,7 +6,7 @@ import ui.client.PostLoginClient;
 import ui.client.PreLoginClient;
 import ui.websocket.ServerMessageHandler;
 import ui.websocket.WebSocketFacade;
-import websocket.messages.ServerMessage;
+import websocket.messages.*;
 
 import java.util.Scanner;
 
@@ -19,9 +19,9 @@ public class Repl implements ServerMessageHandler {
     PostLoginClient postLogin;
     GameplayClient gameplay;
     ServerFacade server;
+    WebSocketFacade ws;
     Integer currentGameID = null;
     String authToken;
-    WebSocketFacade ws;
 
     public Repl(int port) {
         this.port = port;
@@ -75,7 +75,8 @@ public class Repl implements ServerMessageHandler {
     }
 
     public void notify(ServerMessage notification) {
-        System.out.print('\n' + SET_TEXT_COLOR_RED + notification.message + '\n' + printInput());
+        String message = notification.getData();
+        System.out.print('\n' + SET_TEXT_COLOR_RED + message + '\n' + printInput());
     }
     public String printInput() { return SET_TEXT_COLOR_MAGENTA + ">>> "; }
 

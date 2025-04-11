@@ -1,5 +1,8 @@
 package server.websocket;
 
+import chess.ChessGame;
+import chess.ChessMove;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -15,6 +18,8 @@ import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
+
+import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.util.Objects;
 
@@ -42,9 +47,9 @@ public class WebSocketHandler {
         }
         switch (command.getCommandType()) {
             case CONNECT -> connect(session, command.getAuthToken(), command.getGameID());
-            case MAKE_MOVE -> makeMove(command.getAuthToken(), command.getGameID());
-            case LEAVE -> leave(command.getAuthToken());
-            case RESIGN -> resign(command.getAuthToken(), command.getGameID());
+            case MAKE_MOVE -> makeMove(session, command.getAuthToken(), command.getGameID(), ((MakeMoveCommand) command).getMove());
+            case LEAVE -> leave(session, command.getAuthToken(), command.getGameID());
+            case RESIGN -> resign(session, command.getAuthToken(), command.getGameID());
         }
     }
 
@@ -92,19 +97,151 @@ public class WebSocketHandler {
         connections.broadcast(rootClientAuth, notification);
     }
 
-    private void leave(String authToken) throws IOException, DataAccessException {
-        connections.remove(authToken);
-        String user = dataAccess.getUsername(authToken);
+    private void leave(Session session, String rootClientAuth, Integer gameID) throws IOException, DataAccessException {
+        connections.remove(rootClientAuth);
+        String user;
+        try {
+            user = dataAccess.getUsername(rootClientAuth);
+        } catch (DataAccessException e) {
+            ErrorMessage message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: Not authenticated");
+            session.getRemote().sendString(message.toString());
+            return;
+        }
+
+        GameData gameData = dataAccess.getGame(gameID);
+        ChessGame game = gameData.game();
+        if (game == null) {
+            ErrorMessage message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: Bad gameID");
+            session.getRemote().sendString(message.toString());
+            return;
+        }
+
+        GameData newGameData;
+        ChessGame.TeamColor playerColor = user.equals(gameData.whiteUsername()) ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
+        if (playerColor == ChessGame.TeamColor.WHITE) {
+            newGameData = new GameData(gameID, null, gameData.blackUsername(), gameData.gameName(), gameData.game());
+        } else {
+            newGameData = new GameData(gameID, gameData.whiteUsername(), null, gameData.gameName(), gameData.game());
+        }
+        dataAccess.updateGame(gameID, newGameData);
+
         NotificationMessage message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, String.format("%s left the game", user));
-        connections.broadcast(authToken, message);
+        connections.broadcast(rootClientAuth, message);
+
     }
 
-    private void makeMove(String authToken, Integer gameID) throws IOException, DataAccessException {
+    private void makeMove(Session session, String rootClientAuth, Integer gameID, ChessMove move) throws IOException, DataAccessException {
+        GameData gameData = dataAccess.getGame(gameID);
+        ChessGame game = gameData.game();
+        if (game == null) {
+            ErrorMessage message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: Bad gameID");
+            session.getRemote().sendString(message.toString());
+            return;
+        }
+
+
+        String user;
+        try {
+            user = dataAccess.getUsername(rootClientAuth);
+        } catch (DataAccessException e) {
+            ErrorMessage message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: Not authenticated");
+            session.getRemote().sendString(message.toString());
+            return;
+        }
+
+        // check it is the right player making the move
+        ChessGame.TeamColor turnColor = game.getTeamTurn();
+        ChessGame.TeamColor playerColor = Objects.equals(user, gameData.whiteUsername()) ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
+        if (playerColor != turnColor) {
+            ErrorMessage message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: Not your turn");
+            session.getRemote().sendString(message.toString());
+            return;
+        }
+
+        try {
+            game.makeMove(move);
+            dataAccess.updateGame(gameID, gameData);
+        } catch (InvalidMoveException e) {
+            ErrorMessage message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: invalid move");
+            session.getRemote().sendString(message.toString());
+            return;
+        }
+
         LoadGameMessage newGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, "new game");
-        NotificationMessage moveMessage = new NotificationMessage(ServerMessage.ServerMessageType.LOAD_GAME, "moved from here to there");
-        connections.broadcast(authToken, newGameMessage);
-        connections.broadcast(authToken, moveMessage);
+        NotificationMessage moveMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "moved from here to there");
+        // broadcast the game to everyone
+        connections.broadcast("", newGameMessage);
+        // broadcast the notification to everyone but the user
+        connections.broadcast(rootClientAuth, moveMessage);
+
+
+        // check if the new team is in check, checkmate, or stalemate
+        if (game.isInCheckmate(playerColor)) {
+            NotificationMessage message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, String.format("%s is in checkmate", playerColor));
+            connections.broadcast("", message);
+        } else {
+            if (game.isInCheck(playerColor)) {
+                NotificationMessage message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, String.format("%s is in check", playerColor));
+                connections.broadcast("", message);
+            }
+            if (game.isInStalemate(playerColor)) {
+                NotificationMessage message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, String.format("%s is in stalemate \n game ended", playerColor));
+                connections.broadcast("", message);
+
+                game.setGameInPlay(false);
+            }
+        }
+
     }
 
-    private void resign(String authToken, Integer gameID) {}
+    private void resign(Session session, String rootClientAuth, Integer gameID) throws IOException, DataAccessException {
+        if (rootClientAuth == null || rootClientAuth.isEmpty()) {
+            ErrorMessage message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: Not authenticated");
+            session.getRemote().sendString(message.toString());
+            return;
+        }
+
+        String user;
+        try {
+            user = dataAccess.getUsername(rootClientAuth);
+        } catch (DataAccessException e) {
+            ErrorMessage message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: Not authenticated");
+            session.getRemote().sendString(message.toString());
+            return;
+        }
+
+
+        GameData gameData;
+        ChessGame game;
+        try {
+            gameData = dataAccess.getGame(gameID);
+            game = gameData.game();
+
+            // if the game is not in play anymore
+            if (!game.isGameInPlay()) {
+                ErrorMessage message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: game over");
+                session.getRemote().sendString(message.toString());
+                return;
+            }
+
+            game.setGameInPlay(false);
+            dataAccess.updateGame(gameID, gameData);
+        } catch (DataAccessException e) {
+            ErrorMessage message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: bad GameID");
+            session.getRemote().sendString(message.toString());
+            return;
+        }
+
+        // if it is an observer trying to resign
+        if (!user.equals(gameData.whiteUsername()) && !user.equals(gameData.blackUsername())) {
+            ErrorMessage message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: observers can't resign. Leave instead.");
+            session.getRemote().sendString(message.toString());
+            return;
+        }
+
+        dataAccess.updateGame(gameID, gameData);
+
+        String message = String.format("%s resigned from the game", user);
+        connections.broadcast("", new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message));
+    }
 }
