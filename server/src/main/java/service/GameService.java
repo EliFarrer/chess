@@ -41,7 +41,7 @@ public class GameService {
 
     public void joinGame(String authToken, JoinGameRequest req) throws DataAccessException, BadRequestException {
         try {
-            if (req.gameID() == null) {
+            if (req.gameID() == null || req.playerColor() == null) {
                 throw new BadRequestException("Error: bad request");
             }
             if (dataAccess.isNotAuthorized(authToken)) {
