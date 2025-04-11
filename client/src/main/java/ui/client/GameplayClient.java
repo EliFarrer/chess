@@ -2,6 +2,7 @@ package ui.client;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.ChessPiece;
 import chess.ChessPosition;
 import model.GameData;
 import server.ResponseException;
@@ -14,7 +15,7 @@ import java.util.Map;
 import java.util.Scanner;
 
 public class GameplayClient extends Client {
-    Map<Integer, String> letterArray = Map.of(1, "a", 2, "b", 3, "c", 4, "d", 5, "e", 6, "f", 7, "g", 8, "h");
+    Map<String, Integer> letterArray = Map.of("a", 1, "b", 2, "c", 3, "d", 4, "e", 5, "f", 6, "g", 7, "h", 8);
     public ServerFacade server;
     WebSocketFacade ws;
     public State state = State.GAMEPLAY;
@@ -81,22 +82,36 @@ public class GameplayClient extends Client {
     private String move(Integer currentGameID, String[] parameters) {
         String fromString = parameters[0].toLowerCase();
         String toString = parameters[1].toLowerCase();
-        String fromFirstCharacter = String.valueOf(fromString.charAt(0));
-        String toFirstCharacter = String.valueOf(toString.charAt(0));
-        String fromSecondCharacter = String.valueOf(fromString.charAt(1));
-        String toSecondCharacter = String.valueOf(toString.charAt(1));
+        String fromColumn = String.valueOf(fromString.charAt(0));
+        String toColumn = String.valueOf(toString.charAt(0));
+        String fromRow = String.valueOf(fromString.charAt(1));
+        String toRow = String.valueOf(toString.charAt(1));
         ChessPosition start;
         ChessPosition end;
         try {
-            start = new ChessPosition(Integer.parseInt(letterArray.get(fromFirstCharacter)), Integer.parseInt(fromSecondCharacter));
-            end = new ChessPosition(Integer.parseInt(letterArray.get(toFirstCharacter)), Integer.parseInt(toSecondCharacter));
+            start = new ChessPosition(Integer.parseInt(fromRow), letterArray.get(fromColumn));
+            end = new ChessPosition(Integer.parseInt(toRow), letterArray.get(toColumn));
         } catch (Exception e) {
             throw new ResponseException(400, "Error, expected <a-h><1-8> <a-h><1-8>");
         }
 
         GameData gameData = getGame(server, gameID);
+        if (!gameData.game().isGameInPlay()) {
+            throw new ResponseException(400, "Error, game not in play");
+        }
 
-        ChessMove move = new ChessMove(start, end, null);   // do we need to do promotion stuff?
+        ChessPiece.PieceType promotion = null;
+        if (gameData.game().getBoard().getPiece(start).getTeamColor() == ChessGame.TeamColor.WHITE) {
+            if (end.getRow() == 8) {
+                promotion = getPromotion();
+            }
+        } else {
+            if (end.getRow() == 1) {
+                promotion = getPromotion();
+            }
+        }
+
+        ChessMove move = new ChessMove(start, end, promotion);   // do we need to do promotion stuff?
 
         ws.makeMove(this.authToken, currentGameID, move);
         this.state = State.GAMEPLAY;
@@ -105,35 +120,76 @@ public class GameplayClient extends Client {
     }
 
     private String resign() {
+        GameData gameData = getGame(server, gameID);
+        if (!gameData.game().isGameInPlay()) {
+            throw new ResponseException(400, "Error, game not in play");
+        }
+
         System.out.print("Are you sure? (y|n): ");
         Scanner scanner = new Scanner(System.in);
         while (true) {
-            String line = scanner.nextLine();
+            String line = scanner.nextLine().toLowerCase();
             if (line.equals("y")) {
-                // end the game
+                ws.resign(authToken, gameID);
                 break;
             } else if (!line.equals("n")) {
                 System.out.println("Error: Expected y|n");
             } else {
                 // else if it is n, then just continue and don't do anything
                 System.out.println("You are still in the game.");
+                break;
             }
         }
-        ws.resign(authToken, gameID);
         this.state = State.GAMEPLAY;
         return "";//""resign";
     }
 
     private String highlight(String[] parameters) {
-        String positionString = parameters[0];
-        String firstCharacter = String.valueOf(positionString.charAt(0));
-        String secondCharacter = String.valueOf(positionString.charAt(1));
-        ChessPosition position = new ChessPosition(Integer.parseInt(letterArray.get(firstCharacter)), Integer.parseInt(secondCharacter));
+        ChessPosition position;
+        try {
+            String positionString = parameters[0];
+            String firstCharacter = String.valueOf(positionString.charAt(0));
+            String secondCharacter = String.valueOf(positionString.charAt(1));
+            position = new ChessPosition(Integer.parseInt(secondCharacter), letterArray.get(firstCharacter));
+        } catch (Exception e) {
+            throw new ResponseException(400, "Error: bad input");
+        }
+
 
         ChessGame game = getGame(server, gameID).game();
+
+        if (game.getBoard().spotEmpty(position)) {
+            throw new ResponseException(400, "Error, no piece there");
+        }
         return this.getBoardString(server, gameID, perspective, game.validMoves(position), position);
     }
 
     public Integer getCurrentGameID() { return this.gameID; }
 
+    private ChessPiece.PieceType getPromotion() {
+        System.out.print("Promotion piece type: ");
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            String line = scanner.nextLine();
+            ChessPiece.PieceType ret = getChessPiece(line);
+            if (ret == null) {
+                System.out.println("Error: Expected pawn|queen|rook|knight|bishop");
+            } else {
+                return ret;
+            }
+        }
+    }
+
+    private ChessPiece.PieceType getChessPiece(String line) {
+        ChessPiece.PieceType ret;
+        ret = switch (line.toLowerCase()) {
+            case "pawn" -> ChessPiece.PieceType.PAWN;
+            case "queen" -> ChessPiece.PieceType.QUEEN;
+            case "rook" -> ChessPiece.PieceType.ROOK;
+            case "knight" -> ChessPiece.PieceType.KNIGHT;
+            case "bishop" -> ChessPiece.PieceType.BISHOP;
+            default -> null;
+        };
+        return ret;
+    }
 }

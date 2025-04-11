@@ -38,26 +38,22 @@ public class BoardPrinter {
 
         if (!flip) {
             for (int j = 7; j >= 0; j--) {
-                out.append(setSquare(row[j], rowIndex, j + 1, potentialPositions, position)); // the +1 fixes the weird error we were getting
+                out.append(setSquare(row[j], rowIndex, j + 1, flip, potentialPositions, position)); // the +1 fixes the weird error we were getting
             }
         } else {
-            for (int j = 0; j < 8; j++) {
-                out.append(setSquare(row[j], rowIndex, j, potentialPositions, position));
+            for (int j = 0; j <= 7; j++) {
+                out.append(setSquare(row[j], rowIndex, j, flip, potentialPositions, position));
             }
         }
         out.append(getVerticalBorder(rowIndex, flip));
         return out.toString();
     }
 
-    private String setSquare(ChessPiece piece, Integer rowIndex, Integer colIndex, Collection<ChessMove> potentialPositions, ChessPosition position) {
-        if (piece == null) {
-            return getBackgroundColor(EMPTY, rowIndex, colIndex);
+    private String setSquare(ChessPiece piece, Integer rowIndex, Integer colIndex, boolean flip, Collection<ChessMove> potentialPositions, ChessPosition position) {
+        if (potentialPositions == null && position == null) {
+            return getBackgroundColor(piece == null ? EMPTY : getPieceType(piece), rowIndex, colIndex);
         } else {
-            if (potentialPositions == null && position == null) {
-                return getBackgroundColor(getPieceType(piece), rowIndex, colIndex);
-            } else {
-                return getBackgroundColorHighlight(getPieceType(piece), rowIndex, colIndex, potentialPositions, position);
-            }
+            return getBackgroundColorHighlight(piece == null ? EMPTY : getPieceType(piece), rowIndex, colIndex, flip, potentialPositions, position);
         }
     }
 
@@ -74,9 +70,14 @@ public class BoardPrinter {
         return out.toString();
     }
 
-    private String getBackgroundColorHighlight(String pieceType, int rowIndex, int colIndex, Collection<ChessMove> potentialPositions, ChessPosition position) {
+    private String getBackgroundColorHighlight(String pieceType, int rowIndex, int colIndex, boolean flip, Collection<ChessMove> potentialPositions, ChessPosition position) {
         var out = new StringBuilder();
-        ChessPosition currentPosition = new ChessPosition(rowIndex, colIndex);
+        ChessPosition currentPosition;
+        if (flip) {
+            currentPosition = new ChessPosition(8 - rowIndex, colIndex + 1);
+        } else {
+            currentPosition = new ChessPosition(rowIndex + 1, colIndex);
+        }
         ChessMove testMove = new ChessMove(position, currentPosition, null);
         if (currentPosition.equals(position)) {
             out.append(SET_BG_COLOR_YELLOW);

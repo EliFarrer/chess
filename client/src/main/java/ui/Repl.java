@@ -1,6 +1,9 @@
 package ui;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
+import com.google.gson.Gson;
 import server.ResponseException;
 import ui.client.GameplayClient;
 import ui.client.PostLoginClient;
@@ -9,11 +12,15 @@ import ui.websocket.ServerMessageHandler;
 import ui.websocket.WebSocketFacade;
 import websocket.messages.*;
 
+
+import java.util.ArrayList;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;
 
+
 public class Repl implements ServerMessageHandler {
+    BoardPrinter boardPrinter = new BoardPrinter();
     ChessGame.TeamColor perspective;
     State state = State.PRE_LOGIN;
     final int port;
@@ -80,11 +87,22 @@ public class Repl implements ServerMessageHandler {
     }
 
     public void notify(ServerMessage notification) {
-//        if (notification.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
-//            this.lastBoard = notification.getData();
-//        }
-        String message = notification.getData();
-        System.out.print('\n' + SET_TEXT_COLOR_RED + message + '\n' + printInput());
+        if (notification.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
+            MoveResponse response = new Gson().fromJson(notification.getData(), MoveResponse.class);
+            String boardString;
+            if (response.move() == null) {
+                boardString = boardPrinter.getBoardString(response.game().getBoard().board, this.perspective == ChessGame.TeamColor.WHITE, null, null);
+            } else {
+                ArrayList<ChessMove> end = new ArrayList<>();
+                end.add(response.move());
+                ChessPosition start = response.move().getStartPosition();
+                boardString = boardPrinter.getBoardString(response.game().getBoard().board, this.perspective == ChessGame.TeamColor.WHITE, end, start);
+            }
+            System.out.print('\n' + boardString + printInput());
+        } else {
+            String message = notification.getData();
+            System.out.print('\n' + SET_TEXT_COLOR_RED + message + '\n' + printInput());
+        }
     }
     public String printInput() { return SET_TEXT_COLOR_MAGENTA + ">>> "; }
 

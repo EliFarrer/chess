@@ -14,17 +14,15 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
-import websocket.messages.ErrorMessage;
-import websocket.messages.LoadGameMessage;
-import websocket.messages.NotificationMessage;
-import websocket.messages.ServerMessage;
+import websocket.messages.*;
 
-import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.util.Objects;
 
 @WebSocket
 public class WebSocketHandler {
+    String[] letterArray = {"a", "b", "c", "d", "e", "f", "g", "h"};
+//    Map<String, Integer> letterArray = Map.of("a", 1, "b", 2, "c", 3, "d", 4, "e", 5, "f", 6, "g", 7, "h", 8);
     GameConnectionManager connections = new GameConnectionManager();
     DataAccess dataAccess;
 
@@ -80,15 +78,18 @@ public class WebSocketHandler {
 
         // handle if they joined as a player or observer
         String status;
+        boolean whitePerspective = true;
         if (Objects.equals(user, game.whiteUsername())) {
             status = "white";
         } else if (Objects.equals(user, game.blackUsername())) {
             status = "black";
+            whitePerspective = false;
         } else {
             status = "an observer";
         }
 
-        var updateGame = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, "printed the game");
+        MoveResponse moveData = new MoveResponse(game.game(), null);
+        var updateGame = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, new Gson().toJson(moveData));
         var message = String.format("%s joined the game as %s", user, status);
         var notification = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, message);
         // broadcast the game to the user who just joined
@@ -168,8 +169,13 @@ public class WebSocketHandler {
             return;
         }
 
-        LoadGameMessage newGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, "new game");
-        NotificationMessage moveMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, "moved from here to there");
+        MoveResponse moveData = new MoveResponse(game, move);
+        LoadGameMessage newGameMessage = new LoadGameMessage(ServerMessage.ServerMessageType.LOAD_GAME, new Gson().toJson(moveData));
+
+        String startString = letterArray[move.getStartPosition().getColumn()] + String.valueOf(move.getStartPosition().getRow() + 1);
+        String endString = letterArray[move.getEndPosition().getColumn()] + String.valueOf(move.getEndPosition().getRow() + 1);
+        String moveString = String.format("moved from %s to %s", startString, endString);
+        NotificationMessage moveMessage = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, moveString);
         // broadcast the game to everyone
         connections.broadcast(gameID, "", newGameMessage);
         // broadcast the notification to everyone but the user

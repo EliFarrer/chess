@@ -1,6 +1,7 @@
 package ui.client;
 
 import chess.ChessGame;
+import model.GameData;
 import request.CreateGameRequest;
 import request.JoinGameRequest;
 import server.ResponseException;
@@ -8,7 +9,6 @@ import ui.ServerFacade;
 import ui.State;
 import ui.websocket.WebSocketFacade;
 
-import java.awt.*;
 import java.util.*;
 
 public class PostLoginClient extends Client {
@@ -40,12 +40,12 @@ public class PostLoginClient extends Client {
     public String evaluate(String line, String authToken) {
         this.authToken = authToken;
         try {
-            var commands = line.toLowerCase().split(" ");
+            var commands = line.split(" ");
             var command = (commands.length > 0) ? commands[0] : "help";
             if (commands.length == 0) { return help(); }
             var parameters = Arrays.copyOfRange(commands, 1, commands.length);
 
-            return switch (command) {
+            return switch (command.toLowerCase()) {
                 case "quit" -> "Bye!";
                 case "logout" -> logout();
                 case "create" -> createGame(parameters);
@@ -87,7 +87,6 @@ public class PostLoginClient extends Client {
         int gameNumber;
         try {
             gameNumber = Integer.parseInt(parameters[1]);
-
         } catch (NumberFormatException e) {
             throw new ResponseException(400, "Error: Expected a number");
         }
@@ -107,6 +106,11 @@ public class PostLoginClient extends Client {
         Integer gameID = gameNumberToGameID.get(gameNumber);
         if (gameNumber > gameCount | gameNumber <= 0) {
             throw new ResponseException(400, String.format("Error: Game %d does not exist", gameNumber));
+        }
+
+        GameData gameData = getGame(server, gameID);
+        if (!gameData.game().isGameInPlay()) {
+            throw new ResponseException(400, "Error, game not in play");
         }
 
         server.joinGame(new JoinGameRequest(color, gameID));
