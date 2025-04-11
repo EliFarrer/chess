@@ -15,10 +15,15 @@ public class ChessGame {
 
     private ChessBoard board = new ChessBoard();
     private ChessGame.TeamColor teamTurn = TeamColor.WHITE;
+    boolean gameInPlay = true;
     public ChessGame() {
         board.resetBoard();
 
     }
+
+    public boolean isGameInPlay() { return gameInPlay; }
+
+    public void setGameInPlay(boolean gameInPlay) { this.gameInPlay = gameInPlay; }
 
     public TeamColor getTeamTurn() {
         return teamTurn;
@@ -103,7 +108,7 @@ public class ChessGame {
         if (piece == null) {
             throw new InvalidMoveException("No piece exists here");
         }
-        if (isMyTurn(piece.getTeamColor()) && isMoveLegal(move)) {
+        if (isMyTurn(piece.getTeamColor()) && isMoveLegal(move) && this.gameInPlay) {
             board.addPiece(move.getStartPosition(), null);
             // if the promotion piece in move is null, it will keep the same piece, if not it will get the promotion piece
             TeamColor col = piece.getTeamColor();
