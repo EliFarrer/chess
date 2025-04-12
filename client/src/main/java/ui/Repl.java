@@ -91,12 +91,14 @@ public class Repl implements ServerMessageHandler {
             MoveResponse response = new Gson().fromJson(notification.getData(), MoveResponse.class);
             String boardString;
             if (response.move() == null) {
-                boardString = boardPrinter.getBoardString(response.game().getBoard().board, this.perspective == ChessGame.TeamColor.WHITE, null, null);
+                boolean view = this.perspective == ChessGame.TeamColor.WHITE;
+                boardString = boardPrinter.getBoardString(response.game().getBoard().board, view, null, null);
             } else {
                 ArrayList<ChessMove> end = new ArrayList<>();
                 end.add(response.move());
                 ChessPosition start = response.move().getStartPosition();
-                boardString = boardPrinter.getBoardString(response.game().getBoard().board, this.perspective == ChessGame.TeamColor.WHITE, end, start);
+                boolean view = this.perspective == ChessGame.TeamColor.WHITE;
+                boardString = boardPrinter.getBoardString(response.game().getBoard().board, view, end, start);
             }
             System.out.print('\n' + boardString + printInput());
         } else {

@@ -68,10 +68,6 @@ public class ServerFacade {
         this.makeRequest("PUT", path, req, null, this.authToken);
     }
 
-    public void leaveGame(int gameID) {
-        this.joinGame(new JoinGameRequest(null, gameID));
-    }
-
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authorization) throws ResponseException {
         // note that this is a generic method (T) that returns something of type T and takes in a class of type T as the response
         try {

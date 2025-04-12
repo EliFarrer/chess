@@ -12,7 +12,7 @@ public class BoardPrinter {
     // if you are black, everything is in order (except for the queen/king, but that is handled)
     String[] horizontalLabels = {"h", "g", "f", "e", "d", "c", "b", "a"};
 
-    public String getBoardString(chess.ChessPiece[][] board, boolean whitePerspective, Collection<ChessMove> potentialPositions, ChessPosition position) {
+    public String getBoardString(chess.ChessPiece[][] board, boolean whitePerspective, Collection<ChessMove> ends, ChessPosition start) {
         // if whitePerspective == true, then it will flip everything
         var out = new StringBuilder();
 
@@ -20,40 +20,40 @@ public class BoardPrinter {
         if (whitePerspective) {
             for (int i = 7; i >= 0; i--) {
                 ChessPiece[] row = board[i];
-                out.append(getRowString(row, 7 - i, whitePerspective, potentialPositions, position)).append('\n');
+                out.append(getRowString(row, 7 - i, whitePerspective, ends, start)).append('\n');
             }
         } else {
             for (int i = 0; i < 8; i++) {
                 ChessPiece[] row = board[i];
-                out.append(getRowString(row, i, whitePerspective, potentialPositions, position)).append('\n');
+                out.append(getRowString(row, i, whitePerspective, ends, start)).append('\n');
             }
         }
         out.append(getHorizontalBorder(whitePerspective));
         return out.toString();
     }
 
-    private String getRowString(chess.ChessPiece[] row, int rowIndex, boolean flip, Collection<ChessMove> potentialPositions, ChessPosition position) {
+    private String getRowString(chess.ChessPiece[] row, int rowIndex, boolean flip, Collection<ChessMove> ends, ChessPosition start) {
         var out = new StringBuilder();
         out.append(getVerticalBorder(rowIndex, flip));
 
         if (!flip) {
             for (int j = 7; j >= 0; j--) {
-                out.append(setSquare(row[j], rowIndex, j + 1, flip, potentialPositions, position)); // the +1 fixes the weird error we were getting
+                out.append(setSquare(row[j], rowIndex, j + 1, flip, ends, start)); // the +1 fixes the weird error we were getting
             }
         } else {
             for (int j = 0; j <= 7; j++) {
-                out.append(setSquare(row[j], rowIndex, j, flip, potentialPositions, position));
+                out.append(setSquare(row[j], rowIndex, j, flip, ends, start));
             }
         }
         out.append(getVerticalBorder(rowIndex, flip));
         return out.toString();
     }
 
-    private String setSquare(ChessPiece piece, Integer rowIndex, Integer colIndex, boolean flip, Collection<ChessMove> potentialPositions, ChessPosition position) {
-        if (potentialPositions == null && position == null) {
-            return getBackgroundColor(piece == null ? EMPTY : getPieceType(piece), rowIndex, colIndex);
+    private String setSquare(ChessPiece piece, Integer row, Integer col, boolean flip, Collection<ChessMove> ends, ChessPosition start) {
+        if (ends == null && start == null) {
+            return getBackgroundColor(piece == null ? EMPTY : getPieceType(piece), row, col);
         } else {
-            return getBackgroundColorHighlight(piece == null ? EMPTY : getPieceType(piece), rowIndex, colIndex, flip, potentialPositions, position);
+            return getBackgroundColorHighlight(piece == null ? EMPTY : getPieceType(piece), row, col, flip, ends, start);
         }
     }
 
@@ -70,22 +70,22 @@ public class BoardPrinter {
         return out.toString();
     }
 
-    private String getBackgroundColorHighlight(String pieceType, int rowIndex, int colIndex, boolean flip, Collection<ChessMove> potentialPositions, ChessPosition position) {
+    private String getBackgroundColorHighlight(String pieceType, int row, int col, boolean flip, Collection<ChessMove> ends, ChessPosition start) {
         var out = new StringBuilder();
         ChessPosition currentPosition;
         if (flip) {
-            currentPosition = new ChessPosition(8 - rowIndex, colIndex + 1);
+            currentPosition = new ChessPosition(8 - row, col + 1);
         } else {
-            currentPosition = new ChessPosition(rowIndex + 1, colIndex);
+            currentPosition = new ChessPosition(row + 1, col);
         }
-        ChessMove testMove = new ChessMove(position, currentPosition, null);
-        if (currentPosition.equals(position)) {
+        ChessMove testMove = new ChessMove(start, currentPosition, null);
+        if (currentPosition.equals(start)) {
             out.append(SET_BG_COLOR_YELLOW);
-        } else if (potentialPositions.contains(testMove)) {
+        } else if (ends.contains(testMove)) {
             out.append(SET_BG_COLOR_GREEN);
         } else {
             // if it is even, we start with the darker color
-            if (rowIndex % 2 == colIndex % 2) {
+            if (row % 2 == col % 2) {
                 out.append(SET_BG_COLOR_LIGHT_TAN);
             } else {
                 out.append(SET_BG_COLOR_DARK_TAN);

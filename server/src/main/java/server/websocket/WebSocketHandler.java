@@ -140,8 +140,10 @@ public class WebSocketHandler {
 
 
         String user;
+        String opponentUser;
         try {
             user = dataAccess.getUsername(rootClientAuth);
+            opponentUser = Objects.equals(gameData.whiteUsername(), user) ? gameData.blackUsername() : gameData.whiteUsername();
         } catch (DataAccessException e) {
             ErrorMessage message = new ErrorMessage(ServerMessage.ServerMessageType.ERROR, "Error: Not authenticated");
             session.getRemote().sendString(message.toString());
@@ -185,17 +187,25 @@ public class WebSocketHandler {
 
 
         // check if the new team is in check, checkmate, or stalemate
-        ChessGame.TeamColor opponentColor = playerColor == ChessGame.TeamColor.WHITE ? ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
+        ChessGame.TeamColor opponentColor;
+        if (playerColor == ChessGame.TeamColor.WHITE) {
+            opponentColor = ChessGame.TeamColor.BLACK;
+        } else {
+            opponentColor = ChessGame.TeamColor.WHITE;
+        }
         if (game.isInCheckmate(opponentColor)) {
-            NotificationMessage message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, String.format("%s is in checkmate", opponentColor));
+            String format = String.format("%s is in checkmate", opponentUser);
+            NotificationMessage message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, format);
             connections.broadcast(gameID, "", message);
         } else {
             if (game.isInCheck(opponentColor)) {
-                NotificationMessage message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, String.format("%s is in check", opponentColor));
+                String format = String.format("%s is in check", opponentUser);
+                NotificationMessage message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, format);
                 connections.broadcast(gameID, "", message);
             }
             if (game.isInStalemate(opponentColor)) {
-                NotificationMessage message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, String.format("%s is in stalemate \n game ended", opponentColor));
+                String format = String.format("%s is in stalemate \n game ended", opponentUser);
+                NotificationMessage message = new NotificationMessage(ServerMessage.ServerMessageType.NOTIFICATION, format);
                 connections.broadcast(gameID, "", message);
 
                 game.setGameInPlay(false);
